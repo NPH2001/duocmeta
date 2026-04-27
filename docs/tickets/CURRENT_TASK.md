@@ -11,30 +11,32 @@ If this file is empty or outdated, Codex should stop and request clarification.
 # Current Status
 
 **Project:** Ecommerce Monorepo  
-**Phase:** PHASE 1 - Repo Bootstrap & Infrastructure  
+**Phase:** PHASE 10 - CMS / blog / pages / SEO  
 **Priority Level:** High  
 **Owner:** Codex  
-**Last Updated:** 2026-04-19
+**Last Updated:** 2026-04-27
 
 ---
 
 # Active Ticket
 
-## FE-005 - Category Listing Page
+## FE-020 - Admin CMS UI
 
 ---
 
 # Objective
 
-Build the public category listing page.
+Build admin CMS UI.
 
-This ticket should add the first public category listing page on top of the storefront shell using SEO-friendly routing and listing structure.
+BE-033 implementation has been added and is ready for environment-backed pytest verification when backend Python dependencies are available.
 
 ---
 
 # Working Rules
 
-- Work only on `FE-005`
-- Do not move pricing or commerce business logic into the frontend
-- Keep the category page compatible with SSR and SEO-focused public pages
-- Keep the implementation compatible with the current Docker and Nginx setup
+- Work only on `FE-020`
+- Follow frontend layer separation
+- Use existing admin shell and guard
+- Add CMS admin UI for pages, posts, SEO metadata, and redirects
+- Prepare for backend admin CMS APIs
+- Keep mobile responsive baseline

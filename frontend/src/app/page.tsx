@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 
 import { HomePage } from "features/home/HomePage";
-
-
-export const metadata: Metadata = {
-  title: "Duocmeta | Homepage",
-  description: "SEO-first ecommerce homepage shell for the Duocmeta storefront.",
-};
+import { buildPublicMetadata } from "lib/seo";
 
 export const revalidate = 3600;
 
+export function generateMetadata(): Metadata {
+  return buildPublicMetadata({
+    title: "Duocmeta",
+    description: "Production-grade ecommerce storefront foundation.",
+    path: "/",
+  });
+}
 
-export default function HomePageRoute() {
+export default function Page() {
   return <HomePage />;
 }

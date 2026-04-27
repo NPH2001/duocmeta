@@ -40,6 +40,8 @@ The local stack is orchestrated with:
 docker compose up --build
 ```
 
+For local overrides, create `.env` from `.env.example`. The compose file also includes development fallbacks for required local ports and PostgreSQL credentials.
+
 Current services:
 
 - `nginx`

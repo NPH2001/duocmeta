@@ -17,8 +17,8 @@ Update this file after every completed ticket.
 
 **Project:** Ecommerce Monorepo  
 **Workflow:** Architecture-first + Codex ticket execution  
-**Current Phase:** PHASE 1 - Repo Bootstrap & Infrastructure  
-**Last Updated:** 2026-04-19
+**Current Phase:** PHASE 10 - CMS / blog / pages / SEO  
+**Last Updated:** 2026-04-27
 
 ---
 
@@ -65,6 +65,9 @@ Update:
 - [x] INF-003 - Setup environment variable strategy
 - [x] INF-002 - Setup Docker Compose local stack
 - [x] INF-004 - Setup Nginx reverse proxy
+- [x] INF-005 - Backend CI pipeline
+- [x] INF-006 - Frontend CI pipeline
+- [x] INF-007 - Logging + correlation id
 
 ## Phase 2 - Backend Foundation
 
@@ -72,11 +75,64 @@ Update:
 - [x] BE-002 - Setup SQLAlchemy + Alembic
 - [x] BE-003 - Redis integration
 - [x] BE-004 - Base models and mixins
+- [x] BE-005 - Roles and permissions seed
+- [x] BE-006 - Users schema
+- [x] BE-007 - Auth service
+- [x] BE-008 - RBAC middleware
+
+## Phase 4 - Catalog
+
+- [x] BE-009 - Brands/Categories
+- [x] BE-010 - Media files
+- [x] BE-011 - Products core
+- [x] BE-012 - Attributes
+- [x] BE-013 - Variants
+- [x] BE-014 - Inventory
+- [x] BE-015 - Admin catalog CRUD
+- [x] BE-016 - Public products listing API
+- [x] BE-017 - Product detail API
+- [x] BE-018 - Category/brand public APIs
+- [x] BE-019 - Cart schema
+- [x] BE-020 - Cart APIs
+- [x] BE-023 - Orders schema
+- [x] BE-024 - Place-order flow
+
+## Phase 3 Auth
+
+- [x] FE-001 - Auth pages foundation
+- [x] FE-002 - Frontend auth state
 
 ## Phase 5 - Storefront
 
 - [x] FE-003 - Storefront layout shell
 - [x] FE-004 - Home page public
+- [x] FE-005 - Category listing page
+- [x] FE-006 - Product detail page
+- [x] SEO-001 - Public metadata
+- [x] FE-007 - Cart page
+- [x] FE-008 - Checkout page
+- [x] FE-010 - Success page
+- [x] BE-025 - Payments schema
+- [x] BE-026 - Payment provider abstraction
+- [x] BE-027 - Mock payment provider
+- [x] BE-028 - Payment initiation API
+- [x] BE-029 - Payment webhook handler
+- [x] FE-011 - Integrate payment redirect/return flow
+- [x] BE-030 - Customer orders API
+- [x] FE-012 - Account overview page
+- [x] FE-013 - Order history page
+- [x] FE-014 - Order detail page
+- [x] FE-015 - Admin layout and guards
+- [x] FE-016 - Admin products list/create/edit UI
+- [x] FE-017 - Admin variants/inventory UI
+- [x] BE-031 - Admin order workflow APIs
+- [x] FE-018 - Admin orders list/detail UI
+- [x] BE-021 - Implement coupon schema and validation service
+- [x] BE-022 - Implement checkout preview service
+- [x] FE-009 - Integrate checkout preview/place-order flow
+- [x] FE-019 - Admin coupon UI
+- [x] BE-032 - Implement pages/posts/tags/seo/redirects schema
+- [x] BE-033 - Implement CMS admin CRUD APIs
 
 ---
 
@@ -84,25 +140,77 @@ Update:
 
 ## Current Active Ticket
 
-- [ ] FE-005 - Category listing page
+- [ ] FE-020 - Admin CMS UI
 
 ### Goal
 
-Build the public category listing page.
+Build admin CMS UI.
 
-- category listing route
-- filters/sort shell
-- SEO-friendly listing structure
+- admin pages/posts UI
+- admin SEO metadata UI
+- admin redirect UI
+- backend-backed API helpers
 
 ### Acceptance Criteria
 
-- category listing page exists
-- route is compatible with SSR/hybrid rendering
-- implementation stays compatible with the current storefront shell
+- admin CMS routes render in admin shell
+- UI is prepared to use backend CMS APIs
+- frontend does not implement SEO/redirect/content publication authority
+- responsive baseline is maintained
 
 ### Notes
 
-`BE-005` remains deferred because role/permission seeding requires the auth schema introduced later by `BE-006`. Local end-to-end homepage verification is currently blocked by missing `node`, `npm`, and `docker` binaries in this shell environment.
+BE-024 implementation was added with checkout place-order API, required `Idempotency-Key`, order item snapshots, backend-calculated totals, inventory revalidation/reservation, cart finalization, and focused API/migration/model tests. Runtime verification is blocked locally because PowerShell cannot reach Docker Desktop, WSL does not have Docker integration, and WSL Python does not have pytest/pip installed.
+
+FE-007 implementation was added with `/cart`, client cart API utilities, quantity update/remove actions, estimated subtotal display, noindex cart metadata, and header navigation. Runtime verification is blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-008 implementation was added with `/checkout`, customer/shipping/payment form sections, cart-backed checkout preview, noindex metadata, and backend-authority messaging. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-010 implementation was added with `/checkout/success`, order-code rendering from search params, noindex metadata, missing-code handling, basic status summary, and storefront/order-history navigation. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+BE-025 implementation was added with `payments` and `payment_events` ORM models, JSON provider payload storage, one-payment-per-order constraint, event payload audit storage, Alembic migration, and focused model/migration tests. Runtime verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+BE-026 implementation was added with typed payment initiation, webhook verification, normalized event contracts, a `PaymentProvider` protocol, and a provider registry. Runtime verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+BE-027 implementation was added with a deterministic no-network mock payment provider, mock webhook signature verification, event normalization, default registry wiring, and focused tests. Runtime verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+BE-028 implementation was added with `/api/v1/payments/{order_code}/initiate`, backend-owned order total usage, mock provider initiation, persisted payment records, retry-safe existing payment responses, and focused API tests. Runtime verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+BE-029 implementation was added with `/api/v1/payments/webhooks/{provider_code}`, provider-owned webhook verification, normalized event processing, persisted payment event payloads, payment/order status updates, duplicate event idempotency, and focused API tests. Runtime verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+FE-011 implementation was added with checkout submit integration for backend place-order and payment initiation APIs, idempotency key reuse during submit retries, provider action redirect handling, and success-page fallback. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+BE-030 implementation was added with authenticated `/api/v1/orders` list/detail/cancel endpoints, customer ownership scoping, pagination metadata, cancel policy enforcement, reserved inventory release on cancel, and focused API tests. Runtime verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+FE-012 implementation was added with `/account`, authenticated profile loading through existing auth utilities, guest login/register state, account navigation, order-history entry points, noindex metadata, and header navigation. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-013 implementation was added with `/account/orders`, authenticated order history loading through a reusable orders API client, guest/login-required state, paginated order rows, order detail links, noindex metadata, and responsive account layout. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-014 implementation was added with `/account/orders/[orderCode]`, authenticated order detail loading, backend order snapshot rendering, item/totals/status/timeline sections, optional cancel mutation for pending orders, noindex metadata, and responsive layout. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-015 implementation was added with `/admin`, a guarded admin layout/sidebar, backend RBAC access probe through an existing admin API, guest and forbidden states, noindex admin metadata, and a dashboard entry page. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-016 implementation was added with `/admin/products`, `/admin/products/new`, and `/admin/products/[productId]/edit`, typed admin catalog API helpers, paginated product listing, publish/archive actions, and create/edit product forms using backend admin APIs. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-017 implementation was added with `/admin/variants`, `/admin/variants/new`, `/admin/variants/[variantId]/edit`, and `/admin/variants/[variantId]/inventory`, typed variant API helpers, paginated variant listing, create/edit variant forms, and an inventory adjustment preparation shell that waits for backend inventory mutation support. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+BE-031 implementation was added with RBAC-protected `/api/v1/admin/orders` list/detail endpoints and confirm, ship, deliver, cancel, and refund workflow actions. Workflow transitions are validated in the service layer, admin mutations are logged, cancellation/refund can release unfulfilled reservations, and focused API tests were added. Runtime pytest verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+FE-018 implementation was added with `/admin/orders` and `/admin/orders/[orderCode]`, typed admin order API helpers, paginated order listing, order detail snapshot rendering, and workflow action controls that call backend admin order APIs without inferring order/payment authority locally. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+BE-021 implementation was added with `coupons` and `coupon_usages` ORM models, Alembic migration, coupon schemas, repository queries, backend coupon validation service, discount calculation, active-window/min-order/usage-limit checks, and focused model/service tests. Runtime pytest verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+BE-022 implementation was added with `POST /api/v1/checkout/preview`, checkout preview schemas, backend preview service, cart pricing and inventory revalidation, coupon-aware discount preview through the coupon service, shipping/tax/total calculation, validation warnings, and focused checkout API tests. Runtime pytest verification is blocked locally because WSL Python does not have pytest/pip installed.
+
+FE-009 implementation was added by wiring checkout to backend preview totals, adding shipping method and coupon code inputs, rendering backend validation warnings, and preserving the existing place-order/payment initiation flow. Runtime verification remains blocked locally because WSL has Node v12.22.9 and `frontend/node_modules` does not contain `tsc` or `eslint`.
+
+FE-019 implementation was added with `/admin/coupons`, `/admin/coupons/new`, and `/admin/coupons/[couponId]/edit`, typed admin coupon API helpers, paginated coupon listing, create/edit coupon definition forms, activate/deactivate controls, and backend-authority messaging for coupon validation and checkout enforcement. Runtime verification remains blocked locally because PowerShell does not expose `npm`, and WSL has Node v12.22.9 without local `tsc` or `eslint` binaries.
+
+BE-032 implementation was added with content/SEO ORM models for pages, posts, tags, post_tags, seo_metadata, and redirects; reversible Alembic migration `20260427_0014_content_seo_schema.py`; model registration; user author/audit relationships; and focused migration/model tests. Syntax compilation passed for new backend files. Runtime pytest/metadata verification is blocked locally because WSL Python does not have SQLAlchemy or pytest installed.
+
+BE-033 implementation was added with RBAC-protected admin CMS CRUD endpoints for pages, posts, tags, SEO metadata, and redirects; CMS schemas, repository, and service layers; soft-delete handling for pages/posts; slug/entity/path conflict checks; pagination envelopes; router registration; and focused API/service tests. Syntax compilation passed for new backend files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed.
+
+Local Next.js build/lint verification is currently blocked by Node v12.22.9 in WSL; Next 15 dependencies require a newer Node runtime. PowerShell still does not expose `npm` or `git` on PATH. Online Alembic migration checks may fail against the existing Docker PostgreSQL volume if its stored password differs from the current compose defaults; offline Alembic SQL generation is available.
 
 ---
 
@@ -110,9 +218,7 @@ Build the public category listing page.
 
 ## Immediate Queue
 
-1. INF-005 - Backend CI pipeline
-2. INF-006 - Frontend CI pipeline
-3. INF-007 - Logging + correlation id
+1. BE-034 - Public CMS APIs
 
 ---
 
@@ -138,8 +244,9 @@ Build the public category listing page.
 
 ## Runtime Tooling
 
-- Local end-to-end verification is blocked in the current shell because `node`, `npm`, and `docker` are not installed or not on PATH.
-- Backend Python tests can run, but frontend startup and `docker compose up` cannot be executed here yet.
+- PowerShell does not expose `node`, `npm`, or `git` on PATH.
+- WSL has git available, but Docker is not installed/integrated and its system Python lacks `pip`; backend checks should be run through Docker once Docker Desktop WSL integration is enabled, or after Python tooling is installed locally.
+- Frontend startup/build is blocked in WSL by Node v12.22.9; Next 15 requires a newer Node runtime.
 
 ---
 
@@ -187,10 +294,59 @@ Document blocker and propose options.
 - BE-004 completed
 - FE-003 completed
 - FE-004 completed
+- FE-005 completed
+- FE-006 completed
+- SEO-001 completed
+- BE-005 completed
+- BE-006 completed
+- BE-007 completed
+- BE-008 completed
+- FE-001 completed
+- FE-002 completed
+- INF-005 completed
+- INF-006 completed
+- INF-007 completed
+- BE-009 completed
+- BE-010 completed
+- BE-011 completed
+- BE-012 completed
+- BE-013 completed
+- BE-014 completed
+- BE-015 completed
+- BE-016 completed
+- BE-017 completed
+- BE-018 completed
+- BE-019 completed
+- BE-020 completed
+- BE-024 completed
+- FE-007 completed
+- FE-008 completed
+- FE-010 completed
+- BE-025 completed
+- BE-026 completed
+- BE-027 completed
+- BE-028 completed
+- BE-029 completed
+- FE-011 completed
+- BE-030 completed
+- FE-012 completed
+- FE-013 completed
+- FE-014 completed
+- FE-015 completed
+- FE-016 completed
+- FE-017 completed
+- BE-031 completed
+- FE-018 completed
+- BE-021 completed
+- BE-022 completed
+- FE-009 completed
+- FE-019 completed
+- BE-032 completed
+- BE-033 completed
 
 ## New In Progress
 
-- FE-005
+- FE-020
 
 ## Notes
 
@@ -206,3 +362,53 @@ Document blocker and propose options.
 - Added shared ORM metadata, UUID/timestamp mixins, and soft-delete support
 - Bootstrapped the Next.js storefront shell with header, navigation, search shell, footer, and base styling
 - Replaced the homepage placeholder with hero, category, and highlight sections using App Router ISR-friendly patterns
+- Added SEO-friendly category index and category detail listing routes with filter/sort/pagination shell
+- Added backend GitHub Actions CI for lint, tests, and Alembic migration upgrade checks
+- Added frontend GitHub Actions CI for lint, typecheck, and production build checks
+- Added backend request correlation middleware with `X-Request-ID` propagation and request logging
+- Added SEO-friendly product index and product detail routes with gallery and variant selector shell
+- Standardized public metadata for home/category/product pages with canonical, robots, Open Graph, and Twitter metadata
+- Added identity SQLAlchemy models and Alembic migration for users, roles, permissions, role assignments, refresh tokens, and addresses
+- Added idempotent roles and permissions seed service, script, and tests
+- Added auth service, repository, schemas, security helpers, and `/api/v1/auth` endpoints for register/login/refresh/me
+- Added reusable RBAC dependencies for current user resolution and permission checks
+- Added public login, register, and forgot-password page shells compatible with backend auth endpoints
+- Added frontend auth API utilities, login/register form submission, and header auth display state
+- Added catalog SQLAlchemy models and migration for brands/categories, including category parent tree support and catalog metadata tests
+- Added media file SQLAlchemy model and migration with storage metadata, optional uploader relationship, and migration/model tests
+- Added product core SQLAlchemy models and migration for products/product_categories, including brand/user/category relationships and partial unique active slugs
+- Added product attribute SQLAlchemy models and migration with filterable/variant-axis flags, scoped value-code uniqueness, and migration/model tests
+- Added product variant SQLAlchemy models and migration for variants, variant attribute values, product images, and the product default variant FK
+- Added inventory SQLAlchemy models and migration for variant snapshots and inventory transactions with movement reference metadata
+- Added RBAC-protected admin catalog CRUD APIs and services for brands, categories, products, variants, and product publish/archive workflow
+- Added public product listing API with active/published visibility, q/category/brand/price filters, sorting, pagination, and response envelope tests
+- Added public product detail API with active/published visibility, variants, images, attributes, breadcrumbs, SEO-ready fields, and response envelope tests
+- Added public category and brand APIs with active-only list/detail responses, category breadcrumbs/children, pagination, and visibility tests
+- Added cart and cart item SQLAlchemy models, Alembic migration, and tests for metadata, relationships, indexes, and downgrade order
+- Added cart APIs for guest/customer carts with add/update/remove item mutations, positive quantity validation, purchasable variant checks, inventory revalidation, and response envelope tests
+- Added order and order item SQLAlchemy models, Alembic migration, purchase-time snapshot fields, status/total columns, indexes, and migration/model tests
+- Added checkout place-order API with required `Idempotency-Key`, backend-calculated order totals, order item snapshots, inventory revalidation/reservation with transaction logging, cart finalization, and focused API/migration/model tests
+- Added cart page with backend cart fetching, quantity updates, item removal, estimated subtotal display, noindex metadata, and header navigation
+- Added checkout page with customer, shipping, and payment fields plus a cart-backed preview that keeps final totals and payment state backend-owned
+- Added order success page with order-code rendering, noindex metadata, missing-code handling, and basic post-order status summary
+- Added payment and payment event schema with provider payload storage, indexes, relationships, Alembic migration, and focused model/migration tests
+- Added payment provider abstraction with typed initiation/webhook/event contracts, provider-owned webhook verification, provider normalization, registry, and focused tests
+- Added deterministic mock payment provider with no network calls, mock signature verification, normalized events, default registry wiring, and focused tests
+- Added payment initiation API with backend-owned order totals, provider action response data, persisted payments, retry-safe existing payment behavior, and focused API tests
+- Added payment webhook handler with provider verification, normalized event processing, event payload audit storage, payment/order status updates, duplicate-event idempotency, and focused API tests
+- Added frontend payment redirect/return integration by submitting checkout to place-order, initiating payment, reusing idempotency keys for retries, and following provider action URLs without inferring payment success client-side
+- Added customer orders API with authenticated own-order listing, detail, cancellation policy, pagination metadata, inventory reservation release on cancel, and focused API tests
+- Added account overview page with authenticated profile loading, guest login/register state, order-history navigation, noindex metadata, and header account link
+- Added order history page with authenticated customer order fetching, pagination controls, guest state, noindex metadata, and order detail links
+- Added order detail page with authenticated order fetching, item snapshot rendering, totals/status/timeline sections, and cancel action using backend authority
+- Added guarded admin shell with sidebar navigation, backend RBAC access probe, guest/forbidden states, and admin dashboard route
+- Added admin products list/create/edit UI with typed catalog API helpers, product forms, and publish/archive actions
+- Added admin variants list/create/edit UI with typed variant helpers and inventory adjustment preparation shell
+- Added admin order workflow APIs with RBAC, transition validation, admin mutation logging, reservation release, and focused tests
+- Added admin orders list/detail UI with typed admin order helpers and backend-backed workflow action controls
+- Added coupon schema, Alembic migration, backend validation service, discount calculation, and focused coupon tests
+- Added checkout preview API/service with backend-owned totals, coupon validation, inventory revalidation, and focused tests
+- Integrated checkout page with backend preview totals, coupon warning display, and existing place-order/payment flow
+- Added admin coupon list/create/edit UI with typed admin coupon helpers and backend-owned validation messaging
+- Added pages/posts/tags/SEO/redirects ORM models, Alembic migration, and focused schema tests
+- Added admin CMS CRUD APIs with RBAC, service/repository/schema layers, and focused tests

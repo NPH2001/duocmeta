@@ -5,11 +5,15 @@ import "./globals.css";
 
 import { SiteFooter } from "components/layout/SiteFooter";
 import { SiteHeader } from "components/layout/SiteHeader";
+import { buildPublicMetadata, siteUrl } from "lib/seo";
 
 
 export const metadata: Metadata = {
-  title: "Duocmeta",
-  description: "Production-grade ecommerce storefront foundation.",
+  ...buildPublicMetadata({
+    title: "Duocmeta",
+    path: "/",
+  }),
+  metadataBase: new URL(siteUrl),
 };
 
 

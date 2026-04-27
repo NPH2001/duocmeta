@@ -103,6 +103,7 @@ Do not commit the copied files.
 - Backend containers and local Python execution should read `backend/.env`.
 - Frontend containers and local Next.js execution should read `frontend/.env.local`.
 - Keep local defaults aligned so `docker compose up` can work without editing source files.
+- `docker-compose.yml` includes development fallbacks for required local infrastructure variables so a missing root `.env` does not start PostgreSQL with an empty password.
 
 ## Expansion Notes
 

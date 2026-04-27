@@ -1,7 +1,13 @@
+import Link from "next/link";
+
+import { AuthStatus } from "features/auth/AuthStatus";
+
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
   { href: "/categories", label: "Categories" },
+  { href: "/cart", label: "Cart" },
+  { href: "/account", label: "Account" },
   { href: "/brands", label: "Brands" },
   { href: "/blog", label: "Journal" },
 ];
@@ -11,18 +17,18 @@ export function SiteHeader() {
     <header className="border-b border-stone-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5">
         <div className="flex items-center gap-4">
-          <a href="/" className="text-lg font-semibold uppercase tracking-[0.35em] text-stone-900">
+          <Link href="/" className="text-lg font-semibold uppercase tracking-[0.35em] text-stone-900">
             Duocmeta
-          </a>
+          </Link>
           <nav aria-label="Primary" className="hidden gap-5 md:flex">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.href}
                 href={item.href}
                 className="text-sm font-medium text-stone-600 transition hover:text-stone-950"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
@@ -40,6 +46,7 @@ export function SiteHeader() {
             Search
           </button>
         </form>
+        <AuthStatus />
       </div>
     </header>
   );

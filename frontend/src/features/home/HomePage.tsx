@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const categories = [
   {
     title: "Daily Essentials",
@@ -51,18 +53,18 @@ export function HomePage() {
             for search while pricing, stock, and checkout authority remain on the backend.
           </p>
           <div className="flex flex-wrap gap-4">
-            <a
+            <Link
               href="/products"
               className="rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white"
             >
               Browse Catalog
-            </a>
-            <a
+            </Link>
+            <Link
               href="/blog"
               className="rounded-full border border-stone-300 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-stone-700"
             >
               Read Guidance
-            </a>
+            </Link>
           </div>
         </div>
 

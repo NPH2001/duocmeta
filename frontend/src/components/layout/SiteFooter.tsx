@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const footerLinks = [
   "Shipping",
   "Returns",
@@ -22,9 +24,9 @@ export function SiteFooter() {
 
         <nav aria-label="Footer" className="flex flex-wrap gap-4 text-sm text-stone-300">
           {footerLinks.map((label) => (
-            <a key={label} href="/" className="transition hover:text-white">
+            <Link key={label} href="/" className="transition hover:text-white">
               {label}
-            </a>
+            </Link>
           ))}
         </nav>
       </div>
