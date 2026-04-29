@@ -22,6 +22,7 @@ from app.schemas.commerce import (
     OrderItemResponse,
     OrderResponse,
 )
+from app.services.audit import AuditContext, AuditService
 
 
 logger = get_logger(__name__)
@@ -53,6 +54,7 @@ class CommerceService:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.repository = CommerceRepository(session)
+        self.audit = AuditService(session)
 
     def get_cart(self, *, user: User | None, session_id: str | None) -> CartResponse:
         cart = self._get_or_create_cart(user=user, session_id=session_id)
@@ -235,7 +237,13 @@ class CommerceService:
     def get_admin_order(self, *, order_code: str) -> CustomerOrderDetailResponse:
         return _customer_order_detail_response(self._get_order_by_code(order_code))
 
-    def confirm_admin_order(self, *, actor: User, order_code: str) -> CustomerOrderDetailResponse:
+    def confirm_admin_order(
+        self,
+        *,
+        actor: User,
+        order_code: str,
+        audit_context: AuditContext | None = None,
+    ) -> CustomerOrderDetailResponse:
         order = self._get_order_by_code(order_code)
         if order.status != "paid" or order.payment_status != "paid":
             raise CommerceServiceError(
@@ -244,14 +252,28 @@ class CommerceService:
                 HTTPStatus.CONFLICT,
             )
 
+        old_data = _order_audit_data(order)
         order.status = "awaiting_fulfillment"
         order.fulfillment_status = "unfulfilled"
+        self._record_order_audit(
+            order=order,
+            actor=actor,
+            audit_context=audit_context,
+            action_code="order.confirm",
+            old_data=old_data,
+        )
         self.session.commit()
         logger.info("admin_order_confirmed order_id=%s actor_id=%s", order.id, actor.id)
         self.session.refresh(order)
         return _customer_order_detail_response(order)
 
-    def ship_admin_order(self, *, actor: User, order_code: str) -> CustomerOrderDetailResponse:
+    def ship_admin_order(
+        self,
+        *,
+        actor: User,
+        order_code: str,
+        audit_context: AuditContext | None = None,
+    ) -> CustomerOrderDetailResponse:
         order = self._get_order_by_code(order_code)
         if order.status != "awaiting_fulfillment" or order.fulfillment_status != "unfulfilled":
             raise CommerceServiceError(
@@ -260,14 +282,28 @@ class CommerceService:
                 HTTPStatus.CONFLICT,
             )
 
+        old_data = _order_audit_data(order)
         order.status = "shipped"
         order.fulfillment_status = "shipped"
+        self._record_order_audit(
+            order=order,
+            actor=actor,
+            audit_context=audit_context,
+            action_code="order.ship",
+            old_data=old_data,
+        )
         self.session.commit()
         logger.info("admin_order_shipped order_id=%s actor_id=%s", order.id, actor.id)
         self.session.refresh(order)
         return _customer_order_detail_response(order)
 
-    def deliver_admin_order(self, *, actor: User, order_code: str) -> CustomerOrderDetailResponse:
+    def deliver_admin_order(
+        self,
+        *,
+        actor: User,
+        order_code: str,
+        audit_context: AuditContext | None = None,
+    ) -> CustomerOrderDetailResponse:
         order = self._get_order_by_code(order_code)
         if order.status != "shipped" or order.fulfillment_status != "shipped":
             raise CommerceServiceError(
@@ -276,9 +312,17 @@ class CommerceService:
                 HTTPStatus.CONFLICT,
             )
 
+        old_data = _order_audit_data(order)
         order.status = "completed"
         order.fulfillment_status = "delivered"
         order.completed_at = datetime.now(UTC)
+        self._record_order_audit(
+            order=order,
+            actor=actor,
+            audit_context=audit_context,
+            action_code="order.deliver",
+            old_data=old_data,
+        )
         self.session.commit()
         logger.info("admin_order_delivered order_id=%s actor_id=%s", order.id, actor.id)
         self.session.refresh(order)
@@ -315,7 +359,13 @@ class CommerceService:
         self.session.refresh(order)
         return _customer_order_detail_response(order)
 
-    def cancel_admin_order(self, *, actor: User, order_code: str) -> CustomerOrderDetailResponse:
+    def cancel_admin_order(
+        self,
+        *,
+        actor: User,
+        order_code: str,
+        audit_context: AuditContext | None = None,
+    ) -> CustomerOrderDetailResponse:
         order = self._get_order_by_code(order_code)
         if order.fulfillment_status != "unfulfilled" or order.status in {"cancelled", "completed", "refunded"}:
             raise CommerceServiceError(
@@ -324,17 +374,31 @@ class CommerceService:
                 HTTPStatus.CONFLICT,
             )
 
+        old_data = _order_audit_data(order)
         order.status = "cancelled"
         order.cancelled_at = datetime.now(UTC)
         if order.payment_status == "pending":
             order.payment_status = "cancelled"
         self._release_order_reservations(order, actor=actor, note="Released by admin order cancellation.")
+        self._record_order_audit(
+            order=order,
+            actor=actor,
+            audit_context=audit_context,
+            action_code="order.cancel",
+            old_data=old_data,
+        )
         self.session.commit()
         logger.info("admin_order_cancelled order_id=%s actor_id=%s", order.id, actor.id)
         self.session.refresh(order)
         return _customer_order_detail_response(order)
 
-    def refund_admin_order(self, *, actor: User, order_code: str) -> CustomerOrderDetailResponse:
+    def refund_admin_order(
+        self,
+        *,
+        actor: User,
+        order_code: str,
+        audit_context: AuditContext | None = None,
+    ) -> CustomerOrderDetailResponse:
         order = self._get_order_by_code(order_code)
         if order.payment_status != "paid":
             raise CommerceServiceError(
@@ -343,11 +407,19 @@ class CommerceService:
                 HTTPStatus.CONFLICT,
             )
 
+        old_data = _order_audit_data(order)
         if order.fulfillment_status == "unfulfilled" and order.status != "cancelled":
             self._release_order_reservations(order, actor=actor, note="Released by admin order refund.")
 
         order.status = "refunded"
         order.payment_status = "refunded"
+        self._record_order_audit(
+            order=order,
+            actor=actor,
+            audit_context=audit_context,
+            action_code="order.refund",
+            old_data=old_data,
+        )
         self.session.commit()
         logger.info("admin_order_refunded order_id=%s actor_id=%s", order.id, actor.id)
         self.session.refresh(order)
@@ -438,6 +510,24 @@ class CommerceService:
                         created_by=actor.id,
                     )
                 )
+
+    def _record_order_audit(
+        self,
+        *,
+        order: Order,
+        actor: User,
+        audit_context: AuditContext | None,
+        action_code: str,
+        old_data: dict,
+    ) -> None:
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code=action_code,
+            entity_type="order",
+            entity_id=order.id,
+            old_data=old_data,
+            new_data=_order_audit_data(order),
+        )
 
 
 def _cart_response(cart: Cart) -> CartResponse:
@@ -538,6 +628,18 @@ def _ensure_inventory_available(variant: ProductVariant, requested_quantity: int
             "Insufficient inventory is available.",
             HTTPStatus.CONFLICT,
         )
+
+
+def _order_audit_data(order: Order) -> dict:
+    return {
+        "order_code": order.order_code,
+        "status": order.status,
+        "payment_status": order.payment_status,
+        "fulfillment_status": order.fulfillment_status,
+        "grand_total_amount": order.grand_total_amount,
+        "cancelled_at": order.cancelled_at,
+        "completed_at": order.completed_at,
+    }
 
 
 def _not_found(code: str, message: str) -> CommerceServiceError:

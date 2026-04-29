@@ -87,6 +87,36 @@ class MediaFile(UUIDPrimaryKeyMixin, Base):
     )
 
     uploader: Mapped["User | None"] = relationship(back_populates="media_files")
+    derivatives: Mapped[list["MediaDerivative"]] = relationship(
+        back_populates="media_file",
+        cascade="all, delete-orphan",
+        order_by="MediaDerivative.width",
+    )
+
+
+class MediaDerivative(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "media_derivatives"
+    __table_args__ = (
+        UniqueConstraint("media_file_id", "kind", name="uq_media_derivatives_media_file_id_kind"),
+        Index("ix_media_derivatives_media_file_id", "media_file_id"),
+        Index("ix_media_derivatives_status", "status"),
+    )
+
+    media_file_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("media_files.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    kind: Mapped[str] = mapped_column(String(50), nullable=False)
+    storage_key: Mapped[str] = mapped_column(String(500), nullable=False, unique=True)
+    mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    width: Mapped[int] = mapped_column(Integer, nullable=False)
+    height: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, server_default="pending")
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    media_file: Mapped[MediaFile] = relationship(back_populates="derivatives")
 
 
 class Product(UUIDPrimaryKeyMixin, TimestampMixin, Base):

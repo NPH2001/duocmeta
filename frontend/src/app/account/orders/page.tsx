@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
 
 import { OrderHistoryPage } from "features/account/OrderHistoryPage";
-import { siteName } from "lib/seo";
+import { noIndexRobots, siteName } from "lib/seo";
 
 export const metadata: Metadata = {
   title: `Order History | ${siteName}`,
   description: "Customer order history.",
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+  robots: noIndexRobots,
 };
 
 export default function OrdersRoute() {

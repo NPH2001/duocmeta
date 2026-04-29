@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -22,6 +22,7 @@ from app.schemas.catalog import (
     ProductVariantResponse,
     ProductVariantUpdateRequest,
 )
+from app.services.audit import AuditContext
 from app.services.catalog import CatalogService, CatalogServiceError, PaginatedResult
 
 
@@ -141,11 +142,16 @@ def list_products(page: int = 1, page_size: int = 20, session: Session = Depends
 @router.post("/products", status_code=HTTPStatus.CREATED)
 def create_product(
     request: ProductCreateRequest,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_products")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        product = CatalogService(session).create_product(request, current_user)
+        product = CatalogService(session).create_product(
+            request,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CatalogServiceError as exc:
         return _error_response(exc)
 
@@ -166,11 +172,17 @@ def get_product(product_id: UUID, session: Session = Depends(get_db_session)):
 def update_product(
     product_id: UUID,
     request: ProductUpdateRequest,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_products")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        product = CatalogService(session).update_product(product_id, request, current_user)
+        product = CatalogService(session).update_product(
+            product_id,
+            request,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CatalogServiceError as exc:
         return _error_response(exc)
 
@@ -180,11 +192,16 @@ def update_product(
 @router.post("/products/{product_id}/publish")
 def publish_product(
     product_id: UUID,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_products")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        product = CatalogService(session).publish_product(product_id, current_user)
+        product = CatalogService(session).publish_product(
+            product_id,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CatalogServiceError as exc:
         return _error_response(exc)
 
@@ -194,11 +211,16 @@ def publish_product(
 @router.post("/products/{product_id}/archive")
 def archive_product(
     product_id: UUID,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_products")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        product = CatalogService(session).archive_product(product_id, current_user)
+        product = CatalogService(session).archive_product(
+            product_id,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CatalogServiceError as exc:
         return _error_response(exc)
 
@@ -212,9 +234,18 @@ def list_variants(page: int = 1, page_size: int = 20, session: Session = Depends
 
 
 @router.post("/variants", status_code=HTTPStatus.CREATED)
-def create_variant(request: ProductVariantCreateRequest, session: Session = Depends(get_db_session)):
+def create_variant(
+    request: ProductVariantCreateRequest,
+    http_request: Request,
+    current_user: User = Depends(require_permission("manage_products")),
+    session: Session = Depends(get_db_session),
+):
     try:
-        variant = CatalogService(session).create_variant(request)
+        variant = CatalogService(session).create_variant(
+            request,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CatalogServiceError as exc:
         return _error_response(exc)
 
@@ -235,10 +266,17 @@ def get_variant(variant_id: UUID, session: Session = Depends(get_db_session)):
 def update_variant(
     variant_id: UUID,
     request: ProductVariantUpdateRequest,
+    http_request: Request,
+    current_user: User = Depends(require_permission("manage_products")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        variant = CatalogService(session).update_variant(variant_id, request)
+        variant = CatalogService(session).update_variant(
+            variant_id,
+            request,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CatalogServiceError as exc:
         return _error_response(exc)
 
@@ -284,4 +322,12 @@ def _error_response(exc: CatalogServiceError) -> JSONResponse:
                 "details": {},
             },
         },
+    )
+
+
+def _audit_context(request: Request, actor: User) -> AuditContext:
+    return AuditContext(
+        actor=actor,
+        ip_address=request.client.host if request.client is not None else None,
+        user_agent=request.headers.get("user-agent"),
     )

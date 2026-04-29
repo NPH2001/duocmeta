@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 
 import { AuthField, AuthPageShell, SubmitButton } from "features/auth/AuthPageShell";
-import { buildPublicMetadata } from "lib/seo";
+import { buildPublicMetadata, noIndexRobots } from "lib/seo";
 
 export function generateMetadata(): Metadata {
-  return buildPublicMetadata({
-    title: "Forgot Password",
-    description: "Request password recovery for a Duocmeta customer account.",
-    path: "/forgot-password",
-  });
+  return {
+    ...buildPublicMetadata({
+      title: "Forgot Password",
+      description: "Request password recovery for a Duocmeta customer account.",
+      path: "/forgot-password",
+    }),
+    robots: noIndexRobots,
+  };
 }
 
 export default function ForgotPasswordPage() {

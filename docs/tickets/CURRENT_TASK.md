@@ -11,32 +11,31 @@ If this file is empty or outdated, Codex should stop and request clarification.
 # Current Status
 
 **Project:** Ecommerce Monorepo  
-**Phase:** PHASE 10 - CMS / blog / pages / SEO  
+**Phase:** PHASE 12 - Audit, monitoring, quality  
 **Priority Level:** High  
 **Owner:** Codex  
-**Last Updated:** 2026-04-27
+**Last Updated:** 2026-04-28
 
 ---
 
 # Active Ticket
 
-## FE-020 - Admin CMS UI
+## OPS-003 - Error tracking integration
 
 ---
 
 # Objective
 
-Build admin CMS UI.
+Add basic frontend/backend error tracking integration.
 
-BE-033 implementation has been added and is ready for environment-backed pytest verification when backend Python dependencies are available.
+OPS-002 implementation has been added and the next active ticket is ready for planning.
 
 ---
 
 # Working Rules
 
-- Work only on `FE-020`
-- Follow frontend layer separation
-- Use existing admin shell and guard
-- Add CMS admin UI for pages, posts, SEO metadata, and redirects
-- Prepare for backend admin CMS APIs
-- Keep mobile responsive baseline
+- Work only on `OPS-003`
+- Follow existing backend/frontend architecture
+- Do not introduce paid-provider lock-in without explicit approval
+- Do not expose secrets or sensitive exception details
+- Reuse existing logging and request correlation patterns where possible

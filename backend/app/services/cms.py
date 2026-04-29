@@ -12,6 +12,11 @@ from app.schemas.cms import (
     PageCreateRequest,
     PageUpdateRequest,
     PostCreateRequest,
+    PublicPageDetail,
+    PublicPostDetail,
+    PublicPostListItem,
+    PublicRedirectResponse,
+    PublicSeoMetadata,
     PostResponse,
     PostUpdateRequest,
     RedirectCreateRequest,
@@ -21,6 +26,7 @@ from app.schemas.cms import (
     TagCreateRequest,
     TagUpdateRequest,
 )
+from app.services.audit import AuditContext, AuditService
 
 
 class CmsServiceError(Exception):
@@ -49,13 +55,19 @@ class CmsService:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.repository = CmsRepository(session)
+        self.audit = AuditService(session)
 
     def list_pages(self, *, page: int, page_size: int) -> PaginatedResult:
         _validate_pagination(page=page, page_size=page_size)
         rows, total = self.repository.list_pages(offset=_offset(page, page_size), limit=page_size)
         return PaginatedResult(rows=rows, total=total, page=page, page_size=page_size)
 
-    def create_page(self, request: PageCreateRequest, actor: User) -> Page:
+    def create_page(
+        self,
+        request: PageCreateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> Page:
         _validate_content_status(request.status)
         self._ensure_page_slug_available(request.slug)
         page = self.repository.add_page(
@@ -69,6 +81,13 @@ class CmsService:
                 updated_by=actor.id,
             )
         )
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="page.create",
+            entity_type="page",
+            entity_id=page.id,
+            new_data=_page_audit_data(page),
+        )
         self.session.commit()
         return page
 
@@ -78,13 +97,23 @@ class CmsService:
             raise _not_found("PAGE_NOT_FOUND", "Page was not found.")
         return page
 
-    def update_page(self, page_id: UUID, request: PageUpdateRequest, actor: User) -> Page:
+    def update_page(
+        self,
+        page_id: UUID,
+        request: PageUpdateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> Page:
         page = self.get_page(page_id)
+        old_data = _page_audit_data(page)
         update_data = request.model_dump(exclude_unset=True)
 
         if "status" in update_data:
             _validate_content_status(update_data["status"])
-            update_data["published_at"] = _published_at_for_status(update_data["status"], update_data.get("published_at"))
+            update_data["published_at"] = _published_at_for_status(
+                update_data["status"],
+                update_data.get("published_at"),
+            )
 
         if "slug" in update_data and update_data["slug"] != page.slug:
             self._ensure_page_slug_available(update_data["slug"], exclude_id=page.id)
@@ -93,13 +122,30 @@ class CmsService:
             setattr(page, field, value)
 
         page.updated_by = actor.id
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="page.update",
+            entity_type="page",
+            entity_id=page.id,
+            old_data=old_data,
+            new_data=_page_audit_data(page),
+        )
         self.session.commit()
         return page
 
-    def delete_page(self, page_id: UUID, actor: User) -> None:
+    def delete_page(self, page_id: UUID, actor: User, audit_context: AuditContext | None = None) -> None:
         page = self.get_page(page_id)
+        old_data = _page_audit_data(page)
         page.deleted_at = datetime.now(UTC)
         page.updated_by = actor.id
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="page.delete",
+            entity_type="page",
+            entity_id=page.id,
+            old_data=old_data,
+            new_data=_page_audit_data(page),
+        )
         self.session.commit()
 
     def list_posts(self, *, page: int, page_size: int) -> PaginatedResult:
@@ -107,7 +153,12 @@ class CmsService:
         rows, total = self.repository.list_posts(offset=_offset(page, page_size), limit=page_size)
         return PaginatedResult(rows=rows, total=total, page=page, page_size=page_size)
 
-    def create_post(self, request: PostCreateRequest, actor: User) -> Post:
+    def create_post(
+        self,
+        request: PostCreateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> Post:
         _validate_content_status(request.status)
         self._ensure_post_slug_available(request.slug)
         self._ensure_tags_exist(request.tag_ids)
@@ -123,6 +174,13 @@ class CmsService:
             )
         )
         self.repository.set_post_tags(post, request.tag_ids)
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="post.create",
+            entity_type="post",
+            entity_id=post.id,
+            new_data=_post_audit_data(post),
+        )
         post_id = post.id
         self.session.commit()
         return self.get_post(post_id)
@@ -133,14 +191,24 @@ class CmsService:
             raise _not_found("POST_NOT_FOUND", "Post was not found.")
         return post
 
-    def update_post(self, post_id: UUID, request: PostUpdateRequest) -> Post:
+    def update_post(
+        self,
+        post_id: UUID,
+        request: PostUpdateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> Post:
         post = self.get_post(post_id)
+        old_data = _post_audit_data(post)
         update_data = request.model_dump(exclude_unset=True)
         tag_ids = update_data.pop("tag_ids", None)
 
         if "status" in update_data:
             _validate_content_status(update_data["status"])
-            update_data["published_at"] = _published_at_for_status(update_data["status"], update_data.get("published_at"))
+            update_data["published_at"] = _published_at_for_status(
+                update_data["status"],
+                update_data.get("published_at"),
+            )
 
         if "slug" in update_data and update_data["slug"] != post.slug:
             self._ensure_post_slug_available(update_data["slug"], exclude_id=post.id)
@@ -152,13 +220,35 @@ class CmsService:
             self._ensure_tags_exist(tag_ids)
             self.repository.set_post_tags(post, tag_ids)
 
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="post.update",
+            entity_type="post",
+            entity_id=post.id,
+            old_data=old_data,
+            new_data=_post_audit_data(post),
+        )
         post_id = post.id
         self.session.commit()
         return self.get_post(post_id)
 
-    def delete_post(self, post_id: UUID) -> None:
+    def delete_post(
+        self,
+        post_id: UUID,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> None:
         post = self.get_post(post_id)
+        old_data = _post_audit_data(post)
         post.deleted_at = datetime.now(UTC)
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="post.delete",
+            entity_type="post",
+            entity_id=post.id,
+            old_data=old_data,
+            new_data=_post_audit_data(post),
+        )
         self.session.commit()
 
     def list_tags(self, *, page: int, page_size: int) -> PaginatedResult:
@@ -276,6 +366,63 @@ class CmsService:
         self.repository.delete_redirect(redirect)
         self.session.commit()
 
+    def get_public_page(self, slug: str) -> PublicPageDetail:
+        page = self.repository.get_public_page_by_slug(slug=slug, now=datetime.now(UTC))
+        if page is None:
+            raise _not_found("PAGE_NOT_FOUND", "Page was not found.")
+
+        assert page.published_at is not None
+        return PublicPageDetail(
+            id=page.id,
+            title=page.title,
+            slug=page.slug,
+            content=page.content,
+            published_at=page.published_at,
+            seo=_public_seo(self.repository.get_seo_metadata_by_entity(entity_type="page", entity_id=page.id)),
+        )
+
+    def list_public_posts(self, *, page: int, page_size: int) -> PaginatedResult:
+        _validate_pagination(page=page, page_size=page_size)
+        rows, total = self.repository.list_public_posts(
+            offset=_offset(page, page_size),
+            limit=page_size,
+            now=datetime.now(UTC),
+        )
+        return PaginatedResult(
+            rows=[self._public_post_list_item(post) for post in rows],
+            total=total,
+            page=page,
+            page_size=page_size,
+        )
+
+    def get_public_post(self, slug: str) -> PublicPostDetail:
+        post = self.repository.get_public_post_by_slug(slug=slug, now=datetime.now(UTC))
+        if post is None:
+            raise _not_found("POST_NOT_FOUND", "Post was not found.")
+
+        assert post.published_at is not None
+        return PublicPostDetail(
+            id=post.id,
+            title=post.title,
+            slug=post.slug,
+            summary=post.summary,
+            content=post.content,
+            published_at=post.published_at,
+            tag_ids=[post_tag.tag_id for post_tag in post.tags],
+            seo=_public_seo(self.repository.get_seo_metadata_by_entity(entity_type="post", entity_id=post.id)),
+        )
+
+    def get_public_redirect(self, from_path: str) -> PublicRedirectResponse:
+        redirect = self.repository.get_active_redirect_by_from_path(_normalize_redirect_lookup_path(from_path))
+        if redirect is None:
+            raise _not_found("REDIRECT_NOT_FOUND", "Redirect was not found.")
+
+        return PublicRedirectResponse(
+            from_path=redirect.from_path,
+            to_path=redirect.to_path,
+            status_code=redirect.status_code,
+        )
+
     def _ensure_page_slug_available(self, slug: str, exclude_id: UUID | None = None) -> None:
         existing = self.repository.get_page_by_slug(slug)
         if existing is not None and existing.id != exclude_id:
@@ -312,10 +459,38 @@ class CmsService:
         if existing is not None and existing.id != exclude_id:
             raise _conflict("REDIRECT_FROM_PATH_EXISTS", "Redirect source path already exists.")
 
+    def _public_post_list_item(self, post: Post) -> PublicPostListItem:
+        assert post.published_at is not None
+        return PublicPostListItem(
+            id=post.id,
+            title=post.title,
+            slug=post.slug,
+            summary=post.summary,
+            published_at=post.published_at,
+            tag_ids=[post_tag.tag_id for post_tag in post.tags],
+            seo=_public_seo(self.repository.get_seo_metadata_by_entity(entity_type="post", entity_id=post.id)),
+        )
+
 
 def post_response(post: Post) -> PostResponse:
     return PostResponse.model_validate(post).model_copy(
         update={"tag_ids": [post_tag.tag_id for post_tag in post.tags]}
+    )
+
+
+def _public_seo(seo_metadata: SeoMetadata | None) -> PublicSeoMetadata | None:
+    if seo_metadata is None:
+        return None
+
+    return PublicSeoMetadata(
+        meta_title=seo_metadata.meta_title,
+        meta_description=seo_metadata.meta_description,
+        canonical_url=seo_metadata.canonical_url,
+        robots=seo_metadata.robots,
+        og_title=seo_metadata.og_title,
+        og_description=seo_metadata.og_description,
+        og_image_media_id=seo_metadata.og_image_media_id,
+        schema_json=seo_metadata.schema_json,
     )
 
 
@@ -341,6 +516,13 @@ def _validate_redirect_status_code(status_code: int) -> None:
         raise CmsServiceError("INVALID_REDIRECT_STATUS", "Redirect status code is invalid.", HTTPStatus.BAD_REQUEST)
 
 
+def _normalize_redirect_lookup_path(from_path: str) -> str:
+    normalized = from_path.strip()
+    if not normalized.startswith("/"):
+        normalized = f"/{normalized}"
+    return normalized
+
+
 def _published_at_for_status(status: str, published_at: datetime | None) -> datetime | None:
     if status == "published":
         return published_at or datetime.now(UTC)
@@ -353,3 +535,24 @@ def _not_found(code: str, message: str) -> CmsServiceError:
 
 def _conflict(code: str, message: str) -> CmsServiceError:
     return CmsServiceError(code, message, HTTPStatus.CONFLICT)
+
+
+def _page_audit_data(page: Page) -> dict:
+    return {
+        "title": page.title,
+        "slug": page.slug,
+        "status": page.status,
+        "published_at": page.published_at,
+        "deleted_at": page.deleted_at,
+    }
+
+
+def _post_audit_data(post: Post) -> dict:
+    return {
+        "title": post.title,
+        "slug": post.slug,
+        "summary": post.summary,
+        "status": post.status,
+        "published_at": post.published_at,
+        "deleted_at": post.deleted_at,
+    }

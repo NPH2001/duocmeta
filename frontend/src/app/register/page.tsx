@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 
 import { AuthPageShell } from "features/auth/AuthPageShell";
 import { RegisterForm } from "features/auth/AuthForms";
-import { buildPublicMetadata } from "lib/seo";
+import { buildPublicMetadata, noIndexRobots } from "lib/seo";
 
 export function generateMetadata(): Metadata {
-  return buildPublicMetadata({
-    title: "Register",
-    description: "Create a Duocmeta customer account.",
-    path: "/register",
-  });
+  return {
+    ...buildPublicMetadata({
+      title: "Register",
+      description: "Create a Duocmeta customer account.",
+      path: "/register",
+    }),
+    robots: noIndexRobots,
+  };
 }
 
 export default function RegisterPage() {

@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -24,6 +24,7 @@ from app.schemas.cms import (
     TagResponse,
     TagUpdateRequest,
 )
+from app.services.audit import AuditContext
 from app.services.cms import CmsService, CmsServiceError, PaginatedResult, post_response
 
 
@@ -43,11 +44,12 @@ def list_pages(page: int = 1, page_size: int = 20, session: Session = Depends(ge
 @router.post("/pages", status_code=HTTPStatus.CREATED)
 def create_page(
     request: PageCreateRequest,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_pages")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        page = CmsService(session).create_page(request, current_user)
+        page = CmsService(session).create_page(request, current_user, _audit_context(http_request, current_user))
     except CmsServiceError as exc:
         return _error_response(exc)
 
@@ -68,11 +70,17 @@ def get_page(page_id: UUID, session: Session = Depends(get_db_session)):
 def update_page(
     page_id: UUID,
     request: PageUpdateRequest,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_pages")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        page = CmsService(session).update_page(page_id, request, current_user)
+        page = CmsService(session).update_page(
+            page_id,
+            request,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CmsServiceError as exc:
         return _error_response(exc)
 
@@ -82,11 +90,12 @@ def update_page(
 @router.delete("/pages/{page_id}", status_code=HTTPStatus.NO_CONTENT)
 def delete_page(
     page_id: UUID,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_pages")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        CmsService(session).delete_page(page_id, current_user)
+        CmsService(session).delete_page(page_id, current_user, _audit_context(http_request, current_user))
     except CmsServiceError as exc:
         return _error_response(exc)
 
@@ -106,11 +115,12 @@ def list_posts(page: int = 1, page_size: int = 20, session: Session = Depends(ge
 @router.post("/posts", status_code=HTTPStatus.CREATED)
 def create_post(
     request: PostCreateRequest,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_posts")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        post = CmsService(session).create_post(request, current_user)
+        post = CmsService(session).create_post(request, current_user, _audit_context(http_request, current_user))
     except CmsServiceError as exc:
         return _error_response(exc)
 
@@ -131,11 +141,17 @@ def get_post(post_id: UUID, session: Session = Depends(get_db_session)):
 def update_post(
     post_id: UUID,
     request: PostUpdateRequest,
-    _: User = Depends(require_permission("manage_posts")),
+    http_request: Request,
+    current_user: User = Depends(require_permission("manage_posts")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        post = CmsService(session).update_post(post_id, request)
+        post = CmsService(session).update_post(
+            post_id,
+            request,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
     except CmsServiceError as exc:
         return _error_response(exc)
 
@@ -145,11 +161,12 @@ def update_post(
 @router.delete("/posts/{post_id}", status_code=HTTPStatus.NO_CONTENT)
 def delete_post(
     post_id: UUID,
-    _: User = Depends(require_permission("manage_posts")),
+    http_request: Request,
+    current_user: User = Depends(require_permission("manage_posts")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        CmsService(session).delete_post(post_id)
+        CmsService(session).delete_post(post_id, current_user, _audit_context(http_request, current_user))
     except CmsServiceError as exc:
         return _error_response(exc)
 
@@ -387,4 +404,12 @@ def _error_response(exc: CmsServiceError) -> JSONResponse:
                 "details": {},
             },
         },
+    )
+
+
+def _audit_context(request: Request, actor: User) -> AuditContext:
+    return AuditContext(
+        actor=actor,
+        ip_address=request.client.host if request.client is not None else None,
+        user_agent=request.headers.get("user-agent"),
     )

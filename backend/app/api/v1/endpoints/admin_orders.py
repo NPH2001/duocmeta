@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -6,6 +6,7 @@ from app.api.dependencies.auth import require_permission
 from app.core.db import get_db_session
 from app.models.identity import User
 from app.schemas.commerce import CustomerOrderListItemResponse
+from app.services.audit import AuditContext
 from app.services.commerce import CommerceService, CommerceServiceError, PaginatedResult
 
 
@@ -39,11 +40,16 @@ def get_order(order_code: str, session: Session = Depends(get_db_session)):
 @router.post("/{order_code}/confirm")
 def confirm_order(
     order_code: str,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_orders")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        order = CommerceService(session).confirm_admin_order(actor=current_user, order_code=order_code)
+        order = CommerceService(session).confirm_admin_order(
+            actor=current_user,
+            order_code=order_code,
+            audit_context=_audit_context(http_request, current_user),
+        )
     except CommerceServiceError as exc:
         return _error_response(exc)
 
@@ -53,11 +59,16 @@ def confirm_order(
 @router.post("/{order_code}/ship")
 def ship_order(
     order_code: str,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_orders")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        order = CommerceService(session).ship_admin_order(actor=current_user, order_code=order_code)
+        order = CommerceService(session).ship_admin_order(
+            actor=current_user,
+            order_code=order_code,
+            audit_context=_audit_context(http_request, current_user),
+        )
     except CommerceServiceError as exc:
         return _error_response(exc)
 
@@ -67,11 +78,16 @@ def ship_order(
 @router.post("/{order_code}/deliver")
 def deliver_order(
     order_code: str,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_orders")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        order = CommerceService(session).deliver_admin_order(actor=current_user, order_code=order_code)
+        order = CommerceService(session).deliver_admin_order(
+            actor=current_user,
+            order_code=order_code,
+            audit_context=_audit_context(http_request, current_user),
+        )
     except CommerceServiceError as exc:
         return _error_response(exc)
 
@@ -81,11 +97,16 @@ def deliver_order(
 @router.post("/{order_code}/cancel")
 def cancel_order(
     order_code: str,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_orders")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        order = CommerceService(session).cancel_admin_order(actor=current_user, order_code=order_code)
+        order = CommerceService(session).cancel_admin_order(
+            actor=current_user,
+            order_code=order_code,
+            audit_context=_audit_context(http_request, current_user),
+        )
     except CommerceServiceError as exc:
         return _error_response(exc)
 
@@ -95,11 +116,16 @@ def cancel_order(
 @router.post("/{order_code}/refund")
 def refund_order(
     order_code: str,
+    http_request: Request,
     current_user: User = Depends(require_permission("manage_orders")),
     session: Session = Depends(get_db_session),
 ):
     try:
-        order = CommerceService(session).refund_admin_order(actor=current_user, order_code=order_code)
+        order = CommerceService(session).refund_admin_order(
+            actor=current_user,
+            order_code=order_code,
+            audit_context=_audit_context(http_request, current_user),
+        )
     except CommerceServiceError as exc:
         return _error_response(exc)
 
@@ -137,4 +163,12 @@ def _error_response(exc: CommerceServiceError) -> JSONResponse:
                 "details": {},
             },
         },
+    )
+
+
+def _audit_context(request: Request, actor: User) -> AuditContext:
+    return AuditContext(
+        actor=actor,
+        ip_address=request.client.host if request.client is not None else None,
+        user_agent=request.headers.get("user-agent"),
     )

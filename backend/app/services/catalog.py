@@ -32,6 +32,7 @@ from app.schemas.catalog import (
     ProductVariantCreateRequest,
     ProductVariantUpdateRequest,
 )
+from app.services.audit import AuditContext, AuditService
 
 
 class CatalogServiceError(Exception):
@@ -60,6 +61,7 @@ class CatalogService:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.repository = CatalogRepository(session)
+        self.audit = AuditService(session)
 
     def list_brands(self, *, page: int, page_size: int) -> PaginatedResult:
         rows, total = self.repository.list_brands(offset=_offset(page, page_size), limit=page_size)
@@ -268,7 +270,12 @@ class CatalogService:
             ),
         )
 
-    def create_product(self, request: ProductCreateRequest, actor: User) -> Product:
+    def create_product(
+        self,
+        request: ProductCreateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> Product:
         self._ensure_product_slug_available(request.slug)
         self._ensure_product_sku_available(request.sku)
         self._ensure_brand_exists(request.brand_id)
@@ -291,6 +298,13 @@ class CatalogService:
             )
         )
         self.repository.set_product_categories(product, request.category_ids)
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="product.create",
+            entity_type="product",
+            entity_id=product.id,
+            new_data=_product_audit_data(product),
+        )
         self.session.commit()
         return product
 
@@ -300,8 +314,15 @@ class CatalogService:
             raise _not_found("PRODUCT_NOT_FOUND", "Product was not found.")
         return product
 
-    def update_product(self, product_id: UUID, request: ProductUpdateRequest, actor: User) -> Product:
+    def update_product(
+        self,
+        product_id: UUID,
+        request: ProductUpdateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> Product:
         product = self.get_product(product_id)
+        old_data = _product_audit_data(product)
         update_data = request.model_dump(exclude_unset=True)
         category_ids = update_data.pop("category_ids", None)
 
@@ -322,21 +343,47 @@ class CatalogService:
             self.repository.set_product_categories(product, category_ids)
 
         product.updated_by = actor.id
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="product.update",
+            entity_type="product",
+            entity_id=product.id,
+            old_data=old_data,
+            new_data=_product_audit_data(product),
+        )
         self.session.commit()
         return product
 
-    def publish_product(self, product_id: UUID, actor: User) -> Product:
+    def publish_product(self, product_id: UUID, actor: User, audit_context: AuditContext | None = None) -> Product:
         product = self.get_product(product_id)
+        old_data = _product_audit_data(product)
         product.status = "active"
         product.published_at = product.published_at or datetime.now(UTC)
         product.updated_by = actor.id
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="product.publish",
+            entity_type="product",
+            entity_id=product.id,
+            old_data=old_data,
+            new_data=_product_audit_data(product),
+        )
         self.session.commit()
         return product
 
-    def archive_product(self, product_id: UUID, actor: User) -> Product:
+    def archive_product(self, product_id: UUID, actor: User, audit_context: AuditContext | None = None) -> Product:
         product = self.get_product(product_id)
+        old_data = _product_audit_data(product)
         product.status = "archived"
         product.updated_by = actor.id
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="product.archive",
+            entity_type="product",
+            entity_id=product.id,
+            old_data=old_data,
+            new_data=_product_audit_data(product),
+        )
         self.session.commit()
         return product
 
@@ -344,10 +391,22 @@ class CatalogService:
         rows, total = self.repository.list_variants(offset=_offset(page, page_size), limit=page_size)
         return PaginatedResult(rows=rows, total=total, page=page, page_size=page_size)
 
-    def create_variant(self, request: ProductVariantCreateRequest) -> ProductVariant:
+    def create_variant(
+        self,
+        request: ProductVariantCreateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> ProductVariant:
         self.get_product(request.product_id)
         self._ensure_variant_sku_available(request.sku)
         variant = self.repository.add_variant(ProductVariant(**request.model_dump()))
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="variant.create",
+            entity_type="product_variant",
+            entity_id=variant.id,
+            new_data=_variant_audit_data(variant),
+        )
         self.session.commit()
         return variant
 
@@ -357,8 +416,15 @@ class CatalogService:
             raise _not_found("VARIANT_NOT_FOUND", "Product variant was not found.")
         return variant
 
-    def update_variant(self, variant_id: UUID, request: ProductVariantUpdateRequest) -> ProductVariant:
+    def update_variant(
+        self,
+        variant_id: UUID,
+        request: ProductVariantUpdateRequest,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> ProductVariant:
         variant = self.get_variant(variant_id)
+        old_data = _variant_audit_data(variant)
         update_data = request.model_dump(exclude_unset=True)
 
         if "product_id" in update_data:
@@ -370,6 +436,14 @@ class CatalogService:
         for field, value in update_data.items():
             setattr(variant, field, value)
 
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="variant.update",
+            entity_type="product_variant",
+            entity_id=variant.id,
+            old_data=old_data,
+            new_data=_variant_audit_data(variant),
+        )
         self.session.commit()
         return variant
 
@@ -589,3 +663,29 @@ def _not_found(code: str, message: str) -> CatalogServiceError:
 
 def _conflict(code: str, message: str) -> CatalogServiceError:
     return CatalogServiceError(code, message, HTTPStatus.CONFLICT)
+
+
+def _product_audit_data(product: Product) -> dict:
+    return {
+        "brand_id": product.brand_id,
+        "name": product.name,
+        "slug": product.slug,
+        "sku": product.sku,
+        "status": product.status,
+        "currency_code": product.currency_code,
+        "min_price": product.min_price,
+        "max_price": product.max_price,
+        "published_at": product.published_at,
+    }
+
+
+def _variant_audit_data(variant: ProductVariant) -> dict:
+    return {
+        "product_id": variant.product_id,
+        "sku": variant.sku,
+        "price": variant.price,
+        "compare_at_price": variant.compare_at_price,
+        "cost_price": variant.cost_price,
+        "status": variant.status,
+        "image_media_id": variant.image_media_id,
+    }

@@ -226,3 +226,50 @@ class RedirectResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class PublicRedirectResponse(BaseModel):
+    from_path: str
+    to_path: str
+    status_code: int
+
+
+class PublicSeoMetadata(BaseModel):
+    meta_title: str | None
+    meta_description: str | None
+    canonical_url: str | None
+    robots: str | None
+    og_title: str | None
+    og_description: str | None
+    og_image_media_id: UUID | None
+    schema_json: dict[str, object] | None
+
+
+class PublicPageDetail(BaseModel):
+    id: UUID
+    title: str
+    slug: str
+    content: dict[str, object]
+    published_at: datetime
+    seo: PublicSeoMetadata | None
+
+
+class PublicPostListItem(BaseModel):
+    id: UUID
+    title: str
+    slug: str
+    summary: str | None
+    published_at: datetime
+    tag_ids: list[UUID] = Field(default_factory=list)
+    seo: PublicSeoMetadata | None
+
+
+class PublicPostDetail(BaseModel):
+    id: UUID
+    title: str
+    slug: str
+    summary: str | None
+    content: dict[str, object]
+    published_at: datetime
+    tag_ids: list[UUID] = Field(default_factory=list)
+    seo: PublicSeoMetadata | None

@@ -31,12 +31,29 @@ class Settings(BaseSettings):
         "http://localhost:8080",
         "http://127.0.0.1:8080",
     ]
+    media_bucket_name: str = "duocmeta-media"
+    media_upload_prefix: str = "uploads"
+    media_upload_base_url: str = "http://localhost:8080/media-upload"
+    media_public_base_url: str = "http://localhost:8080/media"
+    media_presign_ttl_seconds: int = 900
+    media_max_upload_bytes: int = 10 * 1024 * 1024
+    media_optimization_enabled: bool = True
+    media_optimization_format: str = "webp"
+    media_optimization_widths: list[int] = [320, 1200]
 
     @field_validator("backend_cors_origins", mode="before")
     @classmethod
     def parse_backend_cors_origins(cls, value: str | list[str]) -> list[str]:
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
+
+        return value
+
+    @field_validator("media_optimization_widths", mode="before")
+    @classmethod
+    def parse_media_optimization_widths(cls, value: str | list[int]) -> list[int]:
+        if isinstance(value, str):
+            return [int(width.strip()) for width in value.split(",") if width.strip()]
 
         return value
 

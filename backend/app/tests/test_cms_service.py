@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from datetime import UTC, datetime
 
 import pytest
 from sqlalchemy import create_engine
@@ -6,6 +7,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.models.base import Base
+from app.models.content import Page, Post, SeoMetadata
 from app.models.identity import User
 from app.schemas.cms import PageCreateRequest, RedirectCreateRequest, TagCreateRequest
 from app.services.cms import CmsService, CmsServiceError
@@ -69,6 +71,37 @@ def test_create_redirect_rejects_invalid_status_code(session: Session) -> None:
         )
 
     assert exc_info.value.code == "INVALID_REDIRECT_STATUS"
+
+
+def test_public_page_hides_unpublished_page(session: Session) -> None:
+    session.add(Page(title="Draft", slug="draft", content={"blocks": []}, status="draft"))
+    session.commit()
+
+    with pytest.raises(CmsServiceError) as exc_info:
+        CmsService(session).get_public_page("draft")
+
+    assert exc_info.value.code == "PAGE_NOT_FOUND"
+
+
+def test_public_posts_include_seo_metadata(session: Session) -> None:
+    post = Post(
+        title="Public post",
+        slug="public-post",
+        summary="Summary",
+        content={"blocks": []},
+        status="published",
+        published_at=datetime.now(UTC),
+    )
+    session.add(post)
+    session.flush()
+    session.add(SeoMetadata(entity_type="post", entity_id=post.id, meta_title="Public SEO"))
+    session.commit()
+
+    result = CmsService(session).list_public_posts(page=1, page_size=20)
+
+    assert result.total == 1
+    assert result.rows[0].seo is not None
+    assert result.rows[0].seo.meta_title == "Public SEO"
 
 
 def _seed_user(session: Session) -> User:

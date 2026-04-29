@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 
+import { AdminMediaUploader } from "features/admin/AdminMediaUploader";
 import {
   createAdminVariant,
   fetchAdminProduct,
@@ -217,6 +218,10 @@ export function AdminVariantFormPage({
           </section>
 
           <aside className="flex flex-col gap-5">
+            <AdminMediaUploader
+              label="Variant image"
+              onUploaded={(media) => updateField("imageMediaId", media.id)}
+            />
             <InventoryPreparationPanel />
             {submitError ? <StatePanel message={submitError} tone="error" /> : null}
             <button

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { OrderSuccessPage } from "features/checkout/OrderSuccessPage";
-import { siteName } from "lib/seo";
+import { noIndexRobots, siteName } from "lib/seo";
 
 type SuccessRouteProps = {
   searchParams: Promise<{
@@ -12,14 +12,7 @@ type SuccessRouteProps = {
 export const metadata: Metadata = {
   title: `Order Success | ${siteName}`,
   description: "Order confirmation page.",
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
-  },
+  robots: noIndexRobots,
 };
 
 export default async function SuccessRoute({ searchParams }: SuccessRouteProps) {

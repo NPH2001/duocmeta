@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -26,6 +27,17 @@ class CmsRepository:
     def get_page_by_slug(self, slug: str) -> Page | None:
         return self.session.scalar(select(Page).where(Page.slug == slug, Page.deleted_at.is_(None)))
 
+    def get_public_page_by_slug(self, *, slug: str, now: datetime) -> Page | None:
+        return self.session.scalar(
+            select(Page).where(
+                Page.slug == slug,
+                Page.status == "published",
+                Page.deleted_at.is_(None),
+                Page.published_at.is_not(None),
+                Page.published_at <= now,
+            )
+        )
+
     def add_page(self, page: Page) -> Page:
         self.session.add(page)
         self.session.flush()
@@ -47,6 +59,35 @@ class CmsRepository:
 
     def get_post_by_slug(self, slug: str) -> Post | None:
         return self.session.scalar(select(Post).where(Post.slug == slug, Post.deleted_at.is_(None)))
+
+    def list_public_posts(self, *, offset: int, limit: int, now: datetime) -> tuple[list[Post], int]:
+        return self._list_with_total(
+            select(Post)
+            .where(
+                Post.status == "published",
+                Post.deleted_at.is_(None),
+                Post.published_at.is_not(None),
+                Post.published_at <= now,
+            )
+            .options(selectinload(Post.tags))
+            .order_by(Post.published_at.desc(), Post.created_at.desc()),
+            offset=offset,
+            limit=limit,
+        )
+
+    def get_public_post_by_slug(self, *, slug: str, now: datetime) -> Post | None:
+        statement = (
+            select(Post)
+            .where(
+                Post.slug == slug,
+                Post.status == "published",
+                Post.deleted_at.is_(None),
+                Post.published_at.is_not(None),
+                Post.published_at <= now,
+            )
+            .options(selectinload(Post.tags))
+        )
+        return self.session.scalar(statement)
 
     def add_post(self, post: Post) -> Post:
         self.session.add(post)
@@ -113,6 +154,11 @@ class CmsRepository:
 
     def get_redirect_by_from_path(self, from_path: str) -> Redirect | None:
         return self.session.scalar(select(Redirect).where(Redirect.from_path == from_path))
+
+    def get_active_redirect_by_from_path(self, from_path: str) -> Redirect | None:
+        return self.session.scalar(
+            select(Redirect).where(Redirect.from_path == from_path, Redirect.is_active.is_(True))
+        )
 
     def add_redirect(self, redirect: Redirect) -> Redirect:
         self.session.add(redirect)

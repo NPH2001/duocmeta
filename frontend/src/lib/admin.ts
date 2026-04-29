@@ -181,6 +181,137 @@ export type AdminCouponInput = {
   is_active: boolean;
 };
 
+export type AdminPage = {
+  id: string;
+  title: string;
+  slug: string;
+  content: Record<string, unknown>;
+  status: string;
+  published_at: string | null;
+  created_by: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export type AdminPageInput = {
+  title: string;
+  slug: string;
+  content: Record<string, unknown>;
+  status: string;
+  published_at: string | null;
+};
+
+export type AdminPost = {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content: Record<string, unknown>;
+  status: string;
+  published_at: string | null;
+  author_id: string | null;
+  tag_ids: string[];
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export type AdminPostInput = {
+  title: string;
+  slug: string;
+  summary: string | null;
+  content: Record<string, unknown>;
+  status: string;
+  published_at: string | null;
+  tag_ids: string[];
+};
+
+export type AdminSeoMetadata = {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  canonical_url: string | null;
+  robots: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image_media_id: string | null;
+  schema_json: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AdminSeoMetadataInput = {
+  entity_type: string;
+  entity_id: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  canonical_url: string | null;
+  robots: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image_media_id: string | null;
+  schema_json: Record<string, unknown> | null;
+};
+
+export type AdminRedirect = {
+  id: string;
+  from_path: string;
+  to_path: string;
+  status_code: number;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type AdminRedirectInput = {
+  from_path: string;
+  to_path: string;
+  status_code: number;
+  is_active: boolean;
+};
+
+export type AdminMedia = {
+  id: string;
+  storage_key: string;
+  filename: string;
+  mime_type: string;
+  size_bytes: number;
+  width: number | null;
+  height: number | null;
+  alt_text: string | null;
+  uploaded_by: string | null;
+  created_at: string;
+};
+
+export type AdminMediaPresignInput = {
+  filename: string;
+  mime_type: string;
+  size_bytes: number;
+};
+
+export type AdminMediaPresign = {
+  storage_key: string;
+  bucket: string;
+  upload_url: string;
+  public_url: string;
+  method: "PUT";
+  headers: Record<string, string>;
+  expires_at: string;
+};
+
+export type AdminMediaCompleteInput = {
+  storage_key: string;
+  filename: string;
+  mime_type: string;
+  size_bytes: number;
+  width: number | null;
+  height: number | null;
+  alt_text: string | null;
+};
+
 export type PaginatedAdminProducts = {
   data: AdminProduct[];
   meta: AdminPaginationMeta;
@@ -198,6 +329,26 @@ export type PaginatedAdminOrders = {
 
 export type PaginatedAdminCoupons = {
   data: AdminCoupon[];
+  meta: AdminPaginationMeta;
+};
+
+export type PaginatedAdminPages = {
+  data: AdminPage[];
+  meta: AdminPaginationMeta;
+};
+
+export type PaginatedAdminPosts = {
+  data: AdminPost[];
+  meta: AdminPaginationMeta;
+};
+
+export type PaginatedAdminSeoMetadata = {
+  data: AdminSeoMetadata[];
+  meta: AdminPaginationMeta;
+};
+
+export type PaginatedAdminRedirects = {
+  data: AdminRedirect[];
   meta: AdminPaginationMeta;
 };
 
@@ -431,6 +582,233 @@ export async function updateAdminCoupon(couponId: string, input: AdminCouponInpu
 
   if (response.data === null) {
     throw new Error("Coupon could not be updated.");
+  }
+
+  return response.data;
+}
+
+export async function fetchAdminPages(input: {
+  page: number;
+  pageSize: number;
+}): Promise<PaginatedAdminPages> {
+  const response = await adminRequestWithStoredToken<AdminPage[]>(
+    `/admin/pages?page=${input.page}&page_size=${input.pageSize}`
+  );
+
+  return { data: response.data ?? [], meta: response.meta as AdminPaginationMeta };
+}
+
+export async function fetchAdminPage(pageId: string): Promise<AdminPage> {
+  const response = await adminRequestWithStoredToken<AdminPage>(`/admin/pages/${encodeURIComponent(pageId)}`);
+
+  if (response.data === null) {
+    throw new Error("Page was not found.");
+  }
+
+  return response.data;
+}
+
+export async function createAdminPage(input: AdminPageInput): Promise<AdminPage> {
+  const response = await adminRequestWithStoredToken<AdminPage>("/admin/pages", {
+    body: JSON.stringify(input),
+    method: "POST",
+  });
+
+  if (response.data === null) {
+    throw new Error("Page could not be created.");
+  }
+
+  return response.data;
+}
+
+export async function updateAdminPage(pageId: string, input: AdminPageInput): Promise<AdminPage> {
+  const response = await adminRequestWithStoredToken<AdminPage>(`/admin/pages/${encodeURIComponent(pageId)}`, {
+    body: JSON.stringify(input),
+    method: "PUT",
+  });
+
+  if (response.data === null) {
+    throw new Error("Page could not be updated.");
+  }
+
+  return response.data;
+}
+
+export async function fetchAdminPosts(input: {
+  page: number;
+  pageSize: number;
+}): Promise<PaginatedAdminPosts> {
+  const response = await adminRequestWithStoredToken<AdminPost[]>(
+    `/admin/posts?page=${input.page}&page_size=${input.pageSize}`
+  );
+
+  return { data: response.data ?? [], meta: response.meta as AdminPaginationMeta };
+}
+
+export async function fetchAdminPost(postId: string): Promise<AdminPost> {
+  const response = await adminRequestWithStoredToken<AdminPost>(`/admin/posts/${encodeURIComponent(postId)}`);
+
+  if (response.data === null) {
+    throw new Error("Post was not found.");
+  }
+
+  return response.data;
+}
+
+export async function createAdminPost(input: AdminPostInput): Promise<AdminPost> {
+  const response = await adminRequestWithStoredToken<AdminPost>("/admin/posts", {
+    body: JSON.stringify(input),
+    method: "POST",
+  });
+
+  if (response.data === null) {
+    throw new Error("Post could not be created.");
+  }
+
+  return response.data;
+}
+
+export async function updateAdminPost(postId: string, input: AdminPostInput): Promise<AdminPost> {
+  const response = await adminRequestWithStoredToken<AdminPost>(`/admin/posts/${encodeURIComponent(postId)}`, {
+    body: JSON.stringify(input),
+    method: "PUT",
+  });
+
+  if (response.data === null) {
+    throw new Error("Post could not be updated.");
+  }
+
+  return response.data;
+}
+
+export async function fetchAdminSeoMetadataList(input: {
+  page: number;
+  pageSize: number;
+}): Promise<PaginatedAdminSeoMetadata> {
+  const response = await adminRequestWithStoredToken<AdminSeoMetadata[]>(
+    `/admin/seo?page=${input.page}&page_size=${input.pageSize}`
+  );
+
+  return { data: response.data ?? [], meta: response.meta as AdminPaginationMeta };
+}
+
+export async function fetchAdminSeoMetadata(seoMetadataId: string): Promise<AdminSeoMetadata> {
+  const response = await adminRequestWithStoredToken<AdminSeoMetadata>(
+    `/admin/seo/${encodeURIComponent(seoMetadataId)}`
+  );
+
+  if (response.data === null) {
+    throw new Error("SEO metadata was not found.");
+  }
+
+  return response.data;
+}
+
+export async function createAdminSeoMetadata(input: AdminSeoMetadataInput): Promise<AdminSeoMetadata> {
+  const response = await adminRequestWithStoredToken<AdminSeoMetadata>("/admin/seo", {
+    body: JSON.stringify(input),
+    method: "POST",
+  });
+
+  if (response.data === null) {
+    throw new Error("SEO metadata could not be created.");
+  }
+
+  return response.data;
+}
+
+export async function updateAdminSeoMetadata(
+  seoMetadataId: string,
+  input: AdminSeoMetadataInput
+): Promise<AdminSeoMetadata> {
+  const response = await adminRequestWithStoredToken<AdminSeoMetadata>(
+    `/admin/seo/${encodeURIComponent(seoMetadataId)}`,
+    {
+      body: JSON.stringify(input),
+      method: "PUT",
+    }
+  );
+
+  if (response.data === null) {
+    throw new Error("SEO metadata could not be updated.");
+  }
+
+  return response.data;
+}
+
+export async function fetchAdminRedirects(input: {
+  page: number;
+  pageSize: number;
+}): Promise<PaginatedAdminRedirects> {
+  const response = await adminRequestWithStoredToken<AdminRedirect[]>(
+    `/admin/redirects?page=${input.page}&page_size=${input.pageSize}`
+  );
+
+  return { data: response.data ?? [], meta: response.meta as AdminPaginationMeta };
+}
+
+export async function fetchAdminRedirect(redirectId: string): Promise<AdminRedirect> {
+  const response = await adminRequestWithStoredToken<AdminRedirect>(
+    `/admin/redirects/${encodeURIComponent(redirectId)}`
+  );
+
+  if (response.data === null) {
+    throw new Error("Redirect was not found.");
+  }
+
+  return response.data;
+}
+
+export async function createAdminRedirect(input: AdminRedirectInput): Promise<AdminRedirect> {
+  const response = await adminRequestWithStoredToken<AdminRedirect>("/admin/redirects", {
+    body: JSON.stringify(input),
+    method: "POST",
+  });
+
+  if (response.data === null) {
+    throw new Error("Redirect could not be created.");
+  }
+
+  return response.data;
+}
+
+export async function updateAdminRedirect(redirectId: string, input: AdminRedirectInput): Promise<AdminRedirect> {
+  const response = await adminRequestWithStoredToken<AdminRedirect>(
+    `/admin/redirects/${encodeURIComponent(redirectId)}`,
+    {
+      body: JSON.stringify(input),
+      method: "PUT",
+    }
+  );
+
+  if (response.data === null) {
+    throw new Error("Redirect could not be updated.");
+  }
+
+  return response.data;
+}
+
+export async function createAdminMediaPresign(input: AdminMediaPresignInput): Promise<AdminMediaPresign> {
+  const response = await adminRequestWithStoredToken<AdminMediaPresign>("/admin/media/presign", {
+    body: JSON.stringify(input),
+    method: "POST",
+  });
+
+  if (response.data === null) {
+    throw new Error("Media upload could not be prepared.");
+  }
+
+  return response.data;
+}
+
+export async function completeAdminMediaUpload(input: AdminMediaCompleteInput): Promise<AdminMedia> {
+  const response = await adminRequestWithStoredToken<AdminMedia>("/admin/media/complete", {
+    body: JSON.stringify(input),
+    method: "POST",
+  });
+
+  if (response.data === null) {
+    throw new Error("Media upload could not be completed.");
   }
 
   return response.data;

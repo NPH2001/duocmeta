@@ -1,10 +1,11 @@
 from app.models.base import Base
-from app.models.identity import Address, Permission, RefreshToken, Role, RolePermission, User, UserRole
+from app.models.identity import Address, AuditLog, Permission, RefreshToken, Role, RolePermission, User, UserRole
 
 
 def test_identity_tables_are_registered_on_metadata() -> None:
     expected_tables = {
         "addresses",
+        "audit_logs",
         "permissions",
         "refresh_tokens",
         "role_permissions",
@@ -55,3 +56,27 @@ def test_address_model_matches_required_shipping_fields() -> None:
     assert addresses_table.c.phone.nullable is False
     assert addresses_table.c.address_line1.nullable is False
     assert addresses_table.c.is_default.nullable is False
+
+
+def test_audit_log_model_matches_required_fields_and_indexes() -> None:
+    audit_logs_table = AuditLog.__table__
+    foreign_keys = {foreign_key.parent.name: foreign_key for foreign_key in audit_logs_table.foreign_keys}
+    index_names = {index.name for index in audit_logs_table.indexes}
+
+    assert audit_logs_table.c.actor_user_id.nullable is True
+    assert str(foreign_keys["actor_user_id"].column) == "users.id"
+    assert foreign_keys["actor_user_id"].ondelete == "SET NULL"
+    assert audit_logs_table.c.action_code.nullable is False
+    assert audit_logs_table.c.entity_type.nullable is False
+    assert audit_logs_table.c.entity_id.nullable is True
+    assert audit_logs_table.c.old_data.nullable is True
+    assert audit_logs_table.c.new_data.nullable is True
+    assert audit_logs_table.c.ip_address.nullable is True
+    assert audit_logs_table.c.user_agent.nullable is True
+    assert audit_logs_table.c.created_at.nullable is False
+    assert User.audit_logs.property.back_populates == "actor"
+    assert AuditLog.actor.property.back_populates == "audit_logs"
+    assert "ix_audit_logs_actor_user_id" in index_names
+    assert "ix_audit_logs_action_code" in index_names
+    assert "ix_audit_logs_entity" in index_names
+    assert "ix_audit_logs_created_at" in index_names

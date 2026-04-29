@@ -3,14 +3,17 @@ import Link from "next/link";
 
 import { AuthPageShell } from "features/auth/AuthPageShell";
 import { LoginForm } from "features/auth/AuthForms";
-import { buildPublicMetadata } from "lib/seo";
+import { buildPublicMetadata, noIndexRobots } from "lib/seo";
 
 export function generateMetadata(): Metadata {
-  return buildPublicMetadata({
+  return {
+    ...buildPublicMetadata({
     title: "Login",
     description: "Log in to your Duocmeta customer account.",
     path: "/login",
-  });
+    }),
+    robots: noIndexRobots,
+  };
 }
 
 export default function LoginPage() {

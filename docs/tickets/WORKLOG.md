@@ -17,8 +17,8 @@ Update this file after every completed ticket.
 
 **Project:** Ecommerce Monorepo  
 **Workflow:** Architecture-first + Codex ticket execution  
-**Current Phase:** PHASE 10 - CMS / blog / pages / SEO  
-**Last Updated:** 2026-04-27
+**Current Phase:** PHASE 12 - Audit, monitoring, quality  
+**Last Updated:** 2026-04-28
 
 ---
 
@@ -133,6 +133,18 @@ Update:
 - [x] FE-019 - Admin coupon UI
 - [x] BE-032 - Implement pages/posts/tags/seo/redirects schema
 - [x] BE-033 - Implement CMS admin CRUD APIs
+- [x] FE-020 - Admin CMS UI
+- [x] BE-034 - Public CMS APIs
+- [x] FE-021 - Blog listing/detail pages
+- [x] FE-022 - Generic content page renderer
+- [x] SEO-002 - Dynamic sitemap generation
+- [x] SEO-003 - robots.txt + noindex rules
+- [x] SEO-004 - Redirect manager runtime
+- [x] BE-035 - Presigned upload flow
+- [x] FE-023 - Reusable media uploader component
+- [x] OPS-001 - Image optimization pipeline basic
+- [x] BE-036 - Audit logs implementation
+- [x] OPS-002 - Health checks and readiness checks
 
 ---
 
@@ -140,25 +152,29 @@ Update:
 
 ## Current Active Ticket
 
-- [ ] FE-020 - Admin CMS UI
+- [ ] OPS-003 - Error tracking integration
 
 ### Goal
 
-Build admin CMS UI.
+Add basic frontend/backend error tracking integration.
 
-- admin pages/posts UI
-- admin SEO metadata UI
-- admin redirect UI
-- backend-backed API helpers
+- backend unhandled exception capture
+- frontend error surface if needed
+- production-safe error context without secrets
 
 ### Acceptance Criteria
 
-- admin CMS routes render in admin shell
-- UI is prepared to use backend CMS APIs
-- frontend does not implement SEO/redirect/content publication authority
-- responsive baseline is maintained
+- FE/BE capture unhandled exceptions appropriately
+- error tracking avoids exposing secrets
+- integration fits existing CI/deployment patterns
 
 ### Notes
+
+OPS-002 implementation was added with existing backend `/api/v1/health` retained as a lightweight liveness check, new `/api/v1/ready` readiness checks for database and Redis with coarse `ok`/`unavailable` statuses, a frontend `/health` route handler, Docker Compose healthchecks for backend/frontend containers, and focused backend readiness tests. Backend syntax compilation passed for changed health files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed, and Docker Compose validation is blocked because Docker is not installed/integrated in WSL. Frontend build/typecheck remains blocked by WSL Node v12.22.9 and missing local `tsc`/`eslint` binaries.
+
+BE-036 implementation was added with `audit_logs` ORM model and Alembic migration, audit response schema, repository/service layers, RBAC-protected `GET /api/v1/admin/audit-logs`, and same-transaction audit writes for product create/update/publish/archive, variant create/update, admin order confirm/ship/deliver/cancel/refund, and page/post create/update/delete flows. Audit entries preserve actor, action, entity, old/new data, IP address, user agent, and creation time. Syntax compilation passed for changed backend files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed.
+
+OPS-001 implementation was added with a `media_derivatives` ORM model and Alembic migration, configurable optimization settings, upload-completion planning for pending image derivatives, original media metadata preservation, derivative response DTOs, and focused model/migration/service/API tests. Syntax compilation passed for changed backend files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed, and import-level SQLAlchemy checks are blocked because WSL Python does not have SQLAlchemy installed.
 
 BE-024 implementation was added with checkout place-order API, required `Idempotency-Key`, order item snapshots, backend-calculated totals, inventory revalidation/reservation, cart finalization, and focused API/migration/model tests. Runtime verification is blocked locally because PowerShell cannot reach Docker Desktop, WSL does not have Docker integration, and WSL Python does not have pytest/pip installed.
 
@@ -210,6 +226,26 @@ BE-032 implementation was added with content/SEO ORM models for pages, posts, ta
 
 BE-033 implementation was added with RBAC-protected admin CMS CRUD endpoints for pages, posts, tags, SEO metadata, and redirects; CMS schemas, repository, and service layers; soft-delete handling for pages/posts; slug/entity/path conflict checks; pagination envelopes; router registration; and focused API/service tests. Syntax compilation passed for new backend files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed.
 
+FE-020 implementation was added with `/admin/cms` section navigation, list/create/edit routes for pages, posts, SEO metadata, and redirects, typed admin CMS API helpers, JSON-backed content/schema editors, publication and redirect fields, and backend-authority messaging. Runtime verification remains blocked locally because WSL has Node v12.22.9 without local `tsc` or `eslint` binaries.
+
+BE-034 implementation was added with public `GET /api/v1/pages/{slug}`, `GET /api/v1/posts`, and `GET /api/v1/posts/{slug}` endpoints, published-only visibility rules, public CMS DTOs, SEO metadata inclusion, router registration, and focused public API/service tests. Syntax compilation passed for changed backend files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed.
+
+FE-021 implementation was added with `/blog`, `/blog/[slug]`, a typed public CMS frontend client for posts, ISR-friendly server rendering, backend SEO metadata integration, breadcrumb/article JSON-LD, responsive listing/detail layouts, empty/unavailable states, and resilient JSON block rendering. Runtime verification remains blocked locally because WSL frontend `node_modules` does not contain `tsc` or `eslint` binaries.
+
+FE-022 implementation was added with `/pages/[slug]`, typed public CMS page fetching, backend SEO metadata integration, shared CMS block rendering for blog/page content, breadcrumb/WebPage JSON-LD, CMS schema JSON-LD passthrough, and responsive public page layout. Runtime verification remains blocked locally because WSL frontend `node_modules` does not contain `tsc` or `eslint` binaries.
+
+SEO-002 implementation was added with `app/sitemap.ts`, public home/products/categories/blog index URLs, static product/category detail URLs from current storefront data, public CMS blog post URLs from the backend posts API, noindex robots filtering for CMS posts, duplicate URL protection, and backend-unavailable fallback behavior for build compatibility. Public CMS pages and brand detail URLs are not listed yet because the current codebase has no public pages list endpoint and no frontend brand detail route. Runtime verification remains blocked locally because WSL frontend `node_modules` does not contain `tsc` or `eslint` binaries.
+
+SEO-003 implementation was added with `app/robots.ts`, sitemap discovery, disallow rules for admin/account/cart/checkout/auth routes, a shared `noIndexRobots` metadata helper, and noindex metadata coverage for cart, checkout, order success, account, account orders, admin, login, register, and forgot-password routes. Runtime verification remains blocked locally because WSL frontend `node_modules` does not contain `tsc` or `eslint` binaries.
+
+SEO-004 implementation was added with a public `GET /api/v1/redirects/resolve` endpoint for active CMS redirects, a service/repository redirect lookup path, public redirect DTO, focused public CMS API tests for active/inactive redirects, and Next middleware that applies backend-owned redirect status codes only on public paths while skipping private/admin/auth/API/static routes. Backend syntax compilation passed. Runtime pytest and frontend verification remain blocked locally because WSL lacks pytest and frontend `node_modules` does not contain `tsc` or `eslint` binaries.
+
+BE-035 implementation was added with RBAC-protected `POST /api/v1/admin/media/presign` and `POST /api/v1/admin/media/complete`, media upload schemas, media repository/service layers, deterministic S3-compatible signed upload target generation, MIME/size validation, backend-owned `media_files` metadata persistence, storage-related settings, router registration, and focused service/API tests. Syntax compilation passed for changed backend files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed.
+
+FE-023 implementation was added with typed admin media API helpers, a reusable `AdminMediaUploader` component that requests presign, uploads to the signed target, completes backend media metadata, reads image dimensions client-side, and returns the backend media record to callers. It is integrated into variant image and SEO Open Graph image fields while preserving manual media ID entry, and `/admin/media` now provides a standalone upload surface. Runtime verification remains blocked locally because WSL frontend `node_modules` does not contain `tsc` or `eslint` binaries.
+
+OPS-001 implementation was added with a pending derivative planning pipeline for uploaded images. `media_files` remains the original upload record, while `media_derivatives` tracks future thumbnail/web variants with kind, storage key, MIME type, dimensions, status, error, and processing timestamps. The current API schedules derivative records only; it does not transform bytes in-process or expose optimized files as ready assets.
+
 Local Next.js build/lint verification is currently blocked by Node v12.22.9 in WSL; Next 15 dependencies require a newer Node runtime. PowerShell still does not expose `npm` or `git` on PATH. Online Alembic migration checks may fail against the existing Docker PostgreSQL volume if its stored password differs from the current compose defaults; offline Alembic SQL generation is available.
 
 ---
@@ -218,7 +254,7 @@ Local Next.js build/lint verification is currently blocked by Node v12.22.9 in W
 
 ## Immediate Queue
 
-1. BE-034 - Public CMS APIs
+1. QA-001 - Backend test suite cho auth/catalog/cart/checkout
 
 ---
 
@@ -343,10 +379,22 @@ Document blocker and propose options.
 - FE-019 completed
 - BE-032 completed
 - BE-033 completed
+- FE-020 completed
+- BE-034 completed
+- FE-021 completed
+- FE-022 completed
+- SEO-002 completed
+- SEO-003 completed
+- SEO-004 completed
+- BE-035 completed
+- FE-023 completed
+- OPS-001 completed
+- BE-036 completed
+- OPS-002 completed
 
 ## New In Progress
 
-- FE-020
+- OPS-003
 
 ## Notes
 
@@ -412,3 +460,15 @@ Document blocker and propose options.
 - Added admin coupon list/create/edit UI with typed admin coupon helpers and backend-owned validation messaging
 - Added pages/posts/tags/SEO/redirects ORM models, Alembic migration, and focused schema tests
 - Added admin CMS CRUD APIs with RBAC, service/repository/schema layers, and focused tests
+- Added admin CMS UI with backend-backed pages/posts/SEO/redirect helpers and routes
+- Added public CMS APIs for published pages/posts with SEO metadata and visibility tests
+- Added public blog listing/detail pages backed by public CMS APIs with SEO metadata and structured data
+- Added generic public CMS page rendering backed by public CMS APIs with shared content blocks and SEO metadata
+- Added dynamic sitemap generation for current public storefront and CMS post URLs with noindex filtering
+- Added robots.txt behavior and shared noindex metadata coverage for private, transactional, admin, and auth routes
+- Added redirect manager runtime support with public active redirect resolution and frontend middleware application
+- Added RBAC-protected presigned media upload preparation and completion APIs with backend-owned media metadata persistence
+- Added reusable admin media uploader with presign/complete API integration and form media ID population
+- Added image optimization pipeline hooks with pending media derivative records for uploaded images
+- Added backend audit log persistence, admin audit log listing, and sensitive mutation audit writes
+- Added backend readiness checks, frontend health route, and Docker Compose healthchecks

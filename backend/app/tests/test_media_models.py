@@ -1,5 +1,5 @@
 from app.models.base import Base
-from app.models.catalog import MediaFile
+from app.models.catalog import MediaDerivative, MediaFile
 from app.models.identity import User
 
 
@@ -35,3 +35,30 @@ def test_media_file_model_supports_optional_uploader_relationship() -> None:
     assert MediaFile.uploader.property.back_populates == "media_files"
     assert User.media_files.property.back_populates == "uploader"
     assert "ix_media_files_uploaded_by" in index_names
+
+
+def test_media_derivatives_table_is_registered_on_metadata() -> None:
+    assert "media_derivatives" in Base.metadata.tables
+
+
+def test_media_derivative_model_tracks_optimization_jobs() -> None:
+    media_derivatives_table = MediaDerivative.__table__
+    foreign_keys = {foreign_key.parent.name: foreign_key for foreign_key in media_derivatives_table.foreign_keys}
+    index_names = {index.name for index in media_derivatives_table.indexes}
+
+    assert media_derivatives_table.c.media_file_id.nullable is False
+    assert str(foreign_keys["media_file_id"].column) == "media_files.id"
+    assert foreign_keys["media_file_id"].ondelete == "CASCADE"
+    assert media_derivatives_table.c.kind.nullable is False
+    assert media_derivatives_table.c.storage_key.nullable is False
+    assert media_derivatives_table.c.storage_key.unique is True
+    assert media_derivatives_table.c.mime_type.nullable is False
+    assert media_derivatives_table.c.width.nullable is False
+    assert media_derivatives_table.c.height.nullable is False
+    assert media_derivatives_table.c.status.nullable is False
+    assert media_derivatives_table.c.error_message.nullable is True
+    assert media_derivatives_table.c.processed_at.nullable is True
+    assert MediaDerivative.media_file.property.back_populates == "derivatives"
+    assert MediaFile.derivatives.property.back_populates == "media_file"
+    assert "ix_media_derivatives_media_file_id" in index_names
+    assert "ix_media_derivatives_status" in index_names

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { OrderDetailPage } from "features/account/OrderDetailPage";
-import { siteName } from "lib/seo";
+import { noIndexRobots, siteName } from "lib/seo";
 
 type OrderDetailRouteProps = {
   params: Promise<{
@@ -15,14 +15,7 @@ export async function generateMetadata({ params }: OrderDetailRouteProps): Promi
   return {
     title: `${orderCode} | Order Detail | ${siteName}`,
     description: "Customer order detail.",
-    robots: {
-      index: false,
-      follow: false,
-      googleBot: {
-        index: false,
-        follow: false,
-      },
-    },
+    robots: noIndexRobots,
   };
 }
 

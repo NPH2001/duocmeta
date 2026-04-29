@@ -3,6 +3,7 @@ from app.models.catalog import (
     Category,
     InventorySnapshot,
     InventoryTransaction,
+    MediaDerivative,
     MediaFile,
     Product,
     ProductAttribute,
@@ -14,11 +15,12 @@ from app.models.catalog import (
 )
 from app.models.commerce import Cart, CartItem, Coupon, CouponUsage, Order, OrderItem, Payment, PaymentEvent
 from app.models.content import Page, Post, PostTag, Redirect, SeoMetadata, Tag
-from app.models.identity import Address, Permission, RefreshToken, Role, RolePermission, User, UserRole
+from app.models.identity import Address, AuditLog, Permission, RefreshToken, Role, RolePermission, User, UserRole
 
 
 __all__ = [
     "Address",
+    "AuditLog",
     "Brand",
     "Cart",
     "CartItem",
@@ -27,6 +29,7 @@ __all__ = [
     "CouponUsage",
     "InventorySnapshot",
     "InventoryTransaction",
+    "MediaDerivative",
     "MediaFile",
     "Order",
     "OrderItem",
