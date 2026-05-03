@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Header
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.api.dependencies.rate_limit import rate_limit_cart_mutation
 from app.core.config import Settings, get_settings
 from app.core.db import get_db_session
 from app.models.identity import User
@@ -39,6 +40,7 @@ def add_cart_item(
     cart_session_id: str | None = Header(default=None, alias="X-Cart-Session-ID"),
     session: Session = Depends(get_db_session),
     settings: Settings = Depends(get_settings),
+    _: None = Depends(rate_limit_cart_mutation),
 ):
     try:
         user = _optional_user(authorization=authorization, session=session, settings=settings)
@@ -62,6 +64,7 @@ def update_cart_item(
     cart_session_id: str | None = Header(default=None, alias="X-Cart-Session-ID"),
     session: Session = Depends(get_db_session),
     settings: Settings = Depends(get_settings),
+    _: None = Depends(rate_limit_cart_mutation),
 ):
     try:
         user = _optional_user(authorization=authorization, session=session, settings=settings)
@@ -84,6 +87,7 @@ def remove_cart_item(
     cart_session_id: str | None = Header(default=None, alias="X-Cart-Session-ID"),
     session: Session = Depends(get_db_session),
     settings: Settings = Depends(get_settings),
+    _: None = Depends(rate_limit_cart_mutation),
 ):
     try:
         user = _optional_user(authorization=authorization, session=session, settings=settings)

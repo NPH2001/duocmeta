@@ -15,10 +15,10 @@ Update this file after every completed ticket.
 
 # Project Status
 
-**Project:** Ecommerce Monorepo  
-**Workflow:** Architecture-first + Codex ticket execution  
-**Current Phase:** PHASE 12 - Audit, monitoring, quality  
-**Last Updated:** 2026-04-28
+**Project:** Ecommerce Monorepo
+**Workflow:** Architecture-first + Codex ticket execution
+**Current Phase:** PHASE 13 - Performance & hardening
+**Last Updated:** 2026-05-02
 
 ---
 
@@ -145,6 +145,17 @@ Update:
 - [x] OPS-001 - Image optimization pipeline basic
 - [x] BE-036 - Audit logs implementation
 - [x] OPS-002 - Health checks and readiness checks
+- [x] OPS-003 - Error tracking integration
+- [x] QA-001 - Backend test suite cho auth/catalog/cart/checkout
+- [x] QA-002 - Frontend smoke tests cho storefront
+- [x] QA-003 - Admin smoke tests
+- [x] SEO-005 - Core Web Vitals optimization pass
+- [x] BE-037 - Rate limiting cho auth và public mutation endpoints
+- [x] BE-038 - CORS, security headers, trusted host config
+- [x] OPS-004 - Backup/restore runbook cho PostgreSQL
+- [x] OPS-005 - Deployment runbook staging/prod
+- [x] FE-024 - Language switcher EN/VI
+- [x] FE-025 - Floating contact shortcuts
 
 ---
 
@@ -152,23 +163,39 @@ Update:
 
 ## Current Active Ticket
 
-- [ ] OPS-003 - Error tracking integration
+- [ ] Awaiting next documented ticket
 
 ### Goal
 
-Add basic frontend/backend error tracking integration.
-
-- backend unhandled exception capture
-- frontend error surface if needed
-- production-safe error context without secrets
+All documented tickets in the current architecture backlog queue through FE-025 are complete. Add the next approved ticket or batch before continuing implementation.
 
 ### Acceptance Criteria
 
-- FE/BE capture unhandled exceptions appropriately
-- error tracking avoids exposing secrets
-- integration fits existing CI/deployment patterns
+- next ticket is documented with scope and acceptance criteria
 
 ### Notes
+
+FE-025 implementation was added with a global fixed lower-right contact shortcut group for phone, Zalo, and Messenger; configurable public frontend contact URLs; inline SVG icons; accessible labels/titles; safe external link attributes; EN/VI contact translations; root layout mounting; and focused contact smoke coverage. Production should replace example contact values in `frontend/.env.example` / deploy environment with real links.
+
+FE-024 implementation was added with a dependency-free frontend i18n layer, English/Vietnamese dictionaries, a client language provider, persistent locale selection through localStorage and cookie, an accessible global language switcher in the site header, translated core storefront/cart/checkout/blog/content/header/footer UI copy, and focused i18n smoke coverage. Scope is intentionally frontend UI copy only; backend catalog/CMS content and localized SEO route architecture remain future tickets. Frontend `npm run test`, `npm run typecheck`, `npm run lint`, and `npm run build` passed.
+
+OPS-005 implementation was added by expanding `docs/runbooks/deployment.md` with staging and production deployment procedures, environment variable checklist, migration policy, application/database rollback strategy, smoke checks, logging watchpoints, and deployment completion criteria. Documentation validation passed by reviewing the runbook and `git diff --check`.
+
+OPS-004 implementation was added with parameterized PostgreSQL backup and restore scripts in `infra/scripts`, a PostgreSQL backup/restore runbook covering required tools, env variables, backup/restore procedures, Docker examples, post-restore verification, retention, and failure handling, plus gitignore protection for local dump artifacts. Shell syntax validation passed with `bash -n`; live pg_dump/pg_restore execution is not available locally because PostgreSQL client tools are not installed.
+
+BE-038 implementation was added with configurable TrustedHost middleware, explicit CORS retained through `BACKEND_CORS_ORIGINS`, production-safe API security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, CSP), optional HSTS settings, env examples, environment docs, and focused middleware tests for headers, invalid hosts, CORS, and HSTS. Backend syntax compilation passed for `backend/app`; runtime pytest remains blocked locally because this Python environment has no `pytest` installed.
+
+BE-037 implementation was added with configurable backend rate limiting for auth login/register, cart item mutations, and checkout preview/place-order. The limiter uses Redis counters when enabled and falls back to in-memory counters if Redis is unavailable, keys requests by client IP / `X-Forwarded-For`, returns standard HTTP 429 response envelopes through FastAPI exception handlers, and exposes environment settings for limits/window/key prefix. Focused API tests were added for auth, cart, and checkout rate-limit behavior. Backend syntax compilation passed for `backend/app`; runtime pytest remains blocked locally because this Python environment has no `pytest` installed.
+
+SEO-005 implementation was added with Next image optimization configuration for AVIF/WebP and remote CMS media, optimized CMS image block rendering through `next/image` with lazy responsive sizing, explicit ISR revalidation guardrails for public storefront/CMS routes, deferred non-critical browser work for auth refresh and error listener registration via an idle helper, and frontend Core Web Vitals smoke coverage. Frontend `npm run test`, `npm run typecheck`, `npm run lint`, and `npm run build` passed; build output confirms public product/category pages revalidate at 1h and CMS/sitemap pages revalidate at 5m.
+
+QA-003 implementation was added with a frontend admin smoke test using Node's built-in test runner. The test locks the admin path from protected login/RBAC guard through product create/publish wiring, variant inventory adjustment route/backend-owned safety messaging, and order list/detail/workflow action wiring. Frontend `npm run test:admin-smoke` passed.
+
+QA-002 implementation was added with a frontend storefront smoke test using Node's built-in test runner. The test locks route presence and source-level happy-path wiring for home -> products -> product detail -> cart -> checkout -> success, including backend checkout preview/place-order/payment initiation usage and no frontend-owned final totals. Frontend storefront smoke, typecheck, and lint validation passed before starting QA-003.
+
+QA-001 implementation was added with focused backend tests for auth inactive/missing-token/refresh-cookie boundaries, inactive public taxonomy filters, cart item session scoping, empty checkout preview handling, guest contact requirements, mixed-currency checkout rejection, and place-order idempotency scoping. QA exposed a real security issue where a reused idempotency key from another cart/session could return an existing order; `CommerceService.place_order` now returns prior orders only when the idempotency scope matches the same user or guest cart session and otherwise returns `IDEMPOTENCY_KEY_CONFLICT`. Python syntax compilation and `compileall` passed for backend app files. Runtime pytest/ruff verification remains blocked locally because WSL Python has no `pytest`, `ruff`, `fastapi`, or `pip`.
+
+OPS-003 implementation was added with a provider-neutral backend error tracking sink, safe unhandled-exception capture in request middleware, generic 500 response envelopes carrying request/error event IDs, focused backend error tracking tests, frontend browser global error listeners, App Router error boundaries, safe client-side error event logging, and env examples for FE/BE tracking toggles. Frontend `npm run typecheck` and `npm run lint` passed after installing frontend dependencies with `npm ci`; the prior `/health` route type error was fixed by using `NextResponse.json`. Backend syntax compilation passed for `backend/app`. Runtime pytest/ruff verification remains blocked locally because WSL Python has no `pytest`, `ruff`, `fastapi`, or `pip`, and Docker Compose validation remains blocked because Docker is not installed/integrated in WSL. `npm ci` reported 2 moderate dependency vulnerabilities from the existing frontend dependency tree; no dependency changes were made.
 
 OPS-002 implementation was added with existing backend `/api/v1/health` retained as a lightweight liveness check, new `/api/v1/ready` readiness checks for database and Redis with coarse `ok`/`unavailable` statuses, a frontend `/health` route handler, Docker Compose healthchecks for backend/frontend containers, and focused backend readiness tests. Backend syntax compilation passed for changed health files. Runtime pytest verification is blocked locally because WSL Python does not have pytest installed, and Docker Compose validation is blocked because Docker is not installed/integrated in WSL. Frontend build/typecheck remains blocked by WSL Node v12.22.9 and missing local `tsc`/`eslint` binaries.
 
@@ -246,7 +273,7 @@ FE-023 implementation was added with typed admin media API helpers, a reusable `
 
 OPS-001 implementation was added with a pending derivative planning pipeline for uploaded images. `media_files` remains the original upload record, while `media_derivatives` tracks future thumbnail/web variants with kind, storage key, MIME type, dimensions, status, error, and processing timestamps. The current API schedules derivative records only; it does not transform bytes in-process or expose optimized files as ready assets.
 
-Local Next.js build/lint verification is currently blocked by Node v12.22.9 in WSL; Next 15 dependencies require a newer Node runtime. PowerShell still does not expose `npm` or `git` on PATH. Online Alembic migration checks may fail against the existing Docker PostgreSQL volume if its stored password differs from the current compose defaults; offline Alembic SQL generation is available.
+Frontend typecheck/lint now runs in WSL after `npm ci` with Node v22.22.2; `npm ci` currently reports 2 moderate dependency vulnerabilities in the existing dependency tree. PowerShell still does not expose `npm` or `git` on PATH. Online Alembic migration checks may fail against the existing Docker PostgreSQL volume if its stored password differs from the current compose defaults; offline Alembic SQL generation is available.
 
 ---
 
@@ -254,7 +281,7 @@ Local Next.js build/lint verification is currently blocked by Node v12.22.9 in W
 
 ## Immediate Queue
 
-1. QA-001 - Backend test suite cho auth/catalog/cart/checkout
+No queued ticket is documented after OPS-005 yet.
 
 ---
 
@@ -282,7 +309,7 @@ Local Next.js build/lint verification is currently blocked by Node v12.22.9 in W
 
 - PowerShell does not expose `node`, `npm`, or `git` on PATH.
 - WSL has git available, but Docker is not installed/integrated and its system Python lacks `pip`; backend checks should be run through Docker once Docker Desktop WSL integration is enabled, or after Python tooling is installed locally.
-- Frontend startup/build is blocked in WSL by Node v12.22.9; Next 15 requires a newer Node runtime.
+- Frontend typecheck/lint can run after `npm ci`; current `npm ci` reports 2 moderate dependency vulnerabilities in the existing dependency tree.
 
 ---
 
@@ -313,7 +340,7 @@ Take the first ticket from `Next Tickets`.
 
 ## If blocked
 
-Do not guess blindly.  
+Do not guess blindly.
 Document blocker and propose options.
 
 ---
@@ -391,10 +418,12 @@ Document blocker and propose options.
 - OPS-001 completed
 - BE-036 completed
 - OPS-002 completed
+- OPS-003 completed
+- QA-001 completed
 
 ## New In Progress
 
-- OPS-003
+- Awaiting next documented ticket
 
 ## Notes
 
@@ -472,3 +501,5 @@ Document blocker and propose options.
 - Added image optimization pipeline hooks with pending media derivative records for uploaded images
 - Added backend audit log persistence, admin audit log listing, and sensitive mutation audit writes
 - Added backend readiness checks, frontend health route, and Docker Compose healthchecks
+- Added provider-neutral FE/BE error tracking, safe unhandled-exception capture, frontend error surfaces, and environment toggles
+- Added backend QA coverage for auth/catalog/cart/checkout and scoped place-order idempotency keys

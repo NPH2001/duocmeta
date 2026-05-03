@@ -8,8 +8,10 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.config import get_settings
 from app.core.db import get_db_session
+from app.core.security import hash_password
 from app.main import app
 from app.models.base import Base
+from app.models.identity import User
 from app.services.identity_seed import seed_roles_and_permissions
 
 
@@ -133,3 +135,48 @@ def test_refresh_rotates_refresh_token_and_rejects_old_token(client: TestClient)
     assert new_refresh_token != old_refresh_token
     assert old_token_response.status_code == 401
     assert old_token_response.json()["error"]["code"] == "INVALID_REFRESH_TOKEN"
+
+
+def test_login_rejects_inactive_user(client: TestClient) -> None:
+    session_generator = app.dependency_overrides[get_db_session]()
+    session = next(session_generator)
+    try:
+        session.add(
+            User(
+                email="inactive@example.com",
+                password_hash=hash_password("strong-password"),
+                full_name="Inactive User",
+                status="disabled",
+            )
+        )
+        session.commit()
+    finally:
+        try:
+            next(session_generator)
+        except StopIteration:
+            pass
+
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "inactive@example.com", "password": "strong-password"},
+    )
+
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "USER_INACTIVE"
+
+
+def test_me_rejects_missing_and_invalid_access_token(client: TestClient) -> None:
+    missing_response = client.get("/api/v1/auth/me")
+    invalid_response = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer invalid-token"})
+
+    assert missing_response.status_code == 401
+    assert missing_response.json()["error"]["code"] == "ACCESS_TOKEN_REQUIRED"
+    assert invalid_response.status_code == 401
+    assert invalid_response.json()["error"]["code"] == "INVALID_ACCESS_TOKEN"
+
+
+def test_refresh_requires_refresh_cookie(client: TestClient) -> None:
+    response = client.post("/api/v1/auth/refresh")
+
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "REFRESH_TOKEN_REQUIRED"

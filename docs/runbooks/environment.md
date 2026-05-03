@@ -69,6 +69,12 @@ Do not commit the copied files.
 | `APP_PORT` | yes | Backend bind port |
 | `API_V1_PREFIX` | yes | API prefix, fixed to `/api/v1` |
 | `BACKEND_CORS_ORIGINS` | yes | Allowed browser origins for local apps |
+| `TRUSTED_HOSTS` | yes | Comma-separated accepted HTTP hostnames for TrustedHost middleware |
+| `SECURITY_CONTENT_SECURITY_POLICY` | yes | API response Content-Security-Policy header value |
+| `SECURITY_PERMISSIONS_POLICY` | yes | API response Permissions-Policy header value |
+| `SECURITY_REFERRER_POLICY` | yes | API response Referrer-Policy header value |
+| `SECURITY_HSTS_ENABLED` | yes | Enables Strict-Transport-Security in HTTPS deployments |
+| `SECURITY_HSTS_MAX_AGE_SECONDS` | yes | HSTS max-age value when HSTS is enabled |
 | `SECRET_KEY` | yes | Signing secret for auth/session security |
 | `ACCESS_TOKEN_TTL_MINUTES` | yes | Access token lifetime |
 | `REFRESH_TOKEN_TTL_DAYS` | yes | Refresh token lifetime |
@@ -89,6 +95,7 @@ Do not commit the copied files.
 | `PORT` | yes | Next.js dev server port |
 | `NEXT_PUBLIC_SITE_URL` | yes | Public site base URL |
 | `NEXT_PUBLIC_API_BASE_URL` | yes | Browser-facing API base URL |
+| `NEXT_PUBLIC_MEDIA_BASE_URL` | yes | Browser-facing base URL for optimized media assets |
 | `INTERNAL_API_BASE_URL` | yes | Server-side API base URL used inside containers |
 
 ## Security Rules

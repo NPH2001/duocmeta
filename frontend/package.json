@@ -6,7 +6,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:smoke": "node --test src/tests/storefront-smoke.test.mjs",
+    "test:admin-smoke": "node --test src/tests/admin-smoke.test.mjs",
+    "test": "npm run test:smoke && npm run test:admin-smoke && npm run test:cwv && npm run test:i18n && npm run test:contact",
+    "test:cwv": "node --test src/tests/core-web-vitals-smoke.test.mjs",
+    "test:i18n": "node --test src/tests/i18n-smoke.test.mjs",
+    "test:contact": "node --test src/tests/contact-smoke.test.mjs"
   },
   "dependencies": {
     "next": "^15.0.0",

@@ -59,3 +59,18 @@
 * BE-024 Place-order flow
 * FE-008 Checkout page
 * FE-010 Success page
+
+
+## Phase 13 Performance & hardening
+
+* OPS-003 Error tracking integration
+* QA-001 Backend test suite for auth/catalog/cart/checkout
+* QA-002 Frontend smoke tests for storefront
+* QA-003 Admin smoke tests
+* SEO-005 Core Web Vitals optimization pass
+* BE-037 Rate limiting for auth and public mutation endpoints
+* BE-038 CORS, security headers, trusted host config
+* OPS-004 PostgreSQL backup/restore runbook
+* OPS-005 Deployment runbook staging/prod
+* FE-024 Language switcher EN/VI
+* FE-025 Floating contact shortcuts

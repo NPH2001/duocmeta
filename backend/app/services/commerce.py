@@ -120,7 +120,14 @@ class CommerceService:
 
         existing_order = self.repository.get_order_by_idempotency_key(idempotency_key)
         if existing_order is not None:
-            return _order_response(existing_order), False
+            if _idempotency_scope_matches(existing_order, user=user, session_id=session_id):
+                return _order_response(existing_order), False
+
+            raise CommerceServiceError(
+                "IDEMPOTENCY_KEY_CONFLICT",
+                "Idempotency key was already used for a different checkout context.",
+                HTTPStatus.CONFLICT,
+            )
 
         cart = self._get_existing_cart(user=user, session_id=session_id)
         if not cart.items:
@@ -528,6 +535,13 @@ class CommerceService:
             old_data=old_data,
             new_data=_order_audit_data(order),
         )
+
+
+def _idempotency_scope_matches(order: Order, *, user: User | None, session_id: str | None) -> bool:
+    if user is not None:
+        return order.user_id == user.id
+
+    return order.user_id is None and order.cart is not None and order.cart.session_id == session_id
 
 
 def _cart_response(cart: Cart) -> CartResponse:

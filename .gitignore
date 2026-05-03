@@ -25,3 +25,8 @@ node_modules/
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# Local operational artifacts
+backups/
+*.dump
+*.dump.sha256

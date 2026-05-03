@@ -31,6 +31,17 @@ class Settings(BaseSettings):
         "http://localhost:8080",
         "http://127.0.0.1:8080",
     ]
+    trusted_hosts: list[str] = [
+        "localhost",
+        "127.0.0.1",
+        "testserver",
+        "backend",
+    ]
+    security_content_security_policy: str = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    security_permissions_policy: str = "camera=(), microphone=(), geolocation=(), payment=()"
+    security_referrer_policy: str = "strict-origin-when-cross-origin"
+    security_hsts_enabled: bool = False
+    security_hsts_max_age_seconds: int = 31_536_000
     media_bucket_name: str = "duocmeta-media"
     media_upload_prefix: str = "uploads"
     media_upload_base_url: str = "http://localhost:8080/media-upload"
@@ -39,11 +50,20 @@ class Settings(BaseSettings):
     media_max_upload_bytes: int = 10 * 1024 * 1024
     media_optimization_enabled: bool = True
     media_optimization_format: str = "webp"
+    error_tracking_enabled: bool = True
+    error_tracking_provider: str = "logging"
+    rate_limit_enabled: bool = True
+    rate_limit_use_redis: bool = True
+    rate_limit_window_seconds: int = 60
+    rate_limit_auth_limit: int = 10
+    rate_limit_cart_limit: int = 60
+    rate_limit_checkout_limit: int = 20
+    rate_limit_key_prefix: str = "duocmeta:rate_limit"
     media_optimization_widths: list[int] = [320, 1200]
 
-    @field_validator("backend_cors_origins", mode="before")
+    @field_validator("backend_cors_origins", "trusted_hosts", mode="before")
     @classmethod
-    def parse_backend_cors_origins(cls, value: str | list[str]) -> list[str]:
+    def parse_csv_list(cls, value: str | list[str]) -> list[str]:
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
 

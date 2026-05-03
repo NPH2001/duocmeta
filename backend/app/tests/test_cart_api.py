@@ -181,3 +181,46 @@ def _seed_variant(
     session.add(InventorySnapshot(variant_id=variant.id, available_quantity=available_quantity, reserved_quantity=0))
     session.commit()
     return variant.id
+
+
+def test_cart_item_mutations_are_scoped_to_cart_session(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, session_factory = client_with_session
+    with session_factory() as session:
+        variant_id = _seed_variant(session)
+
+    owner_headers = {"X-Cart-Session-ID": "guest-session-owner"}
+    other_headers = {"X-Cart-Session-ID": "guest-session-other"}
+    add_response = client.post(
+        "/api/v1/cart/items",
+        headers=owner_headers,
+        json={"variant_id": str(variant_id), "quantity": 1},
+    )
+    client.get("/api/v1/cart", headers=other_headers)
+    item_id = add_response.json()["data"]["items"][0]["id"]
+
+    update_response = client.put(f"/api/v1/cart/items/{item_id}", headers=other_headers, json={"quantity": 2})
+    delete_response = client.delete(f"/api/v1/cart/items/{item_id}", headers=other_headers)
+
+    assert update_response.status_code == 404
+    assert update_response.json()["error"]["code"] == "CART_ITEM_NOT_FOUND"
+    assert delete_response.status_code == 404
+    assert delete_response.json()["error"]["code"] == "CART_ITEM_NOT_FOUND"
+
+
+def test_cart_rejects_unknown_item_for_existing_session(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, session_factory = client_with_session
+    with session_factory() as session:
+        variant_id = _seed_variant(session)
+
+    headers = {"X-Cart-Session-ID": "guest-session-existing"}
+    client.post("/api/v1/cart/items", headers=headers, json={"variant_id": str(variant_id), "quantity": 1})
+
+    unknown_item_id = "4d5f3c7c-b39f-47d1-a7de-c6e75159165b"
+    response = client.put(f"/api/v1/cart/items/{unknown_item_id}", headers=headers, json={"quantity": 2})
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "CART_ITEM_NOT_FOUND"

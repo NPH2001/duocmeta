@@ -4,8 +4,9 @@ from uuid import UUID, uuid4
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
+from app.core.error_tracking import capture_exception
 from app.core.logging import get_logger, request_id_context
 
 
@@ -36,15 +37,43 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
         try:
             response = await call_next(request)
-        except Exception:
+        except Exception as exc:
             duration_ms = (time.perf_counter() - start_time) * 1000
-            logger.exception(
-                "request_failed method=%s path=%s duration_ms=%.2f",
+            event_id = capture_exception(
+                exc,
+                context={
+                    "component": "backend",
+                    "duration_ms": round(duration_ms, 2),
+                    "method": request.method,
+                    "path": request.url.path,
+                    "request_id": request_id,
+                    "runtime": "fastapi",
+                    "status_code": 500,
+                },
+            )
+            logger.error(
+                "request_failed method=%s path=%s status_code=500 duration_ms=%.2f error_event_id=%s",
                 request.method,
                 request.url.path,
                 duration_ms,
+                event_id,
             )
-            raise
+            return JSONResponse(
+                status_code=500,
+                headers={REQUEST_ID_HEADER: request_id},
+                content={
+                    "data": None,
+                    "meta": {
+                        "request_id": request_id,
+                        "error_event_id": event_id,
+                    },
+                    "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "message": "An unexpected error occurred.",
+                        "details": {},
+                    },
+                },
+            )
         else:
             duration_ms = (time.perf_counter() - start_time) * 1000
             response.headers[REQUEST_ID_HEADER] = request_id

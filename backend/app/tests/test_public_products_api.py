@@ -149,3 +149,33 @@ def _seed_public_listing_products(session: Session) -> None:
         ]
     )
     session.commit()
+
+
+def test_public_product_filters_do_not_match_inactive_taxonomy(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, session_factory = client_with_session
+    with session_factory() as session:
+        hidden_brand = Brand(name="Hidden Brand", slug="hidden-brand", is_active=False)
+        hidden_category = Category(name="Hidden Category", slug="hidden-category", is_active=False)
+        product = Product(
+            brand=hidden_brand,
+            name="Hidden Taxonomy Product",
+            slug="hidden-taxonomy-product",
+            status="active",
+            published_at=datetime.now(UTC),
+        )
+        session.add_all([hidden_brand, hidden_category, product])
+        session.flush()
+        session.add(ProductCategory(product_id=product.id, category_id=hidden_category.id))
+        session.commit()
+
+    brand_response = client.get("/api/v1/products", params={"brand_slug": "hidden-brand"})
+    category_response = client.get("/api/v1/products", params={"category_slug": "hidden-category"})
+
+    assert brand_response.status_code == 200
+    assert brand_response.json()["meta"]["total"] == 0
+    assert brand_response.json()["data"] == []
+    assert category_response.status_code == 200
+    assert category_response.json()["meta"]["total"] == 0
+    assert category_response.json()["data"] == []

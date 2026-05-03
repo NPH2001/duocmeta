@@ -1,3 +1,5 @@
+import { publicCmsRevalidateSeconds } from "lib/cache";
+
 export type PublicSeoMetadata = {
   meta_title: string | null;
   meta_description: string | null;
@@ -92,7 +94,7 @@ async function cmsRequest<T>(
     headers: {
       "Content-Type": "application/json",
     },
-    next: { revalidate: 300 },
+    next: { revalidate: publicCmsRevalidateSeconds },
   });
   const payload = (await response.json()) as CmsEnvelope<T>;
 

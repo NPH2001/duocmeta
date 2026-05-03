@@ -121,6 +121,7 @@ def _cart_statement():
 
 def _order_statement():
     return select(Order).options(
+        selectinload(Order.cart),
         selectinload(Order.items),
         selectinload(Order.items).selectinload(OrderItem.variant).selectinload(ProductVariant.inventory_snapshot),
     )

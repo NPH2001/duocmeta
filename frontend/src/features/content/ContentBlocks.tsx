@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 type ContentBlock = {
@@ -5,7 +6,12 @@ type ContentBlock = {
   text?: unknown;
   level?: unknown;
   items?: unknown;
+  alt?: unknown;
   caption?: unknown;
+  height?: unknown;
+  src?: unknown;
+  url?: unknown;
+  width?: unknown;
 };
 
 export function ContentBlocks({ content }: { content: Record<string, unknown> }) {
@@ -63,14 +69,50 @@ function ContentBlockRenderer({ block }: { block: unknown }) {
   }
 
   if (type === "image") {
+    const src = getString(typedBlock.src) ?? getString(typedBlock.url);
+    const alt = getString(typedBlock.alt) ?? getString(typedBlock.caption) ?? "Content image";
+    const width = getPositiveNumber(typedBlock.width) ?? 1200;
+    const height = getPositiveNumber(typedBlock.height) ?? 675;
+
+    if (!src) {
+      return (
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-sm text-stone-600">
+          {typeof typedBlock.caption === "string" ? typedBlock.caption : "Image block"}
+        </div>
+      );
+    }
+
     return (
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-sm text-stone-600">
-        {typeof typedBlock.caption === "string" ? typedBlock.caption : "Image block"}
-      </div>
+      <figure className="space-y-3">
+        <Image
+          alt={alt}
+          className="h-auto w-full rounded-2xl border border-stone-200 object-cover"
+          height={height}
+          loading="lazy"
+          sizes="(min-width: 1024px) 896px, calc(100vw - 48px)"
+          src={src}
+          width={width}
+        />
+        {typeof typedBlock.caption === "string" ? (
+          <figcaption className="text-sm text-stone-500">{typedBlock.caption}</figcaption>
+        ) : null}
+      </figure>
     );
   }
 
   return <p>{text || renderFallbackBlock(typedBlock)}</p>;
+}
+
+function getString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function getPositiveNumber(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return value;
 }
 
 function renderFallbackBlock(block: ContentBlock): ReactNode {

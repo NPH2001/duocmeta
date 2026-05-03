@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { useLanguage } from "features/i18n/LanguageProvider";
+import { onBrowserIdle } from "lib/browser-idle";
 import {
   clearAccessToken,
   fetchCurrentUser,
@@ -18,10 +20,12 @@ type AuthState =
   | { status: "authenticated"; user: AuthUser };
 
 export function AuthStatus() {
+  const { t } = useLanguage();
   const [authState, setAuthState] = useState<AuthState>({ status: "loading", user: null });
 
   useEffect(() => {
     let isMounted = true;
+    let cancelIdleAuthCheck: (() => void) | null = null;
 
     async function loadAuthState() {
       const storedToken = readStoredAccessToken();
@@ -54,9 +58,17 @@ export function AuthStatus() {
       }
     }
 
-    void loadAuthState();
+    if (readStoredAccessToken()) {
+      void loadAuthState();
+    } else {
+      cancelIdleAuthCheck = onBrowserIdle(() => {
+        void loadAuthState();
+      });
+    }
 
     function handleAuthChange() {
+      cancelIdleAuthCheck?.();
+      cancelIdleAuthCheck = null;
       void loadAuthState();
     }
 
@@ -64,6 +76,7 @@ export function AuthStatus() {
 
     return () => {
       isMounted = false;
+      cancelIdleAuthCheck?.();
       window.removeEventListener("duocmeta-auth-change", handleAuthChange);
     };
   }, []);
@@ -71,7 +84,7 @@ export function AuthStatus() {
   if (authState.status === "loading") {
     return (
       <span className="hidden rounded-full border border-stone-200 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 lg:inline-flex">
-        Account
+        {t("nav.account")}
       </span>
     );
   }
@@ -90,7 +103,7 @@ export function AuthStatus() {
           }}
           className="rounded-full border border-stone-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-700 transition hover:border-stone-950 hover:text-stone-950"
         >
-          Sign Out
+          {t("nav.signOut")}
         </button>
       </div>
     );
@@ -101,7 +114,7 @@ export function AuthStatus() {
       href="/login"
       className="hidden rounded-full border border-stone-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-700 transition hover:border-stone-950 hover:text-stone-950 lg:inline-flex"
     >
-      Login
+      {t("nav.login")}
     </Link>
   );
 }

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Cookie, Depends, Header, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.api.dependencies.rate_limit import rate_limit_auth
 from app.core.config import Settings, get_settings
 from app.core.db import get_db_session
 from app.schemas.auth import LoginRequest, RegisterRequest
@@ -21,6 +22,7 @@ def register(
     response: Response,
     session: Session = Depends(get_db_session),
     settings: Settings = Depends(get_settings),
+    _: None = Depends(rate_limit_auth),
 ) -> dict:
     try:
         result = AuthService(session, settings).register(request)
@@ -37,6 +39,7 @@ def login(
     response: Response,
     session: Session = Depends(get_db_session),
     settings: Settings = Depends(get_settings),
+    _: None = Depends(rate_limit_auth),
 ) -> dict:
     try:
         result = AuthService(session, settings).login(request)

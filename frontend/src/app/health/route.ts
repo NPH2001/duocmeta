@@ -1,7 +1,9 @@
+import { NextResponse } from "next/server";
+
 export const dynamic = "force-dynamic";
 
 export function GET() {
-  return Response.json(
+  return NextResponse.json(
     {
       data: {
         status: "ok",
@@ -16,6 +18,6 @@ export function GET() {
       headers: {
         "Cache-Control": "no-store",
       },
-    },
+    }
   );
 }

@@ -287,12 +287,13 @@ def _seed_variant(
     *,
     available_quantity: int = 10,
     slug: str = "vitamin-c",
+    currency_code: str = "VND",
 ) -> UUID:
     product = Product(
         name=slug.replace("-", " ").title(),
         slug=slug,
         status="active",
-        currency_code="VND",
+        currency_code=currency_code,
         published_at=datetime.now(UTC),
     )
     session.add(product)
@@ -330,3 +331,98 @@ def _seed_coupon(
         )
     )
     session.commit()
+
+
+def test_checkout_preview_requires_existing_non_empty_cart(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, _ = client_with_session
+    headers = {"X-Cart-Session-ID": "preview-empty-session"}
+
+    missing_cart_response = client.post("/api/v1/checkout/preview", headers=headers, json={})
+    create_empty_cart_response = client.get("/api/v1/cart", headers=headers)
+    empty_cart_response = client.post("/api/v1/checkout/preview", headers=headers, json={})
+
+    assert missing_cart_response.status_code == 404
+    assert missing_cart_response.json()["error"]["code"] == "CART_NOT_FOUND"
+    assert create_empty_cart_response.status_code == 200
+    assert empty_cart_response.status_code == 400
+    assert empty_cart_response.json()["error"]["code"] == "CART_EMPTY"
+
+
+def test_place_order_requires_guest_contact_fields(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, session_factory = client_with_session
+    with session_factory() as session:
+        variant_id = _seed_variant(session)
+
+    headers = {"X-Cart-Session-ID": "checkout-contact-session", "Idempotency-Key": "contact-key"}
+    client.post(
+        "/api/v1/cart/items",
+        headers={"X-Cart-Session-ID": "checkout-contact-session"},
+        json={"variant_id": str(variant_id), "quantity": 1},
+    )
+
+    missing_email_response = client.post("/api/v1/checkout/place-order", headers=headers, json={"phone": "0900000000"})
+    missing_phone_response = client.post(
+        "/api/v1/checkout/place-order",
+        headers={**headers, "Idempotency-Key": "contact-key-2"},
+        json={"email": "buyer@example.com"},
+    )
+
+    assert missing_email_response.status_code == 400
+    assert missing_email_response.json()["error"]["code"] == "ORDER_EMAIL_REQUIRED"
+    assert missing_phone_response.status_code == 400
+    assert missing_phone_response.json()["error"]["code"] == "ORDER_PHONE_REQUIRED"
+
+
+def test_place_order_rejects_mixed_currency_cart(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, session_factory = client_with_session
+    with session_factory() as session:
+        vnd_variant_id = _seed_variant(session, slug="vnd-product", currency_code="VND")
+        usd_variant_id = _seed_variant(session, slug="usd-product", currency_code="USD")
+
+    cart_headers = {"X-Cart-Session-ID": "checkout-mixed-currency"}
+    client.post("/api/v1/cart/items", headers=cart_headers, json={"variant_id": str(vnd_variant_id), "quantity": 1})
+    client.post("/api/v1/cart/items", headers=cart_headers, json={"variant_id": str(usd_variant_id), "quantity": 1})
+
+    response = client.post(
+        "/api/v1/checkout/place-order",
+        headers={**cart_headers, "Idempotency-Key": "mixed-currency-key"},
+        json={"email": "buyer@example.com", "phone": "0900000000"},
+    )
+
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "CART_CURRENCY_MISMATCH"
+
+
+def test_place_order_scopes_idempotency_key_to_cart_session(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+) -> None:
+    client, session_factory = client_with_session
+    with session_factory() as session:
+        variant_id = _seed_variant(session, available_quantity=5)
+
+    shared_key = "shared-idempotency-key"
+    first_cart_headers = {"X-Cart-Session-ID": "checkout-idempotency-owner"}
+    second_cart_headers = {"X-Cart-Session-ID": "checkout-idempotency-other"}
+    client.post("/api/v1/cart/items", headers=first_cart_headers, json={"variant_id": str(variant_id), "quantity": 1})
+    first_response = client.post(
+        "/api/v1/checkout/place-order",
+        headers={**first_cart_headers, "Idempotency-Key": shared_key},
+        json={"email": "first@example.com", "phone": "0900000000"},
+    )
+    client.post("/api/v1/cart/items", headers=second_cart_headers, json={"variant_id": str(variant_id), "quantity": 1})
+    conflict_response = client.post(
+        "/api/v1/checkout/place-order",
+        headers={**second_cart_headers, "Idempotency-Key": shared_key},
+        json={"email": "second@example.com", "phone": "0911111111"},
+    )
+
+    assert first_response.status_code == 201
+    assert conflict_response.status_code == 409
+    assert conflict_response.json()["error"]["code"] == "IDEMPOTENCY_KEY_CONFLICT"
+    assert first_response.json()["data"]["order_code"] not in conflict_response.text

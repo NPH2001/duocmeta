@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
+import { useLanguage } from "features/i18n/LanguageProvider";
+
 import { fetchCart, formatMoney, type Cart } from "lib/cart";
 import {
   clearCheckoutIdempotencyKey,
@@ -44,6 +46,7 @@ const initialFormState: CheckoutFormState = {
 };
 
 export function CheckoutPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [cart, setCart] = useState<Cart | null>(null);
   const [formState, setFormState] = useState<CheckoutFormState>(initialFormState);
@@ -66,7 +69,7 @@ export function CheckoutPage() {
       })
       .catch((caughtError) => {
         if (isMounted) {
-          setError(caughtError instanceof Error ? caughtError.message : "Could not load checkout cart.");
+          setError(caughtError instanceof Error ? caughtError.message : t("checkout.loadError"));
         }
       })
       .finally(() => {
@@ -78,7 +81,7 @@ export function CheckoutPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   const currencyCode = cart?.items[0]?.product.currency_code ?? "VND";
 
@@ -112,7 +115,7 @@ export function CheckoutPage() {
         })
         .catch((caughtError) => {
           if (isMounted) {
-            const message = caughtError instanceof Error ? caughtError.message : "Could not load checkout preview.";
+            const message = caughtError instanceof Error ? caughtError.message : t("checkout.previewError");
             setPreviewError(message);
             setPreview(null);
           }
@@ -139,6 +142,7 @@ export function CheckoutPage() {
     formState.province,
     formState.shippingMethod,
     formState.ward,
+    t,
   ]);
 
   function updateField<Key extends keyof CheckoutFormState>(key: Key, value: CheckoutFormState[Key]) {
@@ -148,7 +152,7 @@ export function CheckoutPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setNotice("Creating order and requesting payment action from backend...");
+    setNotice(t("checkout.creatingOrder"));
     setIsSubmitting(true);
 
     try {
@@ -175,7 +179,7 @@ export function CheckoutPage() {
 
       router.push(`/checkout/success?order_code=${order.order_code}`);
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Checkout failed.");
+      setError(caughtError instanceof Error ? caughtError.message : t("checkout.failed"));
       setNotice(null);
     } finally {
       setIsSubmitting(false);
@@ -186,11 +190,10 @@ export function CheckoutPage() {
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10 md:py-14">
       <section className="grid gap-5 border-b border-stone-200 pb-8 md:grid-cols-[1fr_auto] md:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Checkout</p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950 md:text-5xl">Complete your details</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{t("checkout.kicker")}</p>
+          <h1 className="mt-3 text-4xl leading-tight text-stone-950 md:text-5xl">{t("checkout.title")}</h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-600">
-            This step collects customer, shipping, and payment preferences. Backend services remain responsible for
-            final totals, inventory validation, and payment state.
+            {t("checkout.description")}
           </p>
         </div>
         <Link
@@ -201,7 +204,7 @@ export function CheckoutPage() {
             "hover:border-stone-950 hover:text-stone-950",
           ].join(" ")}
         >
-          Back to Cart
+          {t("checkout.backToCart")}
         </Link>
       </section>
 
@@ -219,22 +222,22 @@ export function CheckoutPage() {
 
       {isLoading ? (
         <div className="rounded-2xl border border-stone-200 bg-white/80 p-8 text-sm text-stone-600">
-          Loading checkout...
+          {t("checkout.loading")}
         </div>
       ) : cart && cart.items.length > 0 ? (
         <section className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
           <form onSubmit={handleSubmit} className="space-y-8">
-            <CheckoutPanel title="Customer">
+            <CheckoutPanel title={t("checkout.customer")}>
               <div className="grid gap-4 md:grid-cols-2">
                 <CheckoutField
-                  label="Full name"
+                  label={t("checkout.fullName")}
                   name="fullName"
                   value={formState.fullName}
                   autoComplete="name"
                   onChange={(value) => updateField("fullName", value)}
                 />
                 <CheckoutField
-                  label="Phone"
+                  label={t("checkout.phone")}
                   name="phone"
                   type="tel"
                   value={formState.phone}
@@ -242,7 +245,7 @@ export function CheckoutPage() {
                   onChange={(value) => updateField("phone", value)}
                 />
                 <CheckoutField
-                  label="Email"
+                  label={t("checkout.email")}
                   name="email"
                   type="email"
                   value={formState.email}
@@ -253,24 +256,24 @@ export function CheckoutPage() {
               </div>
             </CheckoutPanel>
 
-            <CheckoutPanel title="Shipping address">
+            <CheckoutPanel title={t("checkout.shippingAddress")}>
               <div className="grid gap-4 md:grid-cols-2">
                 <CheckoutField
-                  label="Province"
+                  label={t("checkout.province")}
                   name="province"
                   value={formState.province}
                   autoComplete="address-level1"
                   onChange={(value) => updateField("province", value)}
                 />
                 <CheckoutField
-                  label="District"
+                  label={t("checkout.district")}
                   name="district"
                   value={formState.district}
                   autoComplete="address-level2"
                   onChange={(value) => updateField("district", value)}
                 />
                 <CheckoutField
-                  label="Ward"
+                  label={t("checkout.ward")}
                   name="ward"
                   value={formState.ward}
                   required={false}
@@ -278,14 +281,14 @@ export function CheckoutPage() {
                   onChange={(value) => updateField("ward", value)}
                 />
                 <CheckoutField
-                  label="Address line 1"
+                  label={t("checkout.addressLine1")}
                   name="addressLine1"
                   value={formState.addressLine1}
                   autoComplete="address-line1"
                   onChange={(value) => updateField("addressLine1", value)}
                 />
                 <CheckoutField
-                  label="Address line 2"
+                  label={t("checkout.addressLine2")}
                   name="addressLine2"
                   value={formState.addressLine2}
                   required={false}
@@ -296,20 +299,20 @@ export function CheckoutPage() {
               </div>
             </CheckoutPanel>
 
-            <CheckoutPanel title="Payment">
+            <CheckoutPanel title={t("checkout.payment")}>
               <fieldset className="mb-5 grid gap-3">
-                <legend className="sr-only">Shipping method</legend>
+                <legend className="sr-only">{t("checkout.shippingMethod")}</legend>
                 <PaymentOption
-                  label="Standard shipping"
-                  description="Backend preview calculates this shipping option."
+                  label={t("checkout.standardShipping")}
+                  description={t("checkout.standardShippingDescription")}
                   name="shippingMethod"
                   value="standard"
                   checked={formState.shippingMethod === "standard"}
                   onChange={() => updateField("shippingMethod", "standard")}
                 />
                 <PaymentOption
-                  label="Express shipping"
-                  description="Backend preview applies the express shipping fee."
+                  label={t("checkout.expressShipping")}
+                  description={t("checkout.expressShippingDescription")}
                   name="shippingMethod"
                   value="express"
                   checked={formState.shippingMethod === "express"}
@@ -317,18 +320,18 @@ export function CheckoutPage() {
                 />
               </fieldset>
               <fieldset className="grid gap-3">
-                <legend className="sr-only">Payment method</legend>
+                <legend className="sr-only">{t("checkout.paymentMethod")}</legend>
                 <PaymentOption
-                  label="Cash on delivery"
-                  description="Pay when the order is delivered."
+                  label={t("checkout.cod")}
+                  description={t("checkout.codDescription")}
                   name="paymentMethod"
                   value="cod"
                   checked={formState.paymentMethod === "cod"}
                   onChange={() => updateField("paymentMethod", "cod")}
                 />
                 <PaymentOption
-                  label="Online payment"
-                  description="Provider action will be connected by the payment tickets."
+                  label={t("checkout.online")}
+                  description={t("checkout.onlineDescription")}
                   name="paymentMethod"
                   value="online"
                   checked={formState.paymentMethod === "online"}
@@ -336,7 +339,7 @@ export function CheckoutPage() {
                 />
               </fieldset>
               <CheckoutField
-                label="Coupon code"
+                label={t("checkout.couponCode")}
                 name="couponCode"
                 value={formState.couponCode}
                 required={false}
@@ -345,7 +348,7 @@ export function CheckoutPage() {
               />
               <label className="mt-5 block text-sm font-medium text-stone-700">
                 <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                  Notes
+                  {t("checkout.notes")}
                 </span>
                 <textarea
                   name="notes"
@@ -368,7 +371,7 @@ export function CheckoutPage() {
                 "tracking-[0.16em] text-white hover:bg-stone-800",
               ].join(" ")}
             >
-              {isSubmitting ? "Processing..." : "Place Order"}
+              {isSubmitting ? t("checkout.processing") : t("checkout.placeOrder")}
             </button>
           </form>
 
@@ -378,13 +381,14 @@ export function CheckoutPage() {
             isPreviewLoading={isPreviewLoading}
             preview={preview}
             previewError={previewError}
+            t={t}
           />
         </section>
       ) : (
         <section className="rounded-2xl border border-stone-200 bg-white/88 p-8 text-center">
-          <h2 className="text-2xl text-stone-950">Your cart is empty</h2>
+          <h2 className="text-2xl text-stone-950">{t("checkout.emptyTitle")}</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-stone-600">
-            Add products to your cart before starting checkout.
+            {t("checkout.emptyDescription")}
           </p>
           <Link
             href="/products"
@@ -393,7 +397,7 @@ export function CheckoutPage() {
               "tracking-[0.16em] text-white hover:bg-stone-800",
             ].join(" ")}
           >
-            Browse Products
+            {t("checkout.returnToProducts")}
           </Link>
         </section>
       )}
@@ -487,16 +491,18 @@ function CheckoutSummary({
   isPreviewLoading,
   preview,
   previewError,
+  t,
 }: {
   cart: Cart;
   currencyCode: string;
   isPreviewLoading: boolean;
   preview: CheckoutPreview | null;
   previewError: string | null;
+  t: ReturnType<typeof useLanguage>["t"];
 }) {
   return (
     <aside className="rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-[0_20px_50px_rgba(28,25,23,0.05)]">
-      <h2 className="text-xl text-stone-950">Checkout preview</h2>
+      <h2 className="text-xl text-stone-950">{t("checkout.checkoutPreview")}</h2>
       <div className="mt-6 space-y-5">
         {cart.items.map((item) => (
           <div key={item.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-stone-100 pb-4">
@@ -513,31 +519,31 @@ function CheckoutSummary({
         ))}
       </div>
       <div className="mt-6 space-y-4 border-b border-stone-200 pb-6 text-sm text-stone-600">
-        {isPreviewLoading ? <p>Refreshing backend preview...</p> : null}
+        {isPreviewLoading ? <p>{t("checkout.refreshingBackendPreview")}</p> : null}
         {previewError ? <p className="text-red-700">{previewError}</p> : null}
         {preview?.validation_warnings.map((warning) => (
           <p className="text-amber-700" key={warning}>{warning}</p>
         ))}
         <SummaryRow
-          label="Subtotal"
-          value={preview ? formatMoney(preview.subtotal_amount, preview.currency_code) : "Backend preview"}
+          label={t("cart.subtotal")}
+          value={preview ? formatMoney(preview.subtotal_amount, preview.currency_code) : t("checkout.backendPreview")}
         />
         <SummaryRow
-          label="Discount"
-          value={preview ? formatMoney(preview.discount_amount, preview.currency_code) : "Backend preview"}
+          label={t("cart.discount")}
+          value={preview ? formatMoney(preview.discount_amount, preview.currency_code) : t("checkout.backendPreview")}
         />
         <SummaryRow
-          label="Shipping"
-          value={preview ? formatMoney(preview.shipping_amount, preview.currency_code) : "Backend preview"}
+          label={t("cart.shipping")}
+          value={preview ? formatMoney(preview.shipping_amount, preview.currency_code) : t("checkout.backendPreview")}
         />
         <SummaryRow
-          label="Tax"
-          value={preview ? formatMoney(preview.tax_amount, preview.currency_code) : "Backend preview"}
+          label={t("checkout.tax")}
+          value={preview ? formatMoney(preview.tax_amount, preview.currency_code) : t("checkout.backendPreview")}
         />
       </div>
       <div className="mt-6 flex items-center justify-between gap-4">
         <span className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
-          Preview total
+          {t("checkout.previewTotal")}
         </span>
         <span className="text-xl text-stone-950">
           {preview ? formatMoney(preview.total_amount, preview.currency_code) : formatMoney(0, currencyCode)}
