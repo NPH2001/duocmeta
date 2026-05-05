@@ -70,29 +70,29 @@ export function AdminMediaUploader({ label = "Upload media", onUploaded }: Admin
   }
 
   return (
-    <section className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{label}</p>
-      <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <section className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{label}</p>
+      <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
         Alt text
         <input
-          className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm normal-case text-stone-950"
+          className="mt-2 w-full rounded-xl border border-emerald-300 bg-white px-3 py-2 text-sm normal-case text-emerald-950"
           onChange={(event) => setAltText(event.target.value)}
           placeholder="Describe the uploaded media"
           type="text"
           value={altText}
         />
       </label>
-      <label className="mt-4 flex cursor-pointer justify-center rounded-full bg-stone-950 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-white">
+      <label className="mt-4 flex cursor-pointer justify-center rounded-full bg-emerald-950 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-white">
         Choose File
         <input accept="image/*,application/pdf" className="sr-only" onChange={handleFileChange} type="file" />
       </label>
       {uploadState.message ? (
-        <p className={uploadState.status === "error" ? "mt-3 text-sm text-red-700" : "mt-3 text-sm text-stone-600"}>
+        <p className={uploadState.status === "error" ? "mt-3 text-sm text-red-700" : "mt-3 text-sm text-emerald-900/75"}>
           {uploadState.message}
         </p>
       ) : null}
       {lastMedia ? (
-        <p className="mt-2 break-all text-xs text-stone-500">
+        <p className="mt-2 break-all text-xs text-emerald-700">
           Media ID: <span className="font-mono">{lastMedia.id}</span>
         </p>
       ) : null}

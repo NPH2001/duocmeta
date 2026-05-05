@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.catalog import InventoryTransaction, MediaFile, Product
 from app.models.commerce import Cart, CouponUsage, Order
+from app.models.content import Page, Post
 from app.models.base import Base
 from app.models.mixins import SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
 

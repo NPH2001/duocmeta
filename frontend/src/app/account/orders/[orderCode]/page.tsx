@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { OrderDetailPage } from "features/account/OrderDetailPage";
 import { noIndexRobots, siteName } from "lib/seo";
 
 type OrderDetailRouteProps = {
@@ -13,14 +13,12 @@ export async function generateMetadata({ params }: OrderDetailRouteProps): Promi
   const { orderCode } = await params;
 
   return {
-    title: `${orderCode} | Order Detail | ${siteName}`,
-    description: "Customer order detail.",
+    title: `${orderCode} | Chi tiết đơn hàng đã tắt | ${siteName}`,
+    description: "Duocmeta không hiển thị chi tiết đơn hàng qua tài khoản khách hàng trên storefront.",
     robots: noIndexRobots,
   };
 }
 
-export default async function OrderDetailRoute({ params }: OrderDetailRouteProps) {
-  const { orderCode } = await params;
-
-  return <OrderDetailPage orderCode={decodeURIComponent(orderCode)} />;
+export default function OrderDetailRoute() {
+  redirect("/");
 }

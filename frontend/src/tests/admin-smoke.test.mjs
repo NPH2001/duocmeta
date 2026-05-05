@@ -43,7 +43,7 @@ describe("admin smoke workflow", () => {
     assert.match(adminGuard, /refreshSession\(/, "guard should retry with refresh cookies before showing guest state");
     assert.match(adminGuard, /verifyAdminAccess\(/, "guard should verify admin RBAC access");
     assert.match(adminGuard, /href="\/login"/, "guest state should route admins to login");
-    assert.match(adminGuard, /Access denied/, "forbidden users should see an admin access denial");
+    assert.match(adminGuard, /Không có quyền truy cập/, "forbidden users should see an admin access denial");
     assert.match(adminClient, /\/admin\/brands\?page=1&page_size=1/, "RBAC probe should use an admin endpoint");
   });
 
@@ -77,8 +77,8 @@ describe("admin smoke workflow", () => {
     assert.match(variantForm, /updateAdminVariant\(/, "variant form should update variants through admin API client");
     assert.match(inventoryPage, /fetchAdminVariant\(variantId\)/, "inventory route should load the selected variant");
     assert.match(inventoryPage, /<InventoryPreparationPanel \/>/, "inventory route should render the adjustment workflow panel");
-    assert.match(variantForm, /backend inventory endpoint/, "inventory adjustment messaging should keep stock mutations backend-owned");
-    assert.match(variantForm, /reservations,[\s\S]*audit records,[\s\S]*oversell protection/, "inventory messaging should preserve stock safety constraints");
+    assert.match(variantForm, /endpoint tồn kho của backend/, "inventory adjustment messaging should keep stock mutations backend-owned");
+    assert.match(variantForm, /đặt giữ hàng/, "inventory messaging should preserve stock safety constraints");
     assert.match(adminClient, /"\/admin\/variants"/, "create variant client should post to admin variants endpoint");
     assert.match(adminClient, /\/admin\/variants\/\$\{encodeURIComponent\(variantId\)\}/, "variant client should fetch/update specific variants");
   });

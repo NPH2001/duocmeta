@@ -27,20 +27,20 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
   return (
     <html lang="en">
       <body>
-        <main className="min-h-screen bg-slate-50 px-6 py-16 text-center text-slate-950">
-          <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Unexpected error</p>
-          <h1 className="mt-3 text-3xl font-bold">A critical application error occurred.</h1>
-          <p className="mx-auto mt-4 max-w-xl text-slate-600">
+        <main className="min-h-screen bg-emerald-50 px-6 py-16 text-center text-emerald-950">
+          <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Lỗi không mong muốn</p>
+          <h1 className="mt-3 text-3xl font-bold">Ứng dụng gặp lỗi nghiêm trọng.</h1>
+          <p className="mx-auto mt-4 max-w-xl text-emerald-900/75">
             The issue was captured with a safe reference ID. Sensitive customer, order, payment, and credential data is
             not displayed in this error surface.
           </p>
-          {eventId ? <p className="mt-3 text-sm text-slate-500">Reference: {eventId}</p> : null}
+          {eventId ? <p className="mt-3 text-sm text-emerald-700">Mã tham chiếu: {eventId}</p> : null}
           <button
             type="button"
             onClick={reset}
-            className="mt-8 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="mt-8 rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
           >
-            Reload application
+            Tải lại ứng dụng
           </button>
         </main>
       </body>

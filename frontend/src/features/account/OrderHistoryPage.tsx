@@ -73,20 +73,20 @@ export function OrderHistoryPage() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10 md:py-14">
-      <section className="grid gap-5 border-b border-stone-200 pb-8 md:grid-cols-[1fr_auto] md:items-end">
+      <section className="grid gap-5 border-b border-emerald-100 pb-8 md:grid-cols-[1fr_auto] md:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Orders</p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950 md:text-5xl">Order history</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Orders</p>
+          <h1 className="mt-3 text-4xl leading-tight text-emerald-950 md:text-5xl">Order history</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-emerald-900/75">
             Orders are loaded from backend customer APIs and scoped to the authenticated account.
           </p>
         </div>
         <Link
           href="/account"
           className={[
-            "inline-flex justify-center rounded-full border border-stone-300 px-5 py-3",
-            "text-sm font-semibold uppercase tracking-[0.16em] text-stone-700",
-            "hover:border-stone-950 hover:text-stone-950",
+            "inline-flex justify-center rounded-full border border-emerald-300 px-5 py-3",
+            "text-sm font-semibold uppercase tracking-[0.16em] text-emerald-800",
+            "hover:border-emerald-950 hover:text-emerald-950",
           ].join(" ")}
         >
           Account
@@ -96,14 +96,14 @@ export function OrderHistoryPage() {
       {historyState.status === "loading" ? <StatePanel message="Loading orders..." /> : null}
 
       {historyState.status === "guest" ? (
-        <section className="rounded-2xl border border-stone-200 bg-white/88 p-8 text-center">
-          <h2 className="text-2xl text-stone-950">Login required</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-stone-600">{historyState.error}</p>
+        <section className="rounded-2xl border border-emerald-100 bg-white/88 p-8 text-center">
+          <h2 className="text-2xl text-emerald-950">Login required</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-emerald-900/75">{historyState.error}</p>
           <Link
             href="/login"
             className={[
-              "mt-6 inline-flex rounded-full bg-stone-950 px-6 py-3",
-              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-stone-800",
+              "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3",
+              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
             ].join(" ")}
           >
             Login
@@ -114,26 +114,26 @@ export function OrderHistoryPage() {
       {historyState.status === "error" ? <StatePanel message={historyState.error} tone="error" /> : null}
 
       {historyState.status === "ready" && historyState.orders.length === 0 ? (
-        <section className="rounded-2xl border border-stone-200 bg-white/88 p-8 text-center">
-          <h2 className="text-2xl text-stone-950">No orders yet</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-stone-600">
+        <section className="rounded-2xl border border-emerald-100 bg-white/88 p-8 text-center">
+          <h2 className="text-2xl text-emerald-950">No orders yet</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-emerald-900/75">
             Completed checkouts will appear here after backend order creation.
           </p>
           <Link
             href="/products"
             className={[
-              "mt-6 inline-flex rounded-full bg-stone-950 px-6 py-3",
-              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-stone-800",
+              "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3",
+              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
             ].join(" ")}
           >
-            Browse Products
+            Browse Sản phẩm
           </Link>
         </section>
       ) : null}
 
       {historyState.status === "ready" && historyState.orders.length > 0 ? (
         <>
-          <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white/88">
+          <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-white/88">
             {historyState.orders.map((order) => (
               <OrderRow key={order.id} order={order} />
             ))}
@@ -149,27 +149,27 @@ function OrderRow({ order }: { order: CustomerOrderListItem }) {
   return (
     <Link
       href={`/account/orders/${order.order_code}`}
-      className="grid gap-4 border-b border-stone-100 p-5 last:border-b-0 md:grid-cols-[1fr_auto]"
+      className="grid gap-4 border-b border-emerald-50 p-5 last:border-b-0 md:grid-cols-[1fr_auto]"
     >
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
           {order.order_code}
         </p>
-        <h2 className="mt-2 text-xl text-stone-950">{formatDate(order.placed_at ?? order.created_at)}</h2>
-        <p className="mt-2 text-sm text-stone-600">
+        <h2 className="mt-2 text-xl text-emerald-950">{formatDate(order.placed_at ?? order.created_at)}</h2>
+        <p className="mt-2 text-sm text-emerald-900/75">
           Payment {order.payment_status} / Fulfillment {order.fulfillment_status}
         </p>
       </div>
       <div className="flex flex-col gap-2 md:items-end">
         <span
           className={[
-            "rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase",
-            "tracking-[0.14em] text-stone-700",
+            "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase",
+            "tracking-[0.14em] text-emerald-800",
           ].join(" ")}
         >
           {order.status}
         </span>
-        <span className="text-lg text-stone-950">
+        <span className="text-lg text-emerald-950">
           {formatMoney(order.grand_total_amount, order.currency_code)}
         </span>
       </div>
@@ -190,11 +190,11 @@ function PaginationControls({
   return (
     <div
       className={[
-        "flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white/88 p-4",
+        "flex flex-col gap-3 rounded-2xl border border-emerald-100 bg-white/88 p-4",
         "sm:flex-row sm:items-center sm:justify-between",
       ].join(" ")}
     >
-      <p className="text-sm text-stone-600">
+      <p className="text-sm text-emerald-900/75">
         Page {meta.page} of {meta.total_pages || 1} / {meta.total} orders
       </p>
       <div className="flex gap-3">
@@ -202,17 +202,17 @@ function PaginationControls({
           type="button"
           disabled={!canGoBack}
           onClick={() => onPageChange(meta.page - 1)}
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 disabled:text-stone-400"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800 disabled:text-emerald-600"
         >
-          Previous
+          Trước
         </button>
         <button
           type="button"
           disabled={!canGoForward}
           onClick={() => onPageChange(meta.page + 1)}
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 disabled:text-stone-400"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800 disabled:text-emerald-600"
         >
-          Next
+          Sau
         </button>
       </div>
     </div>
@@ -223,7 +223,7 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-8 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white/80 p-8 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white/80 p-8 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }

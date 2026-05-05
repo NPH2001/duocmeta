@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
 
   if (!product) {
     return buildPublicMetadata({
-      title: "Product Not Found",
+      title: "Không tìm thấy sản phẩm",
       path: `/products/${slug}`,
     });
   }
@@ -49,8 +49,8 @@ export default async function ProductRoute({ params }: ProductRouteProps) {
       <ProductDetailPage product={product} />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Products", path: "/products" },
+          { name: "Trang chủ", path: "/" },
+          { name: "Sản phẩm", path: "/products" },
           { name: product.name, path: `/products/${product.slug}` },
         ])}
       />

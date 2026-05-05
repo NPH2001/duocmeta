@@ -40,7 +40,7 @@ export function AdminCouponsPage() {
       })
       .catch((caughtError) => {
         if (isMounted) {
-          const message = caughtError instanceof Error ? caughtError.message : "Could not load coupons.";
+          const message = caughtError instanceof Error ? caughtError.message : "Không thể tải mã giảm giá.";
           setCouponsState({ status: "error", coupons: [], meta: null, error: message });
         }
       });
@@ -79,44 +79,44 @@ export function AdminCouponsPage() {
         });
       }
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : "Coupon action failed.";
+      const message = caughtError instanceof Error ? caughtError.message : "Thao tác mã giảm giá thất bại.";
       setActionError(message);
     }
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6 md:grid-cols-[1fr_auto]">
+      <section className="grid gap-4 rounded-2xl border border-emerald-100 bg-white p-6 md:grid-cols-[1fr_auto]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
-            Marketing
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+            Khuyến mãi
           </p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950">Coupons</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
-            Manage coupon definitions through backend admin APIs. Eligibility, discount calculation,
-            and checkout enforcement remain server-side.
+          <h1 className="mt-3 text-4xl leading-tight text-emerald-950">Mã giảm giá</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-900/75">
+            Quản lý mã giảm giá qua API quản trị. Điều kiện áp dụng, cách tính giảm giá
+            và kiểm tra khi thanh toán vẫn được xử lý ở máy chủ.
           </p>
         </div>
         <Link
           href="/admin/coupons/new"
           className={[
-            "inline-flex h-fit justify-center rounded-full bg-stone-950 px-5 py-3",
-            "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-stone-800",
+            "inline-flex h-fit justify-center rounded-full bg-emerald-950 px-5 py-3",
+            "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
           ].join(" ")}
         >
-          Create Coupon
+          Thêm mã giảm giá
         </Link>
       </section>
 
       {actionError ? <StatePanel message={actionError} tone="error" /> : null}
-      {couponsState.status === "loading" ? <StatePanel message="Loading coupons..." /> : null}
+      {couponsState.status === "loading" ? <StatePanel message="Đang tải mã giảm giá..." /> : null}
       {couponsState.status === "error" ? <StatePanel message={couponsState.error} tone="error" /> : null}
 
       {couponsState.status === "ready" ? (
         <>
-          <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+          <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-white">
             {couponsState.coupons.length === 0 ? (
-              <div className="p-6 text-sm text-stone-600">No coupons found.</div>
+              <div className="p-6 text-sm text-emerald-900/75">Chưa có mã giảm giá.</div>
             ) : (
               couponsState.coupons.map((coupon) => (
                 <CouponRow coupon={coupon} key={coupon.id} onActiveToggle={handleActiveToggle} />
@@ -138,39 +138,39 @@ function CouponRow({
   onActiveToggle: (coupon: AdminCoupon) => void;
 }) {
   return (
-    <article className="grid gap-4 border-b border-stone-100 p-5 last:border-b-0 xl:grid-cols-[1fr_auto]">
+    <article className="grid gap-4 border-b border-emerald-50 p-5 last:border-b-0 xl:grid-cols-[1fr_auto]">
       <div>
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-xl text-stone-950">{coupon.code}</h2>
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase text-stone-700">
-            {coupon.is_active ? "active" : "inactive"}
+          <h2 className="text-xl text-emerald-950">{coupon.code}</h2>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase text-emerald-800">
+            {coupon.is_active ? "Đang hoạt động" : "Tạm ngừng"}
           </span>
           <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase text-emerald-700">
             {formatDiscount(coupon)}
           </span>
         </div>
-        <p className="mt-2 text-sm text-stone-700">{coupon.name}</p>
-        <p className="mt-2 text-sm text-stone-600">
-          Min order {formatOptionalMoney(coupon.min_order_value)} / Max discount{" "}
+        <p className="mt-2 text-sm text-emerald-800">{coupon.name}</p>
+        <p className="mt-2 text-sm text-emerald-900/75">
+          Đơn tối thiểu {formatOptionalMoney(coupon.min_order_value)} / Giảm tối đa{" "}
           {formatOptionalMoney(coupon.max_discount_value)}
         </p>
-        <p className="mt-2 text-sm text-stone-600">
-          Active {formatOptionalDate(coupon.starts_at)} to {formatOptionalDate(coupon.ends_at)}
+        <p className="mt-2 text-sm text-emerald-900/75">
+          Hiệu lực {formatOptionalDate(coupon.starts_at)} đến {formatOptionalDate(coupon.ends_at)}
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row xl:items-center">
         <Link
-          className="rounded-full border border-stone-300 px-4 py-2 text-center text-sm text-stone-700"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-center text-sm text-emerald-800"
           href={`/admin/coupons/${coupon.id}/edit`}
         >
-          Edit
+          Sửa
         </Link>
         <button
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800"
           onClick={() => onActiveToggle(coupon)}
           type="button"
         >
-          {coupon.is_active ? "Deactivate" : "Activate"}
+          {coupon.is_active ? "Tạm ngừng" : "Kích hoạt"}
         </button>
       </div>
     </article>
@@ -190,29 +190,29 @@ function PaginationControls({
   return (
     <div
       className={[
-        "flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-4",
+        "flex flex-col gap-3 rounded-2xl border border-emerald-100 bg-white p-4",
         "sm:flex-row sm:justify-between",
       ].join(" ")}
     >
-      <p className="text-sm text-stone-600">
-        Page {meta.page} of {meta.total_pages || 1} / {meta.total} coupons
+      <p className="text-sm text-emerald-900/75">
+        Trang {meta.page} / {meta.total_pages || 1} · {meta.total} mã giảm giá
       </p>
       <div className="flex gap-3">
         <button
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 disabled:text-stone-400"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800 disabled:text-emerald-600"
           disabled={!canGoBack}
           onClick={() => onPageChange(meta.page - 1)}
           type="button"
         >
-          Previous
+          Trước
         </button>
         <button
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 disabled:text-stone-400"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800 disabled:text-emerald-600"
           disabled={!canGoForward}
           onClick={() => onPageChange(meta.page + 1)}
           type="button"
         >
-          Next
+          Sau
         </button>
       </div>
     </div>
@@ -223,7 +223,7 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white p-5 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }
@@ -237,7 +237,7 @@ function formatDiscount(coupon: AdminCoupon): string {
 }
 
 function formatOptionalMoney(value: string | null): string {
-  return value ? formatMoney(value) : "Not set";
+  return value ? formatMoney(value) : "Chưa thiết lập";
 }
 
 function formatMoney(value: string): string {
@@ -250,7 +250,7 @@ function formatMoney(value: string): string {
 
 function formatOptionalDate(value: string | null): string {
   if (!value) {
-    return "not set";
+    return "chưa thiết lập";
   }
 
   return new Intl.DateTimeFormat("en", {

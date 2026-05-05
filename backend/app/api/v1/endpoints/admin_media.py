@@ -8,7 +8,7 @@ from app.api.dependencies.auth import require_permission
 from app.core.config import Settings, get_settings
 from app.core.db import get_db_session
 from app.models.identity import User
-from app.schemas.media import MediaCompleteRequest, MediaPresignRequest, MediaPresignResponse, MediaResponse
+from app.schemas.media import MediaCompleteRequest, MediaPresignRequest, MediaResponse
 from app.services.media import MediaService, MediaServiceError
 
 

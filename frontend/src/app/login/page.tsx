@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AuthPageShell } from "features/auth/AuthPageShell";
 import { LoginForm } from "features/auth/AuthForms";
@@ -8,8 +7,8 @@ import { buildPublicMetadata, noIndexRobots } from "lib/seo";
 export function generateMetadata(): Metadata {
   return {
     ...buildPublicMetadata({
-    title: "Login",
-    description: "Log in to your Duocmeta customer account.",
+    title: "Đăng nhập quản trị",
+    description: "Đăng nhập dành riêng cho quản trị viên Duocmeta.",
     path: "/login",
     }),
     robots: noIndexRobots,
@@ -19,19 +18,14 @@ export function generateMetadata(): Metadata {
 export default function LoginPage() {
   return (
     <AuthPageShell
-      eyebrow="Customer Login"
-      title="Access your Duocmeta account."
-      description="The page is ready for the backend auth endpoints while persistent frontend auth state remains scoped to the next ticket."
-      footerLabel="New to Duocmeta?"
-      footerHref="/register"
-      footerCta="Create an account"
+      eyebrow="Khu vực quản trị"
+      title="Đăng nhập để quản lý bài viết và sản phẩm."
+      description="Trang này chỉ dành cho quản trị viên có quyền backend RBAC. Khách hàng không cần đăng nhập để xem sản phẩm hoặc đọc bài viết."
+      footerLabel="Bạn là khách hàng?"
+      footerHref="/"
+      footerCta="Quay lại trang chủ"
     >
       <LoginForm />
-      <p className="mt-5 text-right text-sm">
-        <Link href="/forgot-password" className="font-medium text-stone-950 hover:text-emerald-800">
-          Forgot password?
-        </Link>
-      </p>
     </AuthPageShell>
   );
 }

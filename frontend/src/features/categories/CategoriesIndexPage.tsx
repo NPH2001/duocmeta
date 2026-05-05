@@ -11,14 +11,14 @@ export function CategoriesIndexPage() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-12 px-6 py-12 md:py-16">
-      <section className="space-y-5 border-b border-stone-200 pb-10">
+      <section className="space-y-5 border-b border-emerald-100 pb-10">
         <p className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-700">
           {t("nav.categories")}
         </p>
-        <h1 className="max-w-4xl text-4xl leading-tight text-stone-950 md:text-6xl">
+        <h1 className="max-w-4xl text-4xl leading-tight text-emerald-950 md:text-6xl">
           {t("categories.indexTitle")}
         </h1>
-        <p className="max-w-2xl text-base leading-8 text-stone-600 md:text-lg">
+        <p className="max-w-2xl text-base leading-8 text-emerald-900/75 md:text-lg">
           {t("categories.indexDescription")}
         </p>
       </section>
@@ -27,18 +27,18 @@ export function CategoriesIndexPage() {
         {categories.map((category) => (
           <article
             key={category.slug}
-            className="flex min-h-72 flex-col justify-between rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-[0_18px_50px_rgba(28,25,23,0.05)]"
+            className="flex min-h-72 flex-col justify-between rounded-2xl border border-emerald-100 bg-white/90 p-6 shadow-[0_18px_50px_rgba(6,78,59,0.07)]"
           >
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700">
                 {category.productCount} {t("nav.products").toLowerCase()}
               </p>
-              <h2 className="mt-6 text-2xl leading-tight text-stone-950">{category.name}</h2>
-              <p className="mt-4 text-sm leading-7 text-stone-600">{category.description}</p>
+              <h2 className="mt-6 text-2xl leading-tight text-emerald-950">{category.name}</h2>
+              <p className="mt-4 text-sm leading-7 text-emerald-900/75">{category.description}</p>
             </div>
             <Link
               href={`/categories/${category.slug}`}
-              className="mt-8 w-fit rounded-full bg-stone-950 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white"
+              className="mt-8 w-fit rounded-full bg-emerald-950 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white"
             >
               {t("categories.viewCategory")}
             </Link>

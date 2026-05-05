@@ -61,10 +61,10 @@ const defaults: Record<FormKind, FormState> = {
 };
 
 const labels: Record<FormKind, { singular: string; listHref: string }> = {
-  pages: { singular: "page", listHref: "/admin/cms/pages" },
-  posts: { singular: "post", listHref: "/admin/cms/posts" },
-  seo: { singular: "SEO metadata", listHref: "/admin/cms/seo" },
-  redirects: { singular: "redirect", listHref: "/admin/cms/redirects" },
+  pages: { singular: "trang", listHref: "/admin/cms/pages" },
+  posts: { singular: "bài viết", listHref: "/admin/cms/posts" },
+  seo: { singular: "metadata SEO", listHref: "/admin/cms/seo" },
+  redirects: { singular: "chuyển hướng", listHref: "/admin/cms/redirects" },
 };
 
 export function AdminCmsFormPage({ id, kind, mode }: { id?: string; kind: FormKind; mode: FormMode }) {
@@ -93,7 +93,7 @@ export function AdminCmsFormPage({ id, kind, mode }: { id?: string; kind: FormKi
         }
       } catch (caughtError) {
         if (isMounted) {
-          const message = caughtError instanceof Error ? caughtError.message : `Could not load ${label.singular}.`;
+          const message = caughtError instanceof Error ? caughtError.message : `Không thể tải ${label.singular}.`;
           setLoadState({ status: "error", resource: null, error: message });
         }
       }
@@ -115,7 +115,7 @@ export function AdminCmsFormPage({ id, kind, mode }: { id?: string; kind: FormKi
       const resource = await saveResource(kind, mode, id, formState);
       router.push(`${label.listHref}/${resource.id}/edit`);
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : `${label.singular} save failed.`;
+      const message = caughtError instanceof Error ? caughtError.message : `Không thể lưu ${label.singular}.`;
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
@@ -128,46 +128,46 @@ export function AdminCmsFormPage({ id, kind, mode }: { id?: string; kind: FormKi
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6 md:grid-cols-[1fr_auto]">
+      <section className="grid gap-4 rounded-2xl border border-emerald-100 bg-white p-6 md:grid-cols-[1fr_auto]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">CMS</p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950">
-            {mode === "create" ? "Create" : "Edit"} {label.singular}
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">CMS</p>
+          <h1 className="mt-3 text-4xl leading-tight text-emerald-950">
+            {mode === "create" ? "Thêm" : "Sửa"} {label.singular}
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
-            This form submits definitions to backend admin CMS APIs; publication, metadata, and
-            redirect rules remain backend-owned.
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-900/75">
+            Biểu mẫu này gửi dữ liệu tới API quản trị CMS. Trạng thái đăng, metadata và
+            quy tắc chuyển hướng vẫn được backend xác thực.
           </p>
         </div>
-        <Link className="inline-flex h-fit justify-center rounded-full border border-stone-300 px-5 py-3 text-sm" href={label.listHref}>
+        <Link className="inline-flex h-fit justify-center rounded-full border border-emerald-300 px-5 py-3 text-sm" href={label.listHref}>
           Back
         </Link>
       </section>
 
-      {loadState.status === "loading" ? <StatePanel message="Loading form..." /> : null}
+      {loadState.status === "loading" ? <StatePanel message="Đang tải biểu mẫu..." /> : null}
       {loadState.status === "error" ? <StatePanel message={loadState.error} tone="error" /> : null}
       {loadState.status === "ready" ? (
         <form className="grid gap-6 xl:grid-cols-[1fr_340px]" onSubmit={handleSubmit}>
-          <section className="rounded-2xl border border-stone-200 bg-white p-6">
+          <section className="rounded-2xl border border-emerald-100 bg-white p-6">
             <div className="grid gap-5 md:grid-cols-2">{renderFields(kind, formState, updateField)}</div>
           </section>
           <aside className="flex flex-col gap-5">
             {kind === "seo" ? (
               <AdminMediaUploader
-                label="Open Graph image"
+                label="Ảnh Open Graph"
                 onUploaded={(media) => updateField("ogImageMediaId", media.id)}
               />
             ) : null}
-            <section className="rounded-2xl border border-stone-200 bg-white p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Authority</p>
-              <p className="mt-3 text-sm leading-6 text-stone-600">
-                The backend validates slug uniqueness, publication state, SEO entity ownership, and
-                redirect status codes.
+            <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Nguồn kiểm soát</p>
+              <p className="mt-3 text-sm leading-6 text-emerald-900/75">
+                Backend kiểm tra slug duy nhất, trạng thái đăng, quyền sở hữu SEO và
+                mã trạng thái chuyển hướng.
               </p>
             </section>
             {submitError ? <StatePanel message={submitError} tone="error" /> : null}
-            <button className="rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white disabled:bg-stone-400" disabled={isSubmitting} type="submit">
-              {isSubmitting ? "Saving..." : "Save"}
+            <button className="rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white disabled:bg-emerald-400" disabled={isSubmitting} type="submit">
+              {isSubmitting ? "Đang lưu..." : "Save"}
             </button>
           </aside>
         </form>
@@ -180,10 +180,10 @@ function renderFields(kind: FormKind, state: FormState, updateField: (field: str
   if (kind === "redirects") {
     return (
       <>
-        <TextField label="From path" required value={String(state.fromPath)} onChange={(value) => updateField("fromPath", value)} />
-        <TextField label="To path" required value={String(state.toPath)} onChange={(value) => updateField("toPath", value)} />
-        <TextField label="Status code" required type="number" value={String(state.statusCode)} onChange={(value) => updateField("statusCode", value)} />
-        <CheckField label="Active redirect" checked={Boolean(state.isActive)} onChange={(value) => updateField("isActive", value)} />
+        <TextField label="Đường dẫn nguồn" required value={String(state.fromPath)} onChange={(value) => updateField("fromPath", value)} />
+        <TextField label="Đường dẫn đích" required value={String(state.toPath)} onChange={(value) => updateField("toPath", value)} />
+        <TextField label="Mã trạng thái" required type="number" value={String(state.statusCode)} onChange={(value) => updateField("statusCode", value)} />
+        <CheckField label="Chuyển hướng đang hoạt động" checked={Boolean(state.isActive)} onChange={(value) => updateField("isActive", value)} />
       </>
     );
   }
@@ -191,33 +191,33 @@ function renderFields(kind: FormKind, state: FormState, updateField: (field: str
   if (kind === "seo") {
     return (
       <>
-        <TextField label="Entity type" required value={String(state.entityType)} onChange={(value) => updateField("entityType", value)} />
-        <TextField label="Entity ID" required value={String(state.entityId)} onChange={(value) => updateField("entityId", value)} />
-        <TextField label="Meta title" value={String(state.metaTitle)} onChange={(value) => updateField("metaTitle", value)} />
-        <TextField label="Meta description" value={String(state.metaDescription)} onChange={(value) => updateField("metaDescription", value)} />
-        <TextField label="Canonical URL" value={String(state.canonicalUrl)} onChange={(value) => updateField("canonicalUrl", value)} />
+        <TextField label="Loại đối tượng" required value={String(state.entityType)} onChange={(value) => updateField("entityType", value)} />
+        <TextField label="ID đối tượng" required value={String(state.entityId)} onChange={(value) => updateField("entityId", value)} />
+        <TextField label="Tiêu đề meta" value={String(state.metaTitle)} onChange={(value) => updateField("metaTitle", value)} />
+        <TextField label="Mô tả meta" value={String(state.metaDescription)} onChange={(value) => updateField("metaDescription", value)} />
+        <TextField label="URL canonical" value={String(state.canonicalUrl)} onChange={(value) => updateField("canonicalUrl", value)} />
         <TextField label="Robots" value={String(state.robots)} onChange={(value) => updateField("robots", value)} />
-        <TextField label="OG title" value={String(state.ogTitle)} onChange={(value) => updateField("ogTitle", value)} />
-        <TextField label="OG description" value={String(state.ogDescription)} onChange={(value) => updateField("ogDescription", value)} />
-        <TextField label="OG image media ID" value={String(state.ogImageMediaId)} onChange={(value) => updateField("ogImageMediaId", value)} />
-        <JsonField label="Schema JSON" value={String(state.schemaJson)} onChange={(value) => updateField("schemaJson", value)} />
+        <TextField label="Tiêu đề OG" value={String(state.ogTitle)} onChange={(value) => updateField("ogTitle", value)} />
+        <TextField label="Mô tả OG" value={String(state.ogDescription)} onChange={(value) => updateField("ogDescription", value)} />
+        <TextField label="ID ảnh OG" value={String(state.ogImageMediaId)} onChange={(value) => updateField("ogImageMediaId", value)} />
+        <JsonField label="JSON schema" value={String(state.schemaJson)} onChange={(value) => updateField("schemaJson", value)} />
       </>
     );
   }
 
   return (
     <>
-      <TextField label="Title" required value={String(state.title)} onChange={(value) => updateField("title", value)} />
+      <TextField label="Tiêu đề" required value={String(state.title)} onChange={(value) => updateField("title", value)} />
       <TextField label="Slug" required value={String(state.slug)} onChange={(value) => updateField("slug", value)} />
       {kind === "posts" ? (
         <>
-          <TextField label="Summary" value={String(state.summary)} onChange={(value) => updateField("summary", value)} />
-          <TextField label="Tag IDs comma-separated" value={String(state.tagIds)} onChange={(value) => updateField("tagIds", value)} />
+          <TextField label="Tóm tắt" value={String(state.summary)} onChange={(value) => updateField("summary", value)} />
+          <TextField label="ID thẻ, phân tách bằng dấu phẩy" value={String(state.tagIds)} onChange={(value) => updateField("tagIds", value)} />
         </>
       ) : null}
-      <SelectField label="Status" value={String(state.status)} onChange={(value) => updateField("status", value)} />
-      <TextField label="Published at" type="datetime-local" value={String(state.publishedAt)} onChange={(value) => updateField("publishedAt", value)} />
-      <JsonField label="Content JSON" value={String(state.content)} onChange={(value) => updateField("content", value)} />
+      <SelectField label="Trạng thái" value={String(state.status)} onChange={(value) => updateField("status", value)} />
+      <TextField label="Ngày đăng" type="datetime-local" value={String(state.publishedAt)} onChange={(value) => updateField("publishedAt", value)} />
+      <JsonField label="Nội dung JSON" value={String(state.content)} onChange={(value) => updateField("content", value)} />
     </>
   );
 }
@@ -329,30 +329,30 @@ function formStateFromResource(kind: FormKind, resource: LoadedResource): FormSt
 
 function TextField({ label, onChange, required = false, type = "text", value }: { label: string; onChange: (value: string) => void; required?: boolean; type?: "datetime-local" | "number" | "text"; value: string }) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
       {label}
-      <input className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case text-stone-950" onChange={(event) => onChange(event.target.value)} required={required} type={type} value={value} />
+      <input className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case text-emerald-950" onChange={(event) => onChange(event.target.value)} required={required} type={type} value={value} />
     </label>
   );
 }
 
 function JsonField({ label, onChange, value }: { label: string; onChange: (value: string) => void; value: string }) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500 md:col-span-2">
+    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 md:col-span-2">
       {label}
-      <textarea className="mt-3 min-h-56 w-full rounded-xl border border-stone-300 px-3 py-3 font-mono text-sm normal-case text-stone-950" onChange={(event) => onChange(event.target.value)} value={value} />
+      <textarea className="mt-3 min-h-56 w-full rounded-xl border border-emerald-300 px-3 py-3 font-mono text-sm normal-case text-emerald-950" onChange={(event) => onChange(event.target.value)} value={value} />
     </label>
   );
 }
 
 function SelectField({ label, onChange, value }: { label: string; onChange: (value: string) => void; value: string }) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
       {label}
-      <select className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case text-stone-950" onChange={(event) => onChange(event.target.value)} value={value}>
-        <option value="draft">Draft</option>
-        <option value="published">Published</option>
-        <option value="archived">Archived</option>
+      <select className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case text-emerald-950" onChange={(event) => onChange(event.target.value)} value={value}>
+        <option value="draft">Bản nháp</option>
+        <option value="published">Đã đăng</option>
+        <option value="archived">Đã lưu trữ</option>
       </select>
     </label>
   );
@@ -360,7 +360,7 @@ function SelectField({ label, onChange, value }: { label: string; onChange: (val
 
 function CheckField({ checked, label, onChange }: { checked: boolean; label: string; onChange: (value: boolean) => void }) {
   return (
-    <label className="flex items-center gap-3 rounded-xl border border-stone-200 p-4 text-sm">
+    <label className="flex items-center gap-3 rounded-xl border border-emerald-100 p-4 text-sm">
       <input checked={checked} onChange={(event) => onChange(event.target.checked)} type="checkbox" />
       {label}
     </label>
@@ -368,7 +368,7 @@ function CheckField({ checked, label, onChange }: { checked: boolean; label: str
 }
 
 function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "neutral" | "error" }) {
-  const className = tone === "error" ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800" : "rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600";
+  const className = tone === "error" ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800" : "rounded-2xl border border-emerald-100 bg-white p-5 text-sm text-emerald-900/75";
   return <div className={className}>{message}</div>;
 }
 

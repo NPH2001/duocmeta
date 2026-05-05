@@ -70,7 +70,7 @@ export function AccountOverviewPage() {
   if (accountState.status === "loading") {
     return (
       <AccountShell title="Account" eyebrow="Customer">
-        <div className="rounded-2xl border border-stone-200 bg-white/80 p-8 text-sm text-stone-600">
+        <div className="rounded-2xl border border-emerald-100 bg-white/80 p-8 text-sm text-emerald-900/75">
           Loading account...
         </div>
       </AccountShell>
@@ -80,9 +80,9 @@ export function AccountOverviewPage() {
   if (accountState.status === "guest") {
     return (
       <AccountShell title="Login required" eyebrow="Customer">
-        <section className="rounded-2xl border border-stone-200 bg-white/88 p-8 text-center">
-          <h2 className="text-2xl text-stone-950">Access your account</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-stone-600">
+        <section className="rounded-2xl border border-emerald-100 bg-white/88 p-8 text-center">
+          <h2 className="text-2xl text-emerald-950">Access your account</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-emerald-900/75">
             {accountState.error}
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
@@ -99,15 +99,15 @@ export function AccountOverviewPage() {
   return (
     <AccountShell title="Account overview" eyebrow="Customer">
       <section className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="rounded-2xl border border-stone-200 bg-white/88 p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
+        <div className="rounded-2xl border border-emerald-100 bg-white/88 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
             Profile
           </p>
-          <h2 className="mt-4 text-3xl text-stone-950">{user.full_name}</h2>
+          <h2 className="mt-4 text-3xl text-emerald-950">{user.full_name}</h2>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <ProfileField label="Email" value={user.email} />
             <ProfileField label="Phone" value={user.phone ?? "Not provided"} />
-            <ProfileField label="Status" value={user.status} />
+            <ProfileField label="Trạng thái" value={user.status} />
             <ProfileField
               label="Email verification"
               value={user.email_verified_at ? "Verified" : "Pending"}
@@ -115,17 +115,17 @@ export function AccountOverviewPage() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-stone-200 bg-stone-950 p-6 text-stone-100">
+        <aside className="rounded-2xl border border-emerald-100 bg-emerald-950 p-6 text-emerald-50">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
             Orders
           </p>
           <h2 className="mt-4 text-2xl leading-tight">View purchase history</h2>
-          <p className="mt-3 text-sm leading-7 text-stone-300">
+          <p className="mt-3 text-sm leading-7 text-emerald-100">
             Order data stays owned by backend APIs. The next screens will list and open your own orders.
           </p>
           <Link
             href="/account/orders"
-            className="mt-6 inline-flex w-full justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-stone-950 hover:bg-stone-100"
+            className="mt-6 inline-flex w-full justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-emerald-950 hover:bg-emerald-50"
           >
             Order History
           </Link>
@@ -156,9 +156,9 @@ function AccountShell({
 }) {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10 md:py-14">
-      <section className="border-b border-stone-200 pb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{eyebrow}</p>
-        <h1 className="mt-3 text-4xl leading-tight text-stone-950 md:text-5xl">{title}</h1>
+      <section className="border-b border-emerald-100 pb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">{eyebrow}</p>
+        <h1 className="mt-3 text-4xl leading-tight text-emerald-950 md:text-5xl">{title}</h1>
       </section>
       {children}
     </div>
@@ -167,18 +167,18 @@ function AccountShell({
 
 function ProfileField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-stone-50/80 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{label}</p>
-      <p className="mt-2 break-words text-sm font-medium text-stone-950">{value}</p>
+    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{label}</p>
+      <p className="mt-2 break-words text-sm font-medium text-emerald-950">{value}</p>
     </div>
   );
 }
 
 function ActionCard({ title, description, href }: { title: string; description: string; href: string }) {
   return (
-    <Link href={href} className="rounded-2xl border border-stone-200 bg-white/88 p-5 hover:border-stone-400">
-      <p className="text-lg text-stone-950">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-stone-600">{description}</p>
+    <Link href={href} className="rounded-2xl border border-emerald-100 bg-white/88 p-5 hover:border-emerald-400">
+      <p className="text-lg text-emerald-950">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-emerald-900/75">{description}</p>
     </Link>
   );
 }
@@ -187,7 +187,7 @@ function PrimaryLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex justify-center rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-stone-800"
+      className="inline-flex justify-center rounded-full bg-emerald-950 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800"
     >
       {children}
     </Link>
@@ -198,7 +198,7 @@ function SecondaryLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex justify-center rounded-full border border-stone-300 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-stone-700 hover:border-stone-950 hover:text-stone-950"
+      className="inline-flex justify-center rounded-full border border-emerald-300 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-emerald-800 hover:border-emerald-950 hover:text-emerald-950"
     >
       {children}
     </Link>

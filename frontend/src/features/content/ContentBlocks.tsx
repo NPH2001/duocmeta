@@ -19,7 +19,7 @@ export function ContentBlocks({ content }: { content: Record<string, unknown> })
 
   if (!blocks || blocks.length === 0) {
     return (
-      <pre className="overflow-x-auto rounded-2xl border border-stone-200 bg-stone-50 p-5 text-sm leading-7 text-stone-700">
+      <pre className="overflow-x-auto rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-sm leading-7 text-emerald-800">
         {JSON.stringify(content, null, 2)}
       </pre>
     );
@@ -45,7 +45,7 @@ function ContentBlockRenderer({ block }: { block: unknown }) {
 
   if (type === "heading") {
     const level = typedBlock.level === 3 ? 3 : 2;
-    const className = "pt-4 text-2xl leading-tight text-stone-950 md:text-3xl";
+    const className = "pt-4 text-2xl leading-tight text-emerald-950 md:text-3xl";
 
     return level === 3 ? <h3 className={className}>{text}</h3> : <h2 className={className}>{text}</h2>;
   }
@@ -62,7 +62,7 @@ function ContentBlockRenderer({ block }: { block: unknown }) {
 
   if (type === "quote") {
     return (
-      <blockquote className="border-l-4 border-emerald-700 bg-emerald-50 px-5 py-4 text-stone-800">
+      <blockquote className="border-l-4 border-emerald-700 bg-emerald-50 px-5 py-4 text-emerald-900">
         {text}
       </blockquote>
     );
@@ -76,7 +76,7 @@ function ContentBlockRenderer({ block }: { block: unknown }) {
 
     if (!src) {
       return (
-        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-sm text-stone-600">
+        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-sm text-emerald-900/75">
           {typeof typedBlock.caption === "string" ? typedBlock.caption : "Image block"}
         </div>
       );
@@ -86,7 +86,7 @@ function ContentBlockRenderer({ block }: { block: unknown }) {
       <figure className="space-y-3">
         <Image
           alt={alt}
-          className="h-auto w-full rounded-2xl border border-stone-200 object-cover"
+          className="h-auto w-full rounded-2xl border border-emerald-100 object-cover"
           height={height}
           loading="lazy"
           sizes="(min-width: 1024px) 896px, calc(100vw - 48px)"
@@ -94,7 +94,7 @@ function ContentBlockRenderer({ block }: { block: unknown }) {
           width={width}
         />
         {typeof typedBlock.caption === "string" ? (
-          <figcaption className="text-sm text-stone-500">{typedBlock.caption}</figcaption>
+          <figcaption className="text-sm text-emerald-700">{typedBlock.caption}</figcaption>
         ) : null}
       </figure>
     );

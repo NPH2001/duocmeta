@@ -85,7 +85,7 @@ export function AdminVariantFormPage({
         }
       } catch (caughtError) {
         if (isMounted) {
-          const message = caughtError instanceof Error ? caughtError.message : "Could not load variant form.";
+          const message = caughtError instanceof Error ? caughtError.message : "Không thể tải biểu mẫu phiên bản.";
           setLoadState({ status: "error", products: [], variant: null, error: message });
         }
       }
@@ -98,8 +98,8 @@ export function AdminVariantFormPage({
     };
   }, [mode, variantId]);
 
-  const title = mode === "create" ? "Create variant" : "Edit variant";
-  const submitLabel = mode === "create" ? "Create Variant" : "Save Variant";
+  const title = mode === "create" ? "Thêm phiên bản" : "Sửa phiên bản";
+  const submitLabel = mode === "create" ? "Thêm phiên bản" : "Lưu phiên bản";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -115,7 +115,7 @@ export function AdminVariantFormPage({
 
       router.push(`/admin/variants/${variant.id}/edit`);
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : "Variant save failed.";
+      const message = caughtError instanceof Error ? caughtError.message : "Không thể lưu phiên bản.";
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
@@ -128,37 +128,37 @@ export function AdminVariantFormPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6 md:grid-cols-[1fr_auto]">
+      <section className="grid gap-4 rounded-2xl border border-emerald-100 bg-white p-6 md:grid-cols-[1fr_auto]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
-            Variants
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+            Phiên bản
           </p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950">{title}</h1>
+          <h1 className="mt-3 text-4xl leading-tight text-emerald-950">{title}</h1>
         </div>
         <Link
           href="/admin/variants"
-          className="inline-flex h-fit justify-center rounded-full border border-stone-300 px-5 py-3 text-sm"
+          className="inline-flex h-fit justify-center rounded-full border border-emerald-300 px-5 py-3 text-sm"
         >
-          Back to Variants
+          Quay lại phiên bản
         </Link>
       </section>
 
-      {loadState.status === "loading" ? <StatePanel message="Loading variant form..." /> : null}
+      {loadState.status === "loading" ? <StatePanel message="Đang tải biểu mẫu phiên bản..." /> : null}
       {loadState.status === "error" ? <StatePanel message={loadState.error} tone="error" /> : null}
 
       {loadState.status === "ready" ? (
         <form className="grid gap-6 xl:grid-cols-[1fr_340px]" onSubmit={handleSubmit}>
-          <section className="rounded-2xl border border-stone-200 bg-white p-6">
+          <section className="rounded-2xl border border-emerald-100 bg-white p-6">
             <div className="grid gap-5 md:grid-cols-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                Product
+              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                Sản phẩm
                 <select
-                  className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case"
+                  className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case"
                   onChange={(event) => updateField("productId", event.target.value)}
                   required
                   value={formState.productId}
                 >
-                  <option value="">Select product</option>
+                  <option value="">Chọn sản phẩm</option>
                   {loadState.products.map((product) => (
                     <option key={product.id} value={product.id}>
                       {product.name}
@@ -168,49 +168,49 @@ export function AdminVariantFormPage({
               </label>
               <TextField label="SKU" required value={formState.sku} onChange={(value) => updateField("sku", value)} />
               <TextField
-                label="Barcode"
+                label="Mã vạch"
                 value={formState.barcode}
                 onChange={(value) => updateField("barcode", value)}
               />
               <TextField
-                label="Price"
+                label="Giá"
                 required
                 type="number"
                 value={formState.price}
                 onChange={(value) => updateField("price", value)}
               />
               <TextField
-                label="Compare at price"
+                label="Giá so sánh"
                 type="number"
                 value={formState.compareAtPrice}
                 onChange={(value) => updateField("compareAtPrice", value)}
               />
               <TextField
-                label="Cost price"
+                label="Giá vốn"
                 type="number"
                 value={formState.costPrice}
                 onChange={(value) => updateField("costPrice", value)}
               />
               <TextField
-                label="Weight grams"
+                label="Khối lượng (gram)"
                 type="number"
                 value={formState.weightGrams}
                 onChange={(value) => updateField("weightGrams", value)}
               />
-              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                Status
+              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                Trạng thái
                 <select
-                  className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case"
+                  className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case"
                   onChange={(event) => updateField("status", event.target.value)}
                   value={formState.status}
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="archived">Archived</option>
+                  <option value="active">Đang hoạt động</option>
+                  <option value="inactive">Tạm ngừng</option>
+                  <option value="archived">Đã lưu trữ</option>
                 </select>
               </label>
               <TextField
-                label="Image media ID"
+                label="ID hình ảnh"
                 value={formState.imageMediaId}
                 onChange={(value) => updateField("imageMediaId", value)}
               />
@@ -219,20 +219,20 @@ export function AdminVariantFormPage({
 
           <aside className="flex flex-col gap-5">
             <AdminMediaUploader
-              label="Variant image"
+              label="Ảnh phiên bản"
               onUploaded={(media) => updateField("imageMediaId", media.id)}
             />
             <InventoryPreparationPanel />
             {submitError ? <StatePanel message={submitError} tone="error" /> : null}
             <button
               className={[
-                "rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold uppercase",
-                "tracking-[0.16em] text-white disabled:bg-stone-400",
+                "rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold uppercase",
+                "tracking-[0.16em] text-white disabled:bg-emerald-400",
               ].join(" ")}
               disabled={isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Saving..." : submitLabel}
+              {isSubmitting ? "Đang lưu..." : submitLabel}
             </button>
           </aside>
         </form>
@@ -243,14 +243,14 @@ export function AdminVariantFormPage({
 
 export function InventoryPreparationPanel() {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-        Inventory
+    <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+        Tồn kho
       </p>
-      <h2 className="mt-3 text-xl text-stone-950">Adjustment workflow</h2>
-      <p className="mt-3 text-sm leading-6 text-stone-600">
-        Manual stock changes must be submitted through a backend inventory endpoint so reservations,
-        audit records, and oversell protection stay authoritative.
+      <h2 className="mt-3 text-xl text-emerald-950">Quy trình điều chỉnh</h2>
+      <p className="mt-3 text-sm leading-6 text-emerald-900/75">
+        Mọi thay đổi tồn kho thủ công phải đi qua endpoint tồn kho của backend để đặt giữ hàng,
+        nhật ký kiểm toán và kiểm soát bán vượt tồn được xác thực tập trung.
       </p>
     </section>
   );
@@ -270,10 +270,10 @@ function TextField({
   value: string;
 }) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
       {label}
       <input
-        className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case text-stone-950"
+        className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case text-emerald-950"
         onChange={(event) => onChange(event.target.value)}
         required={required}
         type={type}
@@ -287,7 +287,7 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white p-5 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }

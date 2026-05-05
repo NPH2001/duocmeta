@@ -98,7 +98,7 @@ export function AdminProductFormPage({
         }
       } catch (caughtError) {
         if (isMounted) {
-          const message = caughtError instanceof Error ? caughtError.message : "Could not load form data.";
+          const message = caughtError instanceof Error ? caughtError.message : "Không thể tải dữ liệu biểu mẫu.";
           setOptionsState({ status: "error", brands: [], categories: [], product: null, error: message });
         }
       }
@@ -111,8 +111,8 @@ export function AdminProductFormPage({
     };
   }, [mode, productId]);
 
-  const title = mode === "create" ? "Create product" : "Edit product";
-  const submitLabel = mode === "create" ? "Create Product" : "Save Product";
+  const title = mode === "create" ? "Thêm sản phẩm" : "Sửa sản phẩm";
+  const submitLabel = mode === "create" ? "Thêm sản phẩm" : "Lưu sản phẩm";
 
   const selectedCategorySet = useMemo(() => new Set(formState.categoryIds), [formState.categoryIds]);
 
@@ -133,7 +133,7 @@ export function AdminProductFormPage({
 
       router.push(`/admin/products/${product.id}/edit`);
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : "Product save failed.";
+      const message = caughtError instanceof Error ? caughtError.message : "Không thể lưu sản phẩm.";
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
@@ -156,30 +156,30 @@ export function AdminProductFormPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6 md:grid-cols-[1fr_auto]">
+      <section className="grid gap-4 rounded-2xl border border-emerald-100 bg-white p-6 md:grid-cols-[1fr_auto]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
-            Products
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+            Sản phẩm
           </p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950">{title}</h1>
+          <h1 className="mt-3 text-4xl leading-tight text-emerald-950">{title}</h1>
         </div>
         <Link
           href="/admin/products"
-          className="inline-flex h-fit justify-center rounded-full border border-stone-300 px-5 py-3 text-sm"
+          className="inline-flex h-fit justify-center rounded-full border border-emerald-300 px-5 py-3 text-sm"
         >
-          Back to Products
+          Quay lại sản phẩm
         </Link>
       </section>
 
-      {optionsState.status === "loading" ? <StatePanel message="Loading product form..." /> : null}
+      {optionsState.status === "loading" ? <StatePanel message="Đang tải biểu mẫu sản phẩm..." /> : null}
       {optionsState.status === "error" ? <StatePanel message={optionsState.error} tone="error" /> : null}
 
       {optionsState.status === "ready" ? (
         <form className="grid gap-6 xl:grid-cols-[1fr_340px]" onSubmit={handleSubmit}>
-          <section className="rounded-2xl border border-stone-200 bg-white p-6">
+          <section className="rounded-2xl border border-emerald-100 bg-white p-6">
             <div className="grid gap-5 md:grid-cols-2">
               <TextField
-                label="Name"
+                label="Tên"
                 required
                 value={formState.name}
                 onChange={(value) => updateField("name", value)}
@@ -192,48 +192,48 @@ export function AdminProductFormPage({
               />
               <TextField label="SKU" value={formState.sku} onChange={(value) => updateField("sku", value)} />
               <TextField
-                label="Product type"
+                label="Loại sản phẩm"
                 required
                 value={formState.productType}
                 onChange={(value) => updateField("productType", value)}
               />
               <TextField
-                label="Currency"
+                label="Tiền tệ"
                 maxLength={3}
                 required
                 value={formState.currencyCode}
                 onChange={(value) => updateField("currencyCode", value.toUpperCase())}
               />
               <TextField
-                label="Minimum price"
+                label="Giá thấp nhất"
                 type="number"
                 value={formState.minPrice}
                 onChange={(value) => updateField("minPrice", value)}
               />
               <TextField
-                label="Maximum price"
+                label="Giá cao nhất"
                 type="number"
                 value={formState.maxPrice}
                 onChange={(value) => updateField("maxPrice", value)}
               />
-              <label className="flex items-center gap-3 rounded-xl border border-stone-200 p-4 text-sm">
+              <label className="flex items-center gap-3 rounded-xl border border-emerald-100 p-4 text-sm">
                 <input
                   checked={formState.isFeatured}
                   onChange={(event) => updateField("isFeatured", event.target.checked)}
                   type="checkbox"
                 />
-                Featured product
+                Sản phẩm nổi bật
               </label>
             </div>
 
             <div className="mt-5 grid gap-5">
               <TextAreaField
-                label="Short description"
+                label="Mô tả ngắn"
                 value={formState.shortDescription}
                 onChange={(value) => updateField("shortDescription", value)}
               />
               <TextAreaField
-                label="Description"
+                label="Mô tả"
                 minRows={8}
                 value={formState.description}
                 onChange={(value) => updateField("description", value)}
@@ -242,15 +242,15 @@ export function AdminProductFormPage({
           </section>
 
           <aside className="flex flex-col gap-5">
-            <section className="rounded-2xl border border-stone-200 bg-white p-5">
-              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                Brand
+            <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                Thương hiệu
                 <select
-                  className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case"
+                  className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case"
                   value={formState.brandId}
                   onChange={(event) => updateField("brandId", event.target.value)}
                 >
-                  <option value="">No brand</option>
+                  <option value="">Chưa chọn thương hiệu</option>
                   {optionsState.brands.map((brand) => (
                     <option key={brand.id} value={brand.id}>
                       {brand.name}
@@ -260,16 +260,16 @@ export function AdminProductFormPage({
               </label>
             </section>
 
-            <section className="rounded-2xl border border-stone-200 bg-white p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                Categories
+            <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                Danh mục
               </p>
               <div className="mt-4 flex max-h-72 flex-col gap-3 overflow-auto pr-1">
                 {optionsState.categories.length === 0 ? (
-                  <p className="text-sm text-stone-600">No categories available.</p>
+                  <p className="text-sm text-emerald-900/75">Chưa có danh mục.</p>
                 ) : (
                   optionsState.categories.map((category) => (
-                    <label className="flex items-center gap-3 text-sm text-stone-700" key={category.id}>
+                    <label className="flex items-center gap-3 text-sm text-emerald-800" key={category.id}>
                       <input
                         checked={selectedCategorySet.has(category.id)}
                         onChange={() => toggleCategory(category.id)}
@@ -285,13 +285,13 @@ export function AdminProductFormPage({
             {submitError ? <StatePanel message={submitError} tone="error" /> : null}
             <button
               className={[
-                "rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold uppercase",
-                "tracking-[0.16em] text-white disabled:bg-stone-400",
+                "rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold uppercase",
+                "tracking-[0.16em] text-white disabled:bg-emerald-400",
               ].join(" ")}
               disabled={isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Saving..." : submitLabel}
+              {isSubmitting ? "Đang lưu..." : submitLabel}
             </button>
           </aside>
         </form>
@@ -316,10 +316,10 @@ function TextField({
   value: string;
 }) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
       {label}
       <input
-        className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case text-stone-950"
+        className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case text-emerald-950"
         maxLength={maxLength}
         onChange={(event) => onChange(event.target.value)}
         required={required}
@@ -342,10 +342,10 @@ function TextAreaField({
   value: string;
 }) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
       {label}
       <textarea
-        className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case text-stone-950"
+        className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case text-emerald-950"
         onChange={(event) => onChange(event.target.value)}
         rows={minRows}
         value={value}
@@ -358,7 +358,7 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white p-5 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }

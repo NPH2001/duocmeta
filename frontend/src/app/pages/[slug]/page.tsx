@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ContentRouteProps): Promise<M
 
   if (!page) {
     return buildPublicMetadata({
-      title: "Page Not Found",
+      title: "Không tìm thấy trang",
       path: `/pages/${slug}`,
     });
   }
@@ -60,7 +60,7 @@ export default async function ContentRoute({ params }: ContentRouteProps) {
       <ContentPage page={page} />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
+          { name: "Trang chủ", path: "/" },
           { name: page.title, path: `/pages/${page.slug}` },
         ])}
       />

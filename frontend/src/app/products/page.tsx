@@ -7,8 +7,8 @@ export const revalidate = 3600;
 
 export function generateMetadata(): Metadata {
   return buildPublicMetadata({
-    title: "Products",
-    description: "Browse Duocmeta products through an SEO-friendly storefront index.",
+    title: "Sản phẩm",
+    description: "Duyệt sản phẩm Duocmeta qua trang danh sách tối ưu SEO.",
     path: "/products",
   });
 }

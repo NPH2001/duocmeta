@@ -4,30 +4,30 @@ import type { ReactNode } from "react";
 import { AdminAuthGuard } from "features/admin/AdminAuthGuard";
 
 const adminNavItems = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/products", label: "Products" },
-  { href: "/admin/variants", label: "Variants" },
-  { href: "/admin/orders", label: "Orders" },
-  { href: "/admin/coupons", label: "Coupons" },
-  { href: "/admin/cms", label: "CMS" },
-  { href: "/admin/media", label: "Media" },
-  { href: "/admin/settings", label: "Settings" },
+  { href: "/admin", label: "Tổng quan" },
+  { href: "/admin/products", label: "Sản phẩm" },
+  { href: "/admin/variants", label: "Phiên bản" },
+  { href: "/admin/orders", label: "Đơn hàng" },
+  { href: "/admin/coupons", label: "Mã giảm giá" },
+  { href: "/admin/cms", label: "Bài viết / CMS" },
+  { href: "/admin/media", label: "Thư viện ảnh" },
+  { href: "/admin/settings", label: "Cài đặt" },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <AdminAuthGuard>
-      <div className="min-h-[calc(100vh-192px)] bg-stone-100">
+      <div className="min-h-[calc(100vh-192px)] bg-emerald-50">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[260px_1fr]">
-          <aside className="rounded-2xl border border-stone-200 bg-stone-950 p-5 text-stone-100">
+          <aside className="rounded-2xl border border-emerald-100 bg-emerald-950 p-5 text-emerald-50">
             <Link href="/admin" className="text-lg font-semibold uppercase tracking-[0.24em]">
-              Admin
+              Quản trị
             </Link>
-            <nav aria-label="Admin" className="mt-8 flex gap-2 overflow-x-auto lg:flex-col">
+            <nav aria-label="Quản trị" className="mt-8 flex gap-2 overflow-x-auto lg:flex-col">
               {adminNavItems.map((item) => (
                 <Link
                   className={[
-                    "min-w-fit rounded-xl px-4 py-3 text-sm font-medium text-stone-300",
+                    "min-w-fit rounded-xl px-4 py-3 text-sm font-medium text-emerald-100",
                     "hover:bg-white/10 hover:text-white",
                   ].join(" ")}
                   href={item.href}

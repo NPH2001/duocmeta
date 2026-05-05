@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { OrderHistoryPage } from "features/account/OrderHistoryPage";
 import { noIndexRobots, siteName } from "lib/seo";
 
 export const metadata: Metadata = {
-  title: `Order History | ${siteName}`,
-  description: "Customer order history.",
+  title: `Lịch sử đơn hàng đã tắt | ${siteName}`,
+  description: "Duocmeta không hiển thị lịch sử đơn hàng qua tài khoản khách hàng trên storefront.",
   robots: noIndexRobots,
 };
 
 export default function OrdersRoute() {
-  return <OrderHistoryPage />;
+  redirect("/");
 }

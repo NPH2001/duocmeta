@@ -188,20 +188,20 @@ export function CheckoutPage() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10 md:py-14">
-      <section className="grid gap-5 border-b border-stone-200 pb-8 md:grid-cols-[1fr_auto] md:items-end">
+      <section className="grid gap-5 border-b border-emerald-100 pb-8 md:grid-cols-[1fr_auto] md:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{t("checkout.kicker")}</p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950 md:text-5xl">{t("checkout.title")}</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">{t("checkout.kicker")}</p>
+          <h1 className="mt-3 text-4xl leading-tight text-emerald-950 md:text-5xl">{t("checkout.title")}</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-emerald-900/75">
             {t("checkout.description")}
           </p>
         </div>
         <Link
           href="/cart"
           className={[
-            "inline-flex justify-center rounded-full border border-stone-300 px-5 py-3",
-            "text-sm font-semibold uppercase tracking-[0.16em] text-stone-700",
-            "hover:border-stone-950 hover:text-stone-950",
+            "inline-flex justify-center rounded-full border border-emerald-300 px-5 py-3",
+            "text-sm font-semibold uppercase tracking-[0.16em] text-emerald-800",
+            "hover:border-emerald-950 hover:text-emerald-950",
           ].join(" ")}
         >
           {t("checkout.backToCart")}
@@ -221,7 +221,7 @@ export function CheckoutPage() {
       ) : null}
 
       {isLoading ? (
-        <div className="rounded-2xl border border-stone-200 bg-white/80 p-8 text-sm text-stone-600">
+        <div className="rounded-2xl border border-emerald-100 bg-white/80 p-8 text-sm text-emerald-900/75">
           {t("checkout.loading")}
         </div>
       ) : cart && cart.items.length > 0 ? (
@@ -346,8 +346,8 @@ export function CheckoutPage() {
                 onChange={(value) => updateField("couponCode", value)}
                 className="mt-5"
               />
-              <label className="mt-5 block text-sm font-medium text-stone-700">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+              <label className="mt-5 block text-sm font-medium text-emerald-800">
+                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
                   {t("checkout.notes")}
                 </span>
                 <textarea
@@ -356,8 +356,8 @@ export function CheckoutPage() {
                   onChange={(event) => updateField("notes", event.target.value)}
                   rows={4}
                   className={[
-                    "w-full rounded-2xl border border-stone-300 bg-white px-4 py-3",
-                    "text-sm text-stone-950 outline-none focus:border-stone-950",
+                    "w-full rounded-2xl border border-emerald-300 bg-white px-4 py-3",
+                    "text-sm text-emerald-950 outline-none focus:border-emerald-950",
                   ].join(" ")}
                 />
               </label>
@@ -367,8 +367,8 @@ export function CheckoutPage() {
               type="submit"
               disabled={isSubmitting}
               className={[
-                "w-full rounded-full bg-stone-950 px-6 py-4 text-sm font-semibold uppercase",
-                "tracking-[0.16em] text-white hover:bg-stone-800",
+                "w-full rounded-full bg-emerald-950 px-6 py-4 text-sm font-semibold uppercase",
+                "tracking-[0.16em] text-white hover:bg-emerald-800",
               ].join(" ")}
             >
               {isSubmitting ? t("checkout.processing") : t("checkout.placeOrder")}
@@ -385,16 +385,16 @@ export function CheckoutPage() {
           />
         </section>
       ) : (
-        <section className="rounded-2xl border border-stone-200 bg-white/88 p-8 text-center">
-          <h2 className="text-2xl text-stone-950">{t("checkout.emptyTitle")}</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-stone-600">
+        <section className="rounded-2xl border border-emerald-100 bg-white/88 p-8 text-center">
+          <h2 className="text-2xl text-emerald-950">{t("checkout.emptyTitle")}</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-emerald-900/75">
             {t("checkout.emptyDescription")}
           </p>
           <Link
             href="/products"
             className={[
-              "mt-6 inline-flex rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold uppercase",
-              "tracking-[0.16em] text-white hover:bg-stone-800",
+              "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3 text-sm font-semibold uppercase",
+              "tracking-[0.16em] text-white hover:bg-emerald-800",
             ].join(" ")}
           >
             {t("checkout.returnToProducts")}
@@ -407,8 +407,8 @@ export function CheckoutPage() {
 
 function CheckoutPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white/88 p-6">
-      <h2 className="mb-5 text-xl text-stone-950">{title}</h2>
+    <section className="rounded-2xl border border-emerald-100 bg-white/88 p-6">
+      <h2 className="mb-5 text-xl text-emerald-950">{title}</h2>
       {children}
     </section>
   );
@@ -434,8 +434,8 @@ function CheckoutField({
   className?: string;
 }) {
   return (
-    <label className={`block text-sm font-medium text-stone-700 ${className}`}>
-      <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{label}</span>
+    <label className={`block text-sm font-medium text-emerald-800 ${className}`}>
+      <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{label}</span>
       <input
         name={name}
         type={type}
@@ -444,8 +444,8 @@ function CheckoutField({
         autoComplete={autoComplete}
         onChange={(event) => onChange(event.target.value)}
         className={[
-          "h-12 w-full rounded-full border border-stone-300 bg-white px-4",
-          "text-sm text-stone-950 outline-none focus:border-stone-950",
+          "h-12 w-full rounded-full border border-emerald-300 bg-white px-4",
+          "text-sm text-emerald-950 outline-none focus:border-emerald-950",
         ].join(" ")}
       />
     </label>
@@ -468,7 +468,7 @@ function PaymentOption({
   onChange: () => void;
 }) {
   return (
-    <label className="flex cursor-pointer gap-4 rounded-2xl border border-stone-200 bg-stone-50/80 p-4">
+    <label className="flex cursor-pointer gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4">
       <input
         type="radio"
         name={name}
@@ -478,8 +478,8 @@ function PaymentOption({
         className="mt-1 h-4 w-4 accent-emerald-700"
       />
       <span>
-        <span className="block font-medium text-stone-950">{label}</span>
-        <span className="mt-1 block text-sm leading-6 text-stone-600">{description}</span>
+        <span className="block font-medium text-emerald-950">{label}</span>
+        <span className="mt-1 block text-sm leading-6 text-emerald-900/75">{description}</span>
       </span>
     </label>
   );
@@ -501,28 +501,28 @@ function CheckoutSummary({
   t: ReturnType<typeof useLanguage>["t"];
 }) {
   return (
-    <aside className="rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-[0_20px_50px_rgba(28,25,23,0.05)]">
-      <h2 className="text-xl text-stone-950">{t("checkout.checkoutPreview")}</h2>
+    <aside className="rounded-2xl border border-emerald-100 bg-white/90 p-6 shadow-[0_20px_50px_rgba(6,78,59,0.07)]">
+      <h2 className="text-xl text-emerald-950">{t("checkout.checkoutPreview")}</h2>
       <div className="mt-6 space-y-5">
         {cart.items.map((item) => (
-          <div key={item.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-stone-100 pb-4">
+          <div key={item.id} className="grid grid-cols-[1fr_auto] gap-4 border-b border-emerald-50 pb-4">
             <div>
-              <p className="font-medium text-stone-950">{item.product.name}</p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-stone-500">
+              <p className="font-medium text-emerald-950">{item.product.name}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
                 {item.variant.sku} x {item.quantity}
               </p>
             </div>
-            <p className="text-sm text-stone-950">
+            <p className="text-sm text-emerald-950">
               {formatMoney(Number(item.variant.price) * item.quantity, item.product.currency_code)}
             </p>
           </div>
         ))}
       </div>
-      <div className="mt-6 space-y-4 border-b border-stone-200 pb-6 text-sm text-stone-600">
+      <div className="mt-6 space-y-4 border-b border-emerald-100 pb-6 text-sm text-emerald-900/75">
         {isPreviewLoading ? <p>{t("checkout.refreshingBackendPreview")}</p> : null}
         {previewError ? <p className="text-red-700">{previewError}</p> : null}
         {preview?.validation_warnings.map((warning) => (
-          <p className="text-amber-700" key={warning}>{warning}</p>
+          <p className="text-emerald-700" key={warning}>{warning}</p>
         ))}
         <SummaryRow
           label={t("cart.subtotal")}
@@ -542,10 +542,10 @@ function CheckoutSummary({
         />
       </div>
       <div className="mt-6 flex items-center justify-between gap-4">
-        <span className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
+        <span className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">
           {t("checkout.previewTotal")}
         </span>
-        <span className="text-xl text-stone-950">
+        <span className="text-xl text-emerald-950">
           {preview ? formatMoney(preview.total_amount, preview.currency_code) : formatMoney(0, currencyCode)}
         </span>
       </div>
@@ -557,7 +557,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4">
       <span>{label}</span>
-      <span className="text-right font-medium text-stone-950">{value}</span>
+      <span className="text-right font-medium text-emerald-950">{value}</span>
     </div>
   );
 }

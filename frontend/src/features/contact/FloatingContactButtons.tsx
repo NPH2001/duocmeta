@@ -12,8 +12,8 @@ const contactLabelKeys: Record<ContactChannel, TranslationKey> = {
 
 const contactClassNames: Record<ContactChannel, string> = {
   phone: "bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-emerald-500",
-  zalo: "bg-sky-600 hover:bg-sky-700 focus-visible:ring-sky-500",
-  messenger: "bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-500",
+  zalo: "bg-teal-600 hover:bg-teal-700 focus-visible:ring-teal-500",
+  messenger: "bg-green-600 hover:bg-green-700 focus-visible:ring-green-500",
 };
 
 export function FloatingContactButtons() {
@@ -38,7 +38,7 @@ export function FloatingContactButtons() {
             rel={link.href.startsWith("http") ? "noreferrer" : undefined}
             className={[
               "group inline-flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg",
-              "shadow-stone-950/20 transition hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2",
+              "shadow-emerald-950/20 transition hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2",
               "focus-visible:ring-offset-2 focus-visible:ring-offset-white md:h-14 md:w-14",
               contactClassNames[link.channel],
             ].join(" ")}

@@ -5,8 +5,8 @@ import { AdminLayout } from "features/admin/AdminLayout";
 import { noIndexRobots, siteName } from "lib/seo";
 
 export const metadata: Metadata = {
-  title: `Admin | ${siteName}`,
-  description: "Commerce administration.",
+  title: `Quản trị | ${siteName}`,
+  description: "Quản trị bán hàng.",
   robots: noIndexRobots,
 };
 

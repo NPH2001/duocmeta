@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: CategoryRouteProps): Promise<
 
   if (!category) {
     return buildPublicMetadata({
-      title: "Category Not Found",
+      title: "Không tìm thấy danh mục",
       path: `/categories/${slug}`,
     });
   }
@@ -49,8 +49,8 @@ export default async function CategoryRoute({ params }: CategoryRouteProps) {
       <CategoryListingPage category={category} />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Categories", path: "/categories" },
+          { name: "Trang chủ", path: "/" },
+          { name: "Danh mục", path: "/categories" },
           { name: category.name, path: `/categories/${category.slug}` },
         ])}
       />

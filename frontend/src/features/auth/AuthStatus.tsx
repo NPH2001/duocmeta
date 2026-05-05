@@ -83,7 +83,7 @@ export function AuthStatus() {
 
   if (authState.status === "loading") {
     return (
-      <span className="hidden rounded-full border border-stone-200 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 lg:inline-flex">
+      <span className="hidden rounded-full border border-emerald-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600 lg:inline-flex">
         {t("nav.account")}
       </span>
     );
@@ -92,7 +92,7 @@ export function AuthStatus() {
   if (authState.status === "authenticated") {
     return (
       <div className="hidden items-center gap-3 lg:flex">
-        <span className="max-w-36 truncate text-sm font-medium text-stone-700">
+        <span className="max-w-36 truncate text-sm font-medium text-emerald-800">
           {authState.user.full_name}
         </span>
         <button
@@ -101,7 +101,7 @@ export function AuthStatus() {
             clearAccessToken();
             setAuthState({ status: "guest", user: null });
           }}
-          className="rounded-full border border-stone-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-700 transition hover:border-stone-950 hover:text-stone-950"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800 transition hover:border-emerald-950 hover:text-emerald-950"
         >
           {t("nav.signOut")}
         </button>
@@ -112,7 +112,7 @@ export function AuthStatus() {
   return (
     <Link
       href="/login"
-      className="hidden rounded-full border border-stone-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-700 transition hover:border-stone-950 hover:text-stone-950 lg:inline-flex"
+      className="hidden rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800 transition hover:border-emerald-950 hover:text-emerald-950 lg:inline-flex"
     >
       {t("nav.login")}
     </Link>

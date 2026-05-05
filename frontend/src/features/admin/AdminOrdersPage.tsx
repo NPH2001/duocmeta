@@ -50,12 +50,12 @@ export function AdminOrdersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-2xl border border-stone-200 bg-white p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+      <section className="rounded-2xl border border-emerald-100 bg-white p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
           Operations
         </p>
-        <h1 className="mt-3 text-4xl leading-tight text-stone-950">Orders</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
+        <h1 className="mt-3 text-4xl leading-tight text-emerald-950">Orders</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-900/75">
           Review customer orders and run workflow actions through backend admin order APIs.
         </p>
       </section>
@@ -65,9 +65,9 @@ export function AdminOrdersPage() {
 
       {ordersState.status === "ready" ? (
         <>
-          <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+          <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-white">
             {ordersState.orders.length === 0 ? (
-              <div className="p-6 text-sm text-stone-600">No orders found.</div>
+              <div className="p-6 text-sm text-emerald-900/75">No orders found.</div>
             ) : (
               ordersState.orders.map((order) => <OrderRow key={order.id} order={order} />)
             )}
@@ -82,22 +82,22 @@ export function AdminOrdersPage() {
 function OrderRow({ order }: { order: AdminOrderListItem }) {
   return (
     <Link
-      className="grid gap-4 border-b border-stone-100 p-5 last:border-b-0 xl:grid-cols-[1fr_auto]"
+      className="grid gap-4 border-b border-emerald-50 p-5 last:border-b-0 xl:grid-cols-[1fr_auto]"
       href={`/admin/orders/${order.order_code}`}
     >
       <div>
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-xl text-stone-950">{order.order_code}</h2>
+          <h2 className="text-xl text-emerald-950">{order.order_code}</h2>
           <StatusBadge value={order.status} />
         </div>
-        <p className="mt-2 text-sm text-stone-600">
+        <p className="mt-2 text-sm text-emerald-900/75">
           Payment {order.payment_status} / Fulfillment {order.fulfillment_status}
         </p>
-        <p className="mt-2 text-sm text-stone-600">
+        <p className="mt-2 text-sm text-emerald-900/75">
           {formatOptionalDate(order.placed_at ?? order.created_at)}
         </p>
       </div>
-      <p className="text-lg text-stone-950 xl:text-right">
+      <p className="text-lg text-emerald-950 xl:text-right">
         {formatMoney(order.grand_total_amount, order.currency_code)}
       </p>
     </Link>
@@ -117,29 +117,29 @@ function PaginationControls({
   return (
     <div
       className={[
-        "flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-4",
+        "flex flex-col gap-3 rounded-2xl border border-emerald-100 bg-white p-4",
         "sm:flex-row sm:justify-between",
       ].join(" ")}
     >
-      <p className="text-sm text-stone-600">
+      <p className="text-sm text-emerald-900/75">
         Page {meta.page} of {meta.total_pages || 1} / {meta.total} orders
       </p>
       <div className="flex gap-3">
         <button
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 disabled:text-stone-400"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800 disabled:text-emerald-600"
           disabled={!canGoBack}
           onClick={() => onPageChange(meta.page - 1)}
           type="button"
         >
-          Previous
+          Trước
         </button>
         <button
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 disabled:text-stone-400"
+          className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800 disabled:text-emerald-600"
           disabled={!canGoForward}
           onClick={() => onPageChange(meta.page + 1)}
           type="button"
         >
-          Next
+          Sau
         </button>
       </div>
     </div>
@@ -148,7 +148,7 @@ function PaginationControls({
 
 function StatusBadge({ value }: { value: string }) {
   return (
-    <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase text-stone-700">
+    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase text-emerald-800">
       {value}
     </span>
   );
@@ -158,14 +158,14 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white p-5 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }
 
 function formatOptionalDate(value: string | null): string {
   if (!value) {
-    return "Not set";
+    return "Chưa thiết lập";
   }
 
   return new Intl.DateTimeFormat("en", {

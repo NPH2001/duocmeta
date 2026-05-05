@@ -15,30 +15,41 @@ function expectFile(relativePath) {
   return readSource(relativePath);
 }
 
-describe("EN/VI storefront language switching", () => {
-  it("provides a dependency-free translation layer with English and Vietnamese dictionaries", () => {
+describe("Vietnamese-first storefront language", () => {
+  it("uses Vietnamese as the fixed public default locale", () => {
     const i18n = expectFile("src/lib/i18n.ts");
+    const provider = expectFile("src/features/i18n/LanguageProvider.tsx");
+    const layout = expectFile("src/app/layout.tsx");
 
-    assert.match(i18n, /locales = \["en", "vi"\]/, "supported locales should be locked to EN and VI");
-    assert.match(i18n, /defaultLocale: Locale = "en"/, "English should remain the safe default locale");
-    assert.match(i18n, /"nav\.products": "Products"/, "English navigation copy should be present");
+    assert.match(i18n, /defaultLocale: Locale = "vi"/, "Vietnamese should be the default locale");
     assert.match(i18n, /"nav\.products": "Sản phẩm"/, "Vietnamese navigation copy should be present");
-    assert.match(i18n, /"home\.title"/, "homepage copy should be translated through dictionary keys");
-    assert.match(i18n, /"checkout\.placeOrder"/, "checkout action copy should be translated through dictionary keys");
+    assert.match(layout, /<html lang="vi"/, "root html should declare Vietnamese");
+    assert.doesNotMatch(provider, /localStorage\.setItem\(localeStorageKey, nextLocale\)/, "public locale should not be changed from the header");
+    assert.match(provider, /document\.documentElement\.lang = defaultLocale/, "provider should keep the document language on the Vietnamese default");
   });
 
-  it("wraps the app in the language provider and renders a persistent switcher in the header", () => {
-    const layout = expectFile("src/app/layout.tsx");
+  it("removes customer auth and language controls from the public header while keeping admin login", () => {
     const header = expectFile("src/components/layout/SiteHeader.tsx");
-    const provider = expectFile("src/features/i18n/LanguageProvider.tsx");
-    const switcher = expectFile("src/features/i18n/LanguageSwitcher.tsx");
 
-    assert.match(layout, /<LanguageProvider>/, "root layout should provide language context to the website");
-    assert.match(layout, /suppressHydrationWarning/, "html lang updates should avoid hydration warnings");
-    assert.match(header, /<LanguageSwitcher \/>/, "site header should expose the language switcher globally");
-    assert.match(provider, /localStorage\.setItem\(localeStorageKey, nextLocale\)/, "locale selection should persist in local storage");
-    assert.match(provider, /document\.cookie = `\$\{localeCookieName\}=\$\{nextLocale\}/, "locale selection should persist in a cookie");
-    assert.match(switcher, /aria-pressed=\{locale === option\}/, "switcher buttons should expose selected state accessibly");
+    assert.doesNotMatch(header, /<LanguageSwitcher \/>/, "site header should not expose language switching");
+    assert.doesNotMatch(header, /<AuthStatus \/>/, "site header should not expose customer login state");
+    assert.doesNotMatch(header, /href: "\/account"/, "customer account nav should be removed");
+    assert.match(header, /href="\/login"/, "admin login entry should remain available");
+    assert.match(header, /Quản trị/, "admin login entry should be labeled in Vietnamese");
+  });
+
+  it("redirects customer-only auth and account routes away from public login flows", () => {
+    for (const route of [
+      "src/app/register/page.tsx",
+      "src/app/forgot-password/page.tsx",
+      "src/app/account/page.tsx",
+      "src/app/account/orders/page.tsx",
+      "src/app/account/orders/[orderCode]/page.tsx",
+    ]) {
+      const source = expectFile(route);
+      assert.match(source, /redirect\(/, `${route} should redirect away from the disabled customer flow`);
+      assert.match(source, /noIndexRobots/, `${route} should be noindexed`);
+    }
   });
 
   it("routes core storefront and commerce UI through translation keys", () => {

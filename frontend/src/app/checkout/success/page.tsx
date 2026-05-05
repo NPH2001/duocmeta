@@ -10,8 +10,8 @@ type SuccessRouteProps = {
 };
 
 export const metadata: Metadata = {
-  title: `Order Success | ${siteName}`,
-  description: "Order confirmation page.",
+  title: `Đặt hàng thành công | ${siteName}`,
+  description: "Trang xác nhận đơn hàng.",
   robots: noIndexRobots,
 };
 

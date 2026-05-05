@@ -2,15 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import {
-  defaultLocale,
-  isLocale,
-  localeCookieName,
-  localeStorageKey,
-  translate,
-  type Locale,
-  type TranslationKey,
-} from "lib/i18n";
+import { defaultLocale, translate, type Locale, type TranslationKey } from "lib/i18n";
 
 type LanguageContextValue = {
   locale: Locale;
@@ -28,22 +20,13 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(defaultLocale);
 
   useEffect(() => {
-    const storedLocale = window.localStorage.getItem(localeStorageKey);
-    const cookieLocale = readLocaleCookie();
-    const nextLocale = isLocale(storedLocale) ? storedLocale : cookieLocale;
-
-    if (nextLocale) {
-      setLocaleState(nextLocale);
-      document.documentElement.lang = nextLocale;
-    }
+    document.documentElement.lang = defaultLocale;
   }, []);
 
   const value = useMemo<LanguageContextValue>(() => {
     function setLocale(nextLocale: Locale) {
       setLocaleState(nextLocale);
       document.documentElement.lang = nextLocale;
-      window.localStorage.setItem(localeStorageKey, nextLocale);
-      document.cookie = `${localeCookieName}=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax`;
     }
 
     return {
@@ -64,14 +47,4 @@ export function useLanguage() {
   }
 
   return context;
-}
-
-function readLocaleCookie(): Locale | null {
-  const match = document.cookie
-    .split(";")
-    .map((entry) => entry.trim())
-    .find((entry) => entry.startsWith(`${localeCookieName}=`));
-
-  const value = match?.split("=")[1];
-  return isLocale(value) ? value : null;
 }

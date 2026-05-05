@@ -8,7 +8,7 @@ export function LanguageSwitcher() {
   const { locale, setLocale, t } = useLanguage();
 
   return (
-    <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white px-1 py-1" aria-label={t("language.label")}>
+    <div className="flex items-center gap-1 rounded-full border border-emerald-100 bg-white px-1 py-1" aria-label={t("language.label")}>
       {locales.map((option) => (
         <button
           key={option}
@@ -18,7 +18,7 @@ export function LanguageSwitcher() {
           onClick={() => setLocale(option)}
           className={[
             "rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition",
-            locale === option ? "bg-stone-950 text-white" : "text-stone-500 hover:bg-stone-100 hover:text-stone-950",
+            locale === option ? "bg-emerald-950 text-white" : "text-emerald-700 hover:bg-emerald-50 hover:text-emerald-950",
           ].join(" ")}
         >
           {option.toUpperCase()}

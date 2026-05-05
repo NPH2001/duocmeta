@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { AccountOverviewPage } from "features/account/AccountOverviewPage";
 import { noIndexRobots, siteName } from "lib/seo";
 
 export const metadata: Metadata = {
-  title: `Account | ${siteName}`,
-  description: "Customer account overview.",
+  title: `Tài khoản khách hàng đã tắt | ${siteName}`,
+  description: "Duocmeta không yêu cầu tài khoản khách hàng trên storefront.",
   robots: noIndexRobots,
 };
 
 export default function AccountRoute() {
-  return <AccountOverviewPage />;
+  redirect("/");
 }

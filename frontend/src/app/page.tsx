@@ -8,7 +8,7 @@ export const revalidate = 3600;
 export function generateMetadata(): Metadata {
   return buildPublicMetadata({
     title: "Duocmeta",
-    description: "Production-grade ecommerce storefront foundation.",
+    description: "Nền tảng nhà thuốc trực tuyến Duocmeta.",
     path: "/",
   });
 }

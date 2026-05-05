@@ -47,7 +47,7 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
               setGuardState({
                 status: "forbidden",
                 user: null,
-                error: "Your account does not have access to the admin system.",
+                error: "Tài khoản của bạn không có quyền truy cập hệ thống quản trị.",
               });
             }
             return;
@@ -73,7 +73,7 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
           setGuardState({
             status: "forbidden",
             user: null,
-            error: "Your account does not have access to the admin system.",
+            error: "Tài khoản của bạn không có quyền truy cập hệ thống quản trị.",
           });
           return;
         }
@@ -81,7 +81,7 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
         setGuardState({
           status: "guest",
           user: null,
-          error: "Login is required to access the admin system.",
+          error: "Bạn cần đăng nhập tài khoản quản trị để truy cập khu vực này.",
         });
       }
     }
@@ -94,15 +94,15 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
   }, []);
 
   if (guardState.status === "loading") {
-    return <AdminStatePanel title="Checking access" message="Loading admin session..." />;
+    return <AdminStatePanel title="Đang kiểm tra quyền truy cập" message="Đang tải phiên quản trị..." />;
   }
 
   if (guardState.status === "guest") {
     return (
       <AdminStatePanel
-        action={<AdminLink href="/login">Login</AdminLink>}
+        action={<AdminLink href="/login">Đăng nhập quản trị</AdminLink>}
         message={guardState.error}
-        title="Login required"
+        title="Cần đăng nhập"
       />
     );
   }
@@ -110,10 +110,10 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
   if (guardState.status === "forbidden") {
     return (
       <AdminStatePanel
-        action={<AdminLink href="/">Back to Storefront</AdminLink>}
+        action={<AdminLink href="/">Quay lại trang chủ</AdminLink>}
         message={guardState.error}
         tone="error"
-        title="Access denied"
+        title="Không có quyền truy cập"
       />
     );
   }
@@ -139,12 +139,12 @@ function AdminStatePanel({
   const className =
     tone === "error"
       ? "mx-auto max-w-2xl rounded-2xl border border-red-200 bg-red-50 p-8 text-center"
-      : "mx-auto max-w-2xl rounded-2xl border border-stone-200 bg-white p-8 text-center";
+      : "mx-auto max-w-2xl rounded-2xl border border-emerald-100 bg-white p-8 text-center";
 
   return (
     <section className={className}>
-      <h1 className="text-3xl text-stone-950">{title}</h1>
-      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-stone-600">{message}</p>
+      <h1 className="text-3xl text-emerald-950">{title}</h1>
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-emerald-900/75">{message}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </section>
   );
@@ -155,8 +155,8 @@ function AdminLink({ children, href }: { children: string; href: string }) {
     <Link
       href={href}
       className={[
-        "inline-flex justify-center rounded-full bg-stone-950 px-6 py-3",
-        "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-stone-800",
+        "inline-flex justify-center rounded-full bg-emerald-950 px-6 py-3",
+        "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
       ].join(" ")}
     >
       {children}

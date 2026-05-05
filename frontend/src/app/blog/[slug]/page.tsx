@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: BlogPostRouteProps): Promise<
 
   if (!post) {
     return buildPublicMetadata({
-      title: "Post Not Found",
+      title: "Không tìm thấy bài viết",
       path: `/blog/${slug}`,
     });
   }
@@ -69,8 +69,8 @@ export default async function BlogPostRoute({ params }: BlogPostRouteProps) {
       <BlogDetailPage post={post} />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Journal", path: "/blog" },
+          { name: "Trang chủ", path: "/" },
+          { name: "Bài viết", path: "/blog" },
           { name: post.title, path: `/blog/${post.slug}` },
         ])}
       />

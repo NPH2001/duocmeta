@@ -25,18 +25,18 @@ export default function AppError({ error, reset }: AppErrorProps) {
 
   return (
     <section className="mx-auto max-w-3xl px-6 py-16 text-center">
-      <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Something went wrong</p>
-      <h1 className="mt-3 text-3xl font-bold text-slate-950">We could not load this page.</h1>
-      <p className="mt-4 text-slate-600">
-        The error was captured for review. No sensitive checkout, account, or payment details are shown here.
+      <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Đã xảy ra lỗi</p>
+      <h1 className="mt-3 text-3xl font-bold text-emerald-950">Không thể tải trang này.</h1>
+      <p className="mt-4 text-emerald-900/75">
+        Lỗi đã được ghi nhận để kiểm tra. Thông tin nhạy cảm về thanh toán, tài khoản hoặc đơn hàng không được hiển thị tại đây.
       </p>
-      {eventId ? <p className="mt-3 text-sm text-slate-500">Reference: {eventId}</p> : null}
+      {eventId ? <p className="mt-3 text-sm text-emerald-700">Mã tham chiếu: {eventId}</p> : null}
       <button
         type="button"
         onClick={reset}
-        className="mt-8 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+        className="mt-8 rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
       >
-        Try again
+        Thử lại
       </button>
     </section>
   );

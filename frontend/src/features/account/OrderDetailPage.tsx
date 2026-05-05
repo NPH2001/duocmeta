@@ -93,22 +93,22 @@ export function OrderDetailPage({ orderCode }: { orderCode: string }) {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10 md:py-14">
-      <section className="grid gap-5 border-b border-stone-200 pb-8 md:grid-cols-[1fr_auto] md:items-end">
+      <section className="grid gap-5 border-b border-emerald-100 pb-8 md:grid-cols-[1fr_auto] md:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Order</p>
-          <h1 className="mt-3 break-words text-4xl leading-tight text-stone-950 md:text-5xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Order</p>
+          <h1 className="mt-3 break-words text-4xl leading-tight text-emerald-950 md:text-5xl">
             {orderCode}
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-600">
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-emerald-900/75">
             This page renders the backend order snapshot, including item prices, totals, and statuses.
           </p>
         </div>
         <Link
           href="/account/orders"
           className={[
-            "inline-flex justify-center rounded-full border border-stone-300 px-5 py-3",
-            "text-sm font-semibold uppercase tracking-[0.16em] text-stone-700",
-            "hover:border-stone-950 hover:text-stone-950",
+            "inline-flex justify-center rounded-full border border-emerald-300 px-5 py-3",
+            "text-sm font-semibold uppercase tracking-[0.16em] text-emerald-800",
+            "hover:border-emerald-950 hover:text-emerald-950",
           ].join(" ")}
         >
           Order History
@@ -152,12 +152,12 @@ function OrderDetail({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-      <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white/88">
-        <div className="border-b border-stone-100 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+      <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-white/88">
+        <div className="border-b border-emerald-50 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
             Items
           </p>
-          <h2 className="mt-2 text-2xl text-stone-950">Purchase snapshot</h2>
+          <h2 className="mt-2 text-2xl text-emerald-950">Purchase snapshot</h2>
         </div>
         {order.items.map((item) => (
           <OrderItemRow
@@ -174,18 +174,18 @@ function OrderDetail({
         <TimelineCard order={order} />
 
         {canRequestCancel ? (
-          <section className="rounded-2xl border border-stone-200 bg-white/88 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+          <section className="rounded-2xl border border-emerald-100 bg-white/88 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
               Cancellation
             </p>
-            <p className="mt-3 text-sm leading-6 text-stone-600">
+            <p className="mt-3 text-sm leading-6 text-emerald-900/75">
               Pending orders can be cancelled before payment confirmation or fulfillment starts.
             </p>
             {cancelError ? <p className="mt-3 text-sm text-red-700">{cancelError}</p> : null}
             <button
               className={[
-                "mt-5 w-full rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold",
-                "uppercase tracking-[0.16em] text-white hover:bg-stone-800 disabled:bg-stone-400",
+                "mt-5 w-full rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold",
+                "uppercase tracking-[0.16em] text-white hover:bg-emerald-800 disabled:bg-emerald-400",
               ].join(" ")}
               disabled={isCancelling}
               onClick={onCancel}
@@ -208,17 +208,17 @@ function OrderItemRow({
   item: CustomerOrderItem;
 }) {
   return (
-    <div className="grid gap-4 border-b border-stone-100 p-5 last:border-b-0 md:grid-cols-[1fr_auto]">
+    <div className="grid gap-4 border-b border-emerald-50 p-5 last:border-b-0 md:grid-cols-[1fr_auto]">
       <div>
-        <h3 className="text-lg text-stone-950">{item.product_name}</h3>
-        <p className="mt-2 text-sm text-stone-600">
+        <h3 className="text-lg text-emerald-950">{item.product_name}</h3>
+        <p className="mt-2 text-sm text-emerald-900/75">
           {item.variant_name ?? "Default variant"} / SKU {item.sku}
         </p>
-        <p className="mt-2 text-sm text-stone-600">
+        <p className="mt-2 text-sm text-emerald-900/75">
           {item.quantity} x {formatMoney(item.unit_price, currencyCode)}
         </p>
       </div>
-      <p className="text-lg text-stone-950 md:text-right">
+      <p className="text-lg text-emerald-950 md:text-right">
         {formatMoney(item.line_total_amount, currencyCode)}
       </p>
     </div>
@@ -227,9 +227,9 @@ function OrderItemRow({
 
 function StatusCard({ order }: { order: CustomerOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-stone-950 p-5 text-stone-100">
+    <section className="rounded-2xl border border-emerald-100 bg-emerald-950 p-5 text-emerald-50">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
-        Status
+        Trạng thái
       </p>
       <div className="mt-5 grid gap-3">
         <StatusLine label="Order" tone="dark" value={order.status} />
@@ -242,8 +242,8 @@ function StatusCard({ order }: { order: CustomerOrderDetail }) {
 
 function TotalsCard({ order }: { order: CustomerOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white/88 p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <section className="rounded-2xl border border-emerald-100 bg-white/88 p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
         Totals
       </p>
       <div className="mt-5 flex flex-col gap-3">
@@ -251,11 +251,11 @@ function TotalsCard({ order }: { order: CustomerOrderDetail }) {
         <TotalLine label="Discount" value={formatMoney(order.discount_amount, order.currency_code)} />
         <TotalLine label="Shipping" value={formatMoney(order.shipping_amount, order.currency_code)} />
         <TotalLine label="Tax" value={formatMoney(order.tax_amount, order.currency_code)} />
-        <div className="mt-2 flex items-center justify-between border-t border-stone-200 pt-4">
-          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
+        <div className="mt-2 flex items-center justify-between border-t border-emerald-100 pt-4">
+          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
             Total
           </span>
-          <span className="text-xl text-stone-950">
+          <span className="text-xl text-emerald-950">
             {formatMoney(order.grand_total_amount, order.currency_code)}
           </span>
         </div>
@@ -266,8 +266,8 @@ function TotalsCard({ order }: { order: CustomerOrderDetail }) {
 
 function TimelineCard({ order }: { order: CustomerOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white/88 p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <section className="rounded-2xl border border-emerald-100 bg-white/88 p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
         Timeline
       </p>
       <div className="mt-5 grid gap-3">
@@ -282,14 +282,14 @@ function TimelineCard({ order }: { order: CustomerOrderDetail }) {
 
 function GuestPanel({ message }: { message: string }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white/88 p-8 text-center">
-      <h2 className="text-2xl text-stone-950">Login required</h2>
-      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-stone-600">{message}</p>
+    <section className="rounded-2xl border border-emerald-100 bg-white/88 p-8 text-center">
+      <h2 className="text-2xl text-emerald-950">Login required</h2>
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-emerald-900/75">{message}</p>
       <Link
         href="/login"
         className={[
-          "mt-6 inline-flex rounded-full bg-stone-950 px-6 py-3",
-          "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-stone-800",
+          "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3",
+          "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
         ].join(" ")}
       >
         Login
@@ -302,7 +302,7 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-8 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white/80 p-8 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white/80 p-8 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }
@@ -316,8 +316,8 @@ function StatusLine({
   tone?: "light" | "dark";
   value: string;
 }) {
-  const labelClassName = tone === "dark" ? "text-stone-400" : "text-stone-500";
-  const valueClassName = tone === "dark" ? "text-stone-50" : "text-stone-950";
+  const labelClassName = tone === "dark" ? "text-lime-200" : "text-emerald-700";
+  const valueClassName = tone === "dark" ? "text-emerald-50" : "text-emerald-950";
 
   return (
     <div className="flex items-center justify-between gap-4 text-sm">
@@ -330,14 +330,14 @@ function StatusLine({
 function TotalLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-stone-500">{label}</span>
-      <span className="text-right font-medium text-stone-950">{value}</span>
+      <span className="text-emerald-700">{label}</span>
+      <span className="text-right font-medium text-emerald-950">{value}</span>
     </div>
   );
 }
 
 function formatOptionalDate(value: string | null): string {
-  return value ? formatDate(value) : "Not set";
+  return value ? formatDate(value) : "Chưa thiết lập";
 }
 
 function formatDate(value: string): string {

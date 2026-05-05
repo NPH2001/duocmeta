@@ -79,19 +79,19 @@ export function AdminOrderDetailPage({ orderCode }: { orderCode: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6 md:grid-cols-[1fr_auto]">
+      <section className="grid gap-4 rounded-2xl border border-emerald-100 bg-white p-6 md:grid-cols-[1fr_auto]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
             Order
           </p>
-          <h1 className="mt-3 break-words text-4xl leading-tight text-stone-950">{orderCode}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
+          <h1 className="mt-3 break-words text-4xl leading-tight text-emerald-950">{orderCode}</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-900/75">
             Workflow changes are submitted to backend admin APIs and validated server-side.
           </p>
         </div>
         <Link
           href="/admin/orders"
-          className="inline-flex h-fit justify-center rounded-full border border-stone-300 px-5 py-3 text-sm"
+          className="inline-flex h-fit justify-center rounded-full border border-emerald-300 px-5 py-3 text-sm"
         >
           Back to Orders
         </Link>
@@ -125,12 +125,12 @@ function OrderDetail({
 }) {
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-      <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-        <div className="border-b border-stone-100 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+      <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-white">
+        <div className="border-b border-emerald-50 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
             Items
           </p>
-          <h2 className="mt-2 text-2xl text-stone-950">Order snapshot</h2>
+          <h2 className="mt-2 text-2xl text-emerald-950">Order snapshot</h2>
         </div>
         {order.items.map((item) => (
           <OrderItemRow currencyCode={order.currency_code} item={item} key={item.id} />
@@ -159,17 +159,17 @@ function OrderItemRow({
   item: AdminOrderItem;
 }) {
   return (
-    <div className="grid gap-4 border-b border-stone-100 p-5 last:border-b-0 md:grid-cols-[1fr_auto]">
+    <div className="grid gap-4 border-b border-emerald-50 p-5 last:border-b-0 md:grid-cols-[1fr_auto]">
       <div>
-        <h3 className="text-lg text-stone-950">{item.product_name}</h3>
-        <p className="mt-2 text-sm text-stone-600">
+        <h3 className="text-lg text-emerald-950">{item.product_name}</h3>
+        <p className="mt-2 text-sm text-emerald-900/75">
           {item.variant_name ?? "Default variant"} / SKU {item.sku}
         </p>
-        <p className="mt-2 text-sm text-stone-600">
+        <p className="mt-2 text-sm text-emerald-900/75">
           {item.quantity} x {formatMoney(item.unit_price, currencyCode)}
         </p>
       </div>
-      <p className="text-lg text-stone-950 md:text-right">
+      <p className="text-lg text-emerald-950 md:text-right">
         {formatMoney(item.line_total_amount, currencyCode)}
       </p>
     </div>
@@ -178,9 +178,9 @@ function OrderItemRow({
 
 function StatusCard({ order }: { order: AdminOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-stone-950 p-5 text-stone-100">
+    <section className="rounded-2xl border border-emerald-100 bg-emerald-950 p-5 text-emerald-50">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
-        Status
+        Trạng thái
       </p>
       <div className="mt-5 grid gap-3">
         <StatusLine label="Order" tone="dark" value={order.status} />
@@ -201,14 +201,14 @@ function WorkflowCard({
   onWorkflowAction: (action: WorkflowAction) => void;
 }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
         Workflow
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
         {workflowActions.map((item) => (
           <button
-            className="rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 disabled:text-stone-400"
+            className="rounded-full border border-emerald-300 px-4 py-2 text-sm text-emerald-800 disabled:text-emerald-600"
             disabled={activeAction !== null}
             key={item.action}
             onClick={() => onWorkflowAction(item.action)}
@@ -225,8 +225,8 @@ function WorkflowCard({
 
 function TotalsCard({ order }: { order: AdminOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
         Totals
       </p>
       <div className="mt-5 flex flex-col gap-3">
@@ -234,11 +234,11 @@ function TotalsCard({ order }: { order: AdminOrderDetail }) {
         <StatusLine label="Discount" value={formatMoney(order.discount_amount, order.currency_code)} />
         <StatusLine label="Shipping" value={formatMoney(order.shipping_amount, order.currency_code)} />
         <StatusLine label="Tax" value={formatMoney(order.tax_amount, order.currency_code)} />
-        <div className="mt-2 flex items-center justify-between border-t border-stone-200 pt-4">
-          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
+        <div className="mt-2 flex items-center justify-between border-t border-emerald-100 pt-4">
+          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
             Total
           </span>
-          <span className="text-xl text-stone-950">
+          <span className="text-xl text-emerald-950">
             {formatMoney(order.grand_total_amount, order.currency_code)}
           </span>
         </div>
@@ -249,8 +249,8 @@ function TotalsCard({ order }: { order: AdminOrderDetail }) {
 
 function TimelineCard({ order }: { order: AdminOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
         Timeline
       </p>
       <div className="mt-5 grid gap-3">
@@ -267,7 +267,7 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white p-5 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }
@@ -281,8 +281,8 @@ function StatusLine({
   tone?: "light" | "dark";
   value: string;
 }) {
-  const labelClassName = tone === "dark" ? "text-stone-400" : "text-stone-500";
-  const valueClassName = tone === "dark" ? "text-stone-50" : "text-stone-950";
+  const labelClassName = tone === "dark" ? "text-lime-200" : "text-emerald-700";
+  const valueClassName = tone === "dark" ? "text-emerald-50" : "text-emerald-950";
 
   return (
     <div className="flex items-center justify-between gap-4 text-sm">
@@ -293,7 +293,7 @@ function StatusLine({
 }
 
 function formatOptionalDate(value: string | null): string {
-  return value ? formatDate(value) : "Not set";
+  return value ? formatDate(value) : "Chưa thiết lập";
 }
 
 function formatDate(value: string): string {

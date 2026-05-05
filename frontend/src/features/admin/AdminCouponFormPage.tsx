@@ -83,7 +83,7 @@ export function AdminCouponFormPage({
         }
       } catch (caughtError) {
         if (isMounted) {
-          const message = caughtError instanceof Error ? caughtError.message : "Could not load coupon form.";
+          const message = caughtError instanceof Error ? caughtError.message : "Không thể tải biểu mẫu mã giảm giá.";
           setLoadState({ status: "error", coupon: null, error: message });
         }
       }
@@ -96,8 +96,8 @@ export function AdminCouponFormPage({
     };
   }, [couponId, mode]);
 
-  const title = mode === "create" ? "Create coupon" : "Edit coupon";
-  const submitLabel = mode === "create" ? "Create Coupon" : "Save Coupon";
+  const title = mode === "create" ? "Thêm mã giảm giá" : "Sửa mã giảm giá";
+  const submitLabel = mode === "create" ? "Thêm mã giảm giá" : "Lưu mã giảm giá";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -113,7 +113,7 @@ export function AdminCouponFormPage({
 
       router.push(`/admin/coupons/${coupon.id}/edit`);
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : "Coupon save failed.";
+      const message = caughtError instanceof Error ? caughtError.message : "Không thể lưu mã giảm giá.";
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
@@ -126,107 +126,107 @@ export function AdminCouponFormPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid gap-4 rounded-2xl border border-stone-200 bg-white p-6 md:grid-cols-[1fr_auto]">
+      <section className="grid gap-4 rounded-2xl border border-emerald-100 bg-white p-6 md:grid-cols-[1fr_auto]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
-            Coupons
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+            Mã giảm giá
           </p>
-          <h1 className="mt-3 text-4xl leading-tight text-stone-950">{title}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
-            Define coupon metadata for backend validation. Checkout totals and coupon eligibility are
-            never calculated here.
+          <h1 className="mt-3 text-4xl leading-tight text-emerald-950">{title}</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-900/75">
+            Định nghĩa mã giảm giá để hệ thống backend xác thực. Tổng tiền thanh toán và điều kiện áp dụng
+            không được tính trực tiếp tại giao diện quản trị.
           </p>
         </div>
         <Link
           href="/admin/coupons"
-          className="inline-flex h-fit justify-center rounded-full border border-stone-300 px-5 py-3 text-sm"
+          className="inline-flex h-fit justify-center rounded-full border border-emerald-300 px-5 py-3 text-sm"
         >
-          Back to Coupons
+          Quay lại mã giảm giá
         </Link>
       </section>
 
-      {loadState.status === "loading" ? <StatePanel message="Loading coupon form..." /> : null}
+      {loadState.status === "loading" ? <StatePanel message="Đang tải biểu mẫu mã giảm giá..." /> : null}
       {loadState.status === "error" ? <StatePanel message={loadState.error} tone="error" /> : null}
 
       {loadState.status === "ready" ? (
         <form className="grid gap-6 xl:grid-cols-[1fr_340px]" onSubmit={handleSubmit}>
-          <section className="rounded-2xl border border-stone-200 bg-white p-6">
+          <section className="rounded-2xl border border-emerald-100 bg-white p-6">
             <div className="grid gap-5 md:grid-cols-2">
               <TextField
-                label="Code"
+                label="Mã"
                 maxLength={100}
                 required
                 value={formState.code}
                 onChange={(value) => updateField("code", value.toUpperCase())}
               />
               <TextField
-                label="Name"
+                label="Tên"
                 maxLength={255}
                 required
                 value={formState.name}
                 onChange={(value) => updateField("name", value)}
               />
-              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                Discount type
+              <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                Loại giảm giá
                 <select
-                  className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case"
+                  className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case"
                   onChange={(event) => updateField("discountType", event.target.value)}
                   value={formState.discountType}
                 >
-                  <option value="fixed_amount">Fixed amount</option>
-                  <option value="percent">Percent</option>
+                  <option value="fixed_amount">Số tiền cố định</option>
+                  <option value="percent">Phần trăm</option>
                 </select>
               </label>
               <TextField
-                label="Discount value"
+                label="Giá trị giảm"
                 required
                 type="number"
                 value={formState.discountValue}
                 onChange={(value) => updateField("discountValue", value)}
               />
               <TextField
-                label="Minimum order value"
+                label="Giá trị đơn tối thiểu"
                 type="number"
                 value={formState.minOrderValue}
                 onChange={(value) => updateField("minOrderValue", value)}
               />
               <TextField
-                label="Maximum discount value"
+                label="Mức giảm tối đa"
                 type="number"
                 value={formState.maxDiscountValue}
                 onChange={(value) => updateField("maxDiscountValue", value)}
               />
               <TextField
-                label="Total usage limit"
+                label="Giới hạn sử dụng tổng"
                 type="number"
                 value={formState.usageLimitTotal}
                 onChange={(value) => updateField("usageLimitTotal", value)}
               />
               <TextField
-                label="Per-user usage limit"
+                label="Giới hạn mỗi khách"
                 type="number"
                 value={formState.usageLimitPerUser}
                 onChange={(value) => updateField("usageLimitPerUser", value)}
               />
               <TextField
-                label="Starts at"
+                label="Bắt đầu lúc"
                 type="datetime-local"
                 value={formState.startsAt}
                 onChange={(value) => updateField("startsAt", value)}
               />
               <TextField
-                label="Ends at"
+                label="Kết thúc lúc"
                 type="datetime-local"
                 value={formState.endsAt}
                 onChange={(value) => updateField("endsAt", value)}
               />
-              <label className="flex items-center gap-3 rounded-xl border border-stone-200 p-4 text-sm">
+              <label className="flex items-center gap-3 rounded-xl border border-emerald-100 p-4 text-sm">
                 <input
                   checked={formState.isActive}
                   onChange={(event) => updateField("isActive", event.target.checked)}
                   type="checkbox"
                 />
-                Active coupon
+                Mã giảm giá đang hoạt động
               </label>
             </div>
           </section>
@@ -236,13 +236,13 @@ export function AdminCouponFormPage({
             {submitError ? <StatePanel message={submitError} tone="error" /> : null}
             <button
               className={[
-                "rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold uppercase",
-                "tracking-[0.16em] text-white disabled:bg-stone-400",
+                "rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold uppercase",
+                "tracking-[0.16em] text-white disabled:bg-emerald-400",
               ].join(" ")}
               disabled={isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Saving..." : submitLabel}
+              {isSubmitting ? "Đang lưu..." : submitLabel}
             </button>
           </aside>
         </form>
@@ -253,15 +253,14 @@ export function AdminCouponFormPage({
 
 function BackendAuthorityPanel() {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-        Validation
+    <section className="rounded-2xl border border-emerald-100 bg-white p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+        Kiểm tra hợp lệ
       </p>
-      <h2 className="mt-3 text-xl text-stone-950">Backend-owned rules</h2>
-      <p className="mt-3 text-sm leading-6 text-stone-600">
-        The admin UI only submits coupon definitions. Active windows, minimum order values, usage
-        limits, and discount caps are enforced by backend services during checkout preview and order
-        placement.
+      <h2 className="mt-3 text-xl text-emerald-950">Quy tắc do backend kiểm soát</h2>
+      <p className="mt-3 text-sm leading-6 text-emerald-900/75">
+        Giao diện quản trị chỉ gửi định nghĩa mã giảm giá. Thời gian hiệu lực, giá trị đơn tối thiểu,
+        giới hạn sử dụng và mức giảm tối đa đều được backend kiểm tra khi tạm tính thanh toán và đặt hàng.
       </p>
     </section>
   );
@@ -283,10 +282,10 @@ function TextField({
   value: string;
 }) {
   return (
-    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+    <label className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
       {label}
       <input
-        className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-3 text-sm normal-case text-stone-950"
+        className="mt-3 w-full rounded-xl border border-emerald-300 px-3 py-3 text-sm normal-case text-emerald-950"
         maxLength={maxLength}
         onChange={(event) => onChange(event.target.value)}
         required={required}
@@ -302,7 +301,7 @@ function StatePanel({ message, tone = "neutral" }: { message: string; tone?: "ne
   const className =
     tone === "error"
       ? "rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"
-      : "rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600";
+      : "rounded-2xl border border-emerald-100 bg-white p-5 text-sm text-emerald-900/75";
 
   return <div className={className}>{message}</div>;
 }

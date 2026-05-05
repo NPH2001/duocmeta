@@ -21,10 +21,10 @@ export function LoginForm() {
     try {
       const result = await loginWithPassword(String(formData.get("email")), String(formData.get("password")));
       storeAccessToken(result.access_token);
-      router.push("/");
+      router.push("/admin");
       router.refresh();
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Login failed.");
+      setError(caughtError instanceof Error ? caughtError.message : "Đăng nhập không thành công.");
     } finally {
       setIsSubmitting(false);
     }
@@ -33,22 +33,22 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <AuthField
-        label="Email"
+        label="Email quản trị"
         name="email"
         type="email"
         autoComplete="email"
-        placeholder="customer@example.com"
+        placeholder="admin@example.com"
       />
       <AuthField
-        label="Password"
+        label="Mật khẩu"
         name="password"
         type="password"
         autoComplete="current-password"
-        placeholder="Enter your password"
+        placeholder="Nhập mật khẩu"
         minLength={8}
       />
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
-      <SubmitButton>{isSubmitting ? "Logging in..." : "Login"}</SubmitButton>
+      <SubmitButton>{isSubmitting ? "Đang đăng nhập..." : "Đăng nhập quản trị"}</SubmitButton>
     </form>
   );
 }
@@ -77,7 +77,7 @@ export function RegisterForm() {
       router.push("/");
       router.refresh();
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Registration failed.");
+      setError(caughtError instanceof Error ? caughtError.message : "Tạo tài khoản không thành công.");
     } finally {
       setIsSubmitting(false);
     }
@@ -86,11 +86,11 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <AuthField
-        label="Full name"
+        label="Họ và tên"
         name="full_name"
         type="text"
         autoComplete="name"
-        placeholder="Customer User"
+        placeholder="Người dùng"
       />
       <AuthField
         label="Email"
@@ -100,7 +100,7 @@ export function RegisterForm() {
         placeholder="customer@example.com"
       />
       <AuthField
-        label="Phone"
+        label="Số điện thoại"
         name="phone"
         type="tel"
         autoComplete="tel"
@@ -108,15 +108,15 @@ export function RegisterForm() {
         required={false}
       />
       <AuthField
-        label="Password"
+        label="Mật khẩu"
         name="password"
         type="password"
         autoComplete="new-password"
-        placeholder="At least 8 characters"
+        placeholder="Tối thiểu 8 ký tự"
         minLength={8}
       />
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
-      <SubmitButton>{isSubmitting ? "Creating..." : "Create Account"}</SubmitButton>
+      <SubmitButton>{isSubmitting ? "Đang tạo..." : "Tạo tài khoản"}</SubmitButton>
     </form>
   );
 }

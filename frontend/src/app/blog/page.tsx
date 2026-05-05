@@ -8,8 +8,8 @@ export const revalidate = 300;
 
 export function generateMetadata(): Metadata {
   return buildPublicMetadata({
-    title: "Journal",
-    description: "Read published Duocmeta health and pharmacy notes.",
+    title: "Bài viết",
+    description: "Đọc các bài viết sức khỏe và nhà thuốc đã xuất bản của Duocmeta.",
     path: "/blog",
   });
 }
@@ -22,7 +22,7 @@ export default async function BlogIndexRoute() {
   } catch {
     return (
       <BlogListingPage
-        errorMessage="The CMS API could not be reached. Published posts will appear here after the API is available."
+        errorMessage="Chưa thể kết nối CMS API. Bài viết đã xuất bản sẽ hiển thị tại đây khi API sẵn sàng."
         posts={{
           data: [],
           meta: { page: 1, page_size: 12, total: 0, total_pages: 0 },
