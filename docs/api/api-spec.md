@@ -126,6 +126,19 @@ PUT /admin/products/{id}
 DELETE /admin/products/{id}
 POST /admin/products/{id}/publish
 
+### Categories
+
+GET /admin/categories
+POST /admin/categories
+GET /admin/categories/{id}
+PUT /admin/categories/{id}
+DELETE /admin/categories/{id}
+
+Notes:
+
+* DELETE returns 409 when category still has child categories
+* DELETE returns 409 when category is still assigned to products
+
 ### Inventory
 
 GET /admin/inventory
@@ -145,5 +158,6 @@ POST /admin/orders/{id}/refund
 
 CRUD /admin/pages
 CRUD /admin/posts
+POST /admin/posts/{id}/publish
 CRUD /admin/seo
 CRUD /admin/redirects

@@ -15,8 +15,9 @@ It assumes the locked stack documented in `/docs`: Next.js frontend, FastAPI bac
 
 - Environment variables: `docs/runbooks/environment.md`
 - PostgreSQL backup/restore: `docs/runbooks/postgres-backup-restore.md`
+- Local production-like deploy: `docs/runbooks/local-production.md`
 - API conventions: `docs/api/conventions.md`
-- Architecture/backlog: `docs/architecture/codex-ready-architecture.md`
+- Architecture/backlog: `docs/architecture/codex_ready_ecommerce_architecture_and_ticket_backlog.md`
 
 ## Pre-deploy checklist
 
@@ -60,6 +61,15 @@ Then verify:
 curl -fsS http://127.0.0.1:8080/api/v1/health
 curl -fsS http://127.0.0.1:8080/health
 ```
+
+## Local production-like deploy on one machine
+
+When you want a near-production runtime on a local machine before moving to a VPS/cloud host, use:
+
+- `docker-compose.local-prod.yml`
+- `docs/runbooks/local-production.md`
+
+This mode builds immutable frontend/backend images, runs FastAPI without reload, starts Next.js with `next start`, and fronts both services with Nginx using the target domain host header.
 
 ## Staging deployment procedure
 

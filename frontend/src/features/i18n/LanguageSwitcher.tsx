@@ -18,7 +18,7 @@ export function LanguageSwitcher() {
           onClick={() => setLocale(option)}
           className={[
             "rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition",
-            locale === option ? "bg-emerald-950 text-white" : "text-emerald-700 hover:bg-emerald-50 hover:text-emerald-950",
+            locale === option ? "bg-emerald-600 text-white hover:bg-emerald-500" : "text-emerald-700 hover:bg-emerald-50 hover:text-emerald-950",
           ].join(" ")}
         >
           {option.toUpperCase()}

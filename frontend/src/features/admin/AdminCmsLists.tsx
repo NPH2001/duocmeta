@@ -8,6 +8,7 @@ import {
   fetchAdminPosts,
   fetchAdminRedirects,
   fetchAdminSeoMetadataList,
+  publishAdminPost,
   type AdminPage,
   type AdminPaginationMeta,
   type AdminPost,
@@ -33,11 +34,11 @@ const resourceConfig = {
     createLabel: "Create Page",
   },
   posts: {
-    eyebrow: "Sửaorial",
-    title: "Posts",
-    description: "Manage editorial posts and publication state through backend admin APIs.",
+    eyebrow: "Biên tập",
+    title: "Bài viết",
+    description: "Viết, quản lý và đăng bài blog thông qua API quản trị của backend.",
     createHref: "/admin/cms/posts/new",
-    createLabel: "Create Post",
+    createLabel: "Viết bài mới",
   },
   seo: {
     eyebrow: "SEO",
@@ -58,7 +59,21 @@ const resourceConfig = {
 export function AdminCmsListPage({ kind }: { kind: ResourceKind }) {
   const [page, setPage] = useState(1);
   const [state, setState] = useState<ResourceState>({ status: "loading", items: [], meta: null, error: null });
+  const [publishingId, setPublishingId] = useState<string | null>(null);
   const config = resourceConfig[kind];
+
+  function loadPage() {
+    setState({ status: "loading", items: [], meta: null, error: null });
+
+    fetchResource(kind, page)
+      .then((result) => {
+        setState({ status: "ready", items: result.data, meta: result.meta, error: null });
+      })
+      .catch((caughtError) => {
+        const message = caughtError instanceof Error ? caughtError.message : `Could not load ${config.title}.`;
+        setState({ status: "error", items: [], meta: null, error: message });
+      });
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -82,6 +97,19 @@ export function AdminCmsListPage({ kind }: { kind: ResourceKind }) {
     };
   }, [config.title, kind, page]);
 
+  async function handlePublishPost(postId: string) {
+    setPublishingId(postId);
+    try {
+      await publishAdminPost(postId);
+      loadPage();
+    } catch (caughtError) {
+      const message = caughtError instanceof Error ? caughtError.message : "Không thể đăng bài viết.";
+      setState({ status: "error", items: [], meta: null, error: message });
+    } finally {
+      setPublishingId(null);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <section className="grid gap-4 rounded-2xl border border-emerald-100 bg-white p-6 md:grid-cols-[1fr_auto]">
@@ -91,7 +119,7 @@ export function AdminCmsListPage({ kind }: { kind: ResourceKind }) {
           <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-900/75">{config.description}</p>
         </div>
         <Link
-          className="inline-flex h-fit justify-center rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white"
+          className="inline-flex h-fit justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-emerald-500"
           href={config.createHref}
         >
           {config.createLabel}
@@ -106,7 +134,15 @@ export function AdminCmsListPage({ kind }: { kind: ResourceKind }) {
             {state.items.length === 0 ? (
               <div className="p-6 text-sm text-emerald-900/75">No records found.</div>
             ) : (
-              state.items.map((item) => <ResourceRow item={item} kind={kind} key={item.id} />)
+              state.items.map((item) => (
+                <ResourceRow
+                  isPublishing={publishingId === item.id}
+                  item={item}
+                  kind={kind}
+                  key={item.id}
+                  onPublishPost={handlePublishPost}
+                />
+              ))
             )}
           </section>
           <PaginationControls meta={state.meta} onPageChange={setPage} />
@@ -116,11 +152,22 @@ export function AdminCmsListPage({ kind }: { kind: ResourceKind }) {
   );
 }
 
-function ResourceRow({ item, kind }: { item: ResourceItem; kind: ResourceKind }) {
+function ResourceRow({
+  isPublishing,
+  item,
+  kind,
+  onPublishPost,
+}: {
+  isPublishing: boolean;
+  item: ResourceItem;
+  kind: ResourceKind;
+  onPublishPost: (postId: string) => void;
+}) {
   const title = "title" in item ? item.title : "from_path" in item ? item.from_path : `${item.entity_type}:${item.entity_id}`;
   const subtitle =
     "slug" in item ? `/${item.slug}` : "to_path" in item ? item.to_path : item.meta_title ?? "Metadata";
   const status = "status" in item ? item.status : "is_active" in item ? (item.is_active ? "active" : "inactive") : item.robots ?? "seo";
+  const publicHref = kind === "posts" && "slug" in item && item.status === "published" ? `/blog/${item.slug}` : null;
 
   return (
     <article className="grid gap-4 border-b border-emerald-50 p-5 last:border-b-0 xl:grid-cols-[1fr_auto]">
@@ -136,12 +183,32 @@ function ResourceRow({ item, kind }: { item: ResourceItem; kind: ResourceKind })
           <p className="mt-2 text-sm text-emerald-900/75">Đã đăng {formatOptionalDate(item.published_at)}</p>
         ) : null}
       </div>
-      <Link
-        className="h-fit rounded-full border border-emerald-300 px-4 py-2 text-center text-sm text-emerald-800"
-        href={`/admin/cms/${kind}/${item.id}/edit`}
-      >
-        Sửa
-      </Link>
+      <div className="flex flex-col gap-2 sm:flex-row xl:justify-end">
+        {kind === "posts" && "status" in item && item.status !== "published" ? (
+          <button
+            className="h-fit rounded-full bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:bg-emerald-400"
+            disabled={isPublishing}
+            onClick={() => onPublishPost(item.id)}
+            type="button"
+          >
+            {isPublishing ? "Đang đăng..." : "Đăng bài"}
+          </button>
+        ) : null}
+        {publicHref ? (
+          <Link
+            className="h-fit rounded-full border border-emerald-300 px-4 py-2 text-center text-sm text-emerald-800"
+            href={publicHref}
+          >
+            Xem bài
+          </Link>
+        ) : null}
+        <Link
+          className="h-fit rounded-full border border-emerald-300 px-4 py-2 text-center text-sm text-emerald-800"
+          href={`/admin/cms/${kind}/${item.id}/edit`}
+        >
+          Sửa
+        </Link>
+      </div>
     </article>
   );
 }

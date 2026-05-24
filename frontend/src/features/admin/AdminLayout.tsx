@@ -6,9 +6,8 @@ import { AdminAuthGuard } from "features/admin/AdminAuthGuard";
 const adminNavItems = [
   { href: "/admin", label: "Tổng quan" },
   { href: "/admin/products", label: "Sản phẩm" },
-  { href: "/admin/variants", label: "Phiên bản" },
+  { href: "/admin/categories", label: "Danh mục" },
   { href: "/admin/orders", label: "Đơn hàng" },
-  { href: "/admin/coupons", label: "Mã giảm giá" },
   { href: "/admin/cms", label: "Bài viết / CMS" },
   { href: "/admin/media", label: "Thư viện ảnh" },
   { href: "/admin/settings", label: "Cài đặt" },
@@ -19,7 +18,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     <AdminAuthGuard>
       <div className="min-h-[calc(100vh-192px)] bg-emerald-50">
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[260px_1fr]">
-          <aside className="rounded-2xl border border-emerald-100 bg-emerald-950 p-5 text-emerald-50">
+          <aside className="rounded-2xl border border-emerald-100 bg-emerald-700 p-5 text-emerald-50">
             <Link href="/admin" className="text-lg font-semibold uppercase tracking-[0.24em]">
               Quản trị
             </Link>

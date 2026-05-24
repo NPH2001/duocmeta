@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CategoriesIndexPage } from "features/categories/CategoriesIndexPage";
+import { fetchPublicCategories } from "lib/catalog";
 import { buildPublicMetadata } from "lib/seo";
 
 export const revalidate = 3600;
@@ -13,6 +14,7 @@ export function generateMetadata(): Metadata {
   });
 }
 
-export default function CategoriesIndexRoute() {
-  return <CategoriesIndexPage />;
+export default async function CategoriesIndexRoute() {
+  const categories = await fetchPublicCategories({ page: 1, pageSize: 100 }).catch(() => ({ data: [] }));
+  return <CategoriesIndexPage categories={categories.data} />;
 }

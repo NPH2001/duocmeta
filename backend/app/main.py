@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.errors import register_exception_handlers
+from app.api.media_storage import router as media_storage_router
 from app.api.router import api_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -37,6 +38,7 @@ def create_application() -> FastAPI:
     application.add_middleware(SecurityHeadersMiddleware, settings=settings)
 
     application.include_router(api_router, prefix=settings.api_v1_prefix)
+    application.include_router(media_storage_router)
     return application
 
 

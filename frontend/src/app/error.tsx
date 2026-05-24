@@ -34,7 +34,7 @@ export default function AppError({ error, reset }: AppErrorProps) {
       <button
         type="button"
         onClick={reset}
-        className="mt-8 rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
+        className="mt-8 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500"
       >
         Thử lại
       </button>

@@ -155,8 +155,8 @@ function AdminLink({ children, href }: { children: string; href: string }) {
     <Link
       href={href}
       className={[
-        "inline-flex justify-center rounded-full bg-emerald-950 px-6 py-3",
-        "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
+        "inline-flex justify-center rounded-full bg-emerald-600 px-6 py-3",
+        "text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-emerald-500",
       ].join(" ")}
     >
       {children}

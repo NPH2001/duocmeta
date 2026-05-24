@@ -115,7 +115,7 @@ export function AccountOverviewPage() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-emerald-100 bg-emerald-950 p-6 text-emerald-50">
+        <aside className="rounded-2xl border border-emerald-100 bg-emerald-700 p-6 text-emerald-50">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
             Orders
           </p>
@@ -187,7 +187,7 @@ function PrimaryLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex justify-center rounded-full bg-emerald-950 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800"
+      className="inline-flex justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-500"
     >
       {children}
     </Link>

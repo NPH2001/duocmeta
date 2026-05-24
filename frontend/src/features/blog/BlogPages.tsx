@@ -112,7 +112,7 @@ function PostCard({ post }: { post: PublicPostListItem }) {
       </div>
       <Link
         href={`/blog/${post.slug}`}
-        className="mt-8 w-fit rounded-full bg-emerald-950 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white"
+        className="mt-8 w-fit rounded-full bg-emerald-600 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-emerald-500"
       >
         {t("blog.readPost")}
       </Link>

@@ -101,6 +101,7 @@ class CmsRepository:
             self.session.add(PostTag(post_id=post.id, tag_id=tag_id))
 
         self.session.flush()
+        self.session.expire(post, ["tags"])
 
     def list_tags(self, *, offset: int, limit: int) -> tuple[list[Tag], int]:
         return self._list_with_total(select(Tag).order_by(Tag.created_at.desc()), offset=offset, limit=limit)

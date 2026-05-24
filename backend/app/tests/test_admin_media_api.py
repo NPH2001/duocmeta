@@ -1,5 +1,6 @@
 from collections.abc import Generator
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import pytest
 from fastapi.testclient import TestClient
@@ -10,6 +11,8 @@ from sqlalchemy.pool import StaticPool
 from app.core.config import get_settings
 from app.core.db import get_db_session
 from app.core.security import create_access_token, hash_password
+from app.schemas.media import MediaPresignRequest
+from app.services.media import MediaService
 from app.main import app
 from app.models.base import Base
 from app.models.catalog import MediaFile
@@ -93,6 +96,35 @@ def test_catalog_manager_can_presign_and_complete_upload(
 
     assert media_file is not None
     assert media_file.uploaded_by is not None
+
+
+def test_signed_media_upload_and_public_readback_work_locally(
+    client_with_session: tuple[TestClient, sessionmaker[Session]],
+    tmp_path,
+) -> None:
+    client, session_factory = client_with_session
+    settings = get_settings().model_copy(update={"media_local_storage_path": tmp_path / "media-storage"})
+
+    app.dependency_overrides[get_settings] = lambda: settings
+
+    try:
+        with session_factory() as session:
+            presign = MediaService(session, settings).create_presigned_upload(
+                MediaPresignRequest(filename="sample.png", mime_type="image/png", size_bytes=4)
+            )
+
+        upload_response = client.put(
+            urlparse(presign.upload_url).path + f"?{urlparse(presign.upload_url).query}",
+            content=b"test",
+            headers=presign.headers,
+        )
+        public_response = client.get(urlparse(presign.public_url).path)
+
+        assert upload_response.status_code == 204
+        assert public_response.status_code == 200
+        assert public_response.content == b"test"
+    finally:
+        app.dependency_overrides.pop(get_settings, None)
 
 
 def test_admin_media_rejects_user_without_manage_media(

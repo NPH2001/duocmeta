@@ -232,6 +232,30 @@ class CmsService:
         self.session.commit()
         return self.get_post(post_id)
 
+    def publish_post(
+        self,
+        post_id: UUID,
+        actor: User,
+        audit_context: AuditContext | None = None,
+    ) -> Post:
+        post = self.get_post(post_id)
+        old_data = _post_audit_data(post)
+        post.status = "published"
+        if post.published_at is None:
+            post.published_at = datetime.now(UTC)
+
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="post.publish",
+            entity_type="post",
+            entity_id=post.id,
+            old_data=old_data,
+            new_data=_post_audit_data(post),
+        )
+        post_id = post.id
+        self.session.commit()
+        return self.get_post(post_id)
+
     def delete_post(
         self,
         post_id: UUID,

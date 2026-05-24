@@ -14,12 +14,18 @@ Use the following checked-in example files as the source of truth for required v
 - `/.env.example` for Docker Compose and shared infrastructure defaults
 - `backend/.env.example` for backend runtime variables
 - `frontend/.env.example` for frontend runtime variables
+- `/.env.local-prod.example` for local production-like Docker Compose values
+- `backend/.env.local-prod.example` for backend local production-like runtime values
+- `frontend/.env.local-prod.example` for frontend local production-like runtime values
 
 Copy them locally as needed:
 
 - `cp .env.example .env`
 - `cp backend/.env.example backend/.env`
 - `cp frontend/.env.example frontend/.env.local`
+- `cp .env.local-prod.example .env.local-prod`
+- `cp backend/.env.local-prod.example backend/.env.local-prod`
+- `cp frontend/.env.local-prod.example frontend/.env.local-prod`
 
 Do not commit the copied files.
 
@@ -69,7 +75,7 @@ Do not commit the copied files.
 | `APP_PORT` | yes | Backend bind port |
 | `API_V1_PREFIX` | yes | API prefix, fixed to `/api/v1` |
 | `BACKEND_CORS_ORIGINS` | yes | Allowed browser origins for local apps |
-| `TRUSTED_HOSTS` | yes | Comma-separated accepted HTTP hostnames for TrustedHost middleware |
+| `TRUSTED_HOSTS` | yes | JSON array of accepted HTTP hostnames for TrustedHost middleware |
 | `SECURITY_CONTENT_SECURITY_POLICY` | yes | API response Content-Security-Policy header value |
 | `SECURITY_PERMISSIONS_POLICY` | yes | API response Permissions-Policy header value |
 | `SECURITY_REFERRER_POLICY` | yes | API response Referrer-Policy header value |
@@ -87,6 +93,14 @@ Do not commit the copied files.
 | `S3_ACCESS_KEY_ID` | no | Storage access key |
 | `S3_SECRET_ACCESS_KEY` | no | Storage secret key |
 | `S3_REGION` | no | Storage region name |
+
+For list-shaped backend variables supplied through container environment injection, use JSON arrays, for example:
+
+```env
+BACKEND_CORS_ORIGINS=["http://localhost:8080","http://127.0.0.1:8080"]
+TRUSTED_HOSTS=["localhost","127.0.0.1","backend"]
+MEDIA_OPTIMIZATION_WIDTHS=[320,1200]
+```
 
 ### `frontend/.env.local`
 
@@ -111,6 +125,13 @@ Do not commit the copied files.
 - Frontend containers and local Next.js execution should read `frontend/.env.local`.
 - Keep local defaults aligned so `docker compose up` can work without editing source files.
 - `docker-compose.yml` includes development fallbacks for required local infrastructure variables so a missing root `.env` does not start PostgreSQL with an empty password.
+
+### Local production-like files
+
+- `docker-compose.local-prod.yml` should be paired with `/.env.local-prod`.
+- Backend local production-like containers should read `backend/.env.local-prod`.
+- Frontend local production-like containers should read `frontend/.env.local-prod`.
+- Keep domain, CORS, trusted hosts, and public site/API/media URLs aligned across those three files.
 
 ## Expansion Notes
 

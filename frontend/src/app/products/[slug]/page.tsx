@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { JsonLd } from "components/seo/JsonLd";
 import { ProductDetailPage } from "features/products/ProductDetailPage";
-import { getProductBySlug, products } from "features/products/product-data";
+import { fetchPublicProduct, fetchPublicProductSlugs } from "lib/catalog";
 import { breadcrumbJsonLd, buildPublicMetadata } from "lib/seo";
 
 type ProductRouteProps = {
@@ -14,13 +14,14 @@ type ProductRouteProps = {
 
 export const revalidate = 3600;
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+export async function generateStaticParams() {
+  const slugs = await fetchPublicProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: ProductRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await fetchPublicProduct(slug);
 
   if (!product) {
     return buildPublicMetadata({
@@ -30,15 +31,15 @@ export async function generateMetadata({ params }: ProductRouteProps): Promise<M
   }
 
   return buildPublicMetadata({
-    title: product.seoTitle,
-    description: product.seoDescription,
+    title: product.seo.title,
+    description: product.seo.description ?? product.short_description ?? undefined,
     path: `/products/${product.slug}`,
   });
 }
 
 export default async function ProductRoute({ params }: ProductRouteProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await fetchPublicProduct(slug);
 
   if (!product) {
     notFound();

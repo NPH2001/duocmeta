@@ -88,7 +88,7 @@ function PrimaryLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex justify-center rounded-full bg-emerald-950 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800"
+      className="inline-flex justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-500"
     >
       {children}
     </Link>

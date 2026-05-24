@@ -24,6 +24,7 @@ from app.schemas.catalog import (
     PublicProductCategory,
     PublicProductDetail,
     PublicProductImage,
+    PublicProductListImage,
     PublicProductSeo,
     PublicProductVariant,
     PublicProductVariantAttributeValue,
@@ -187,6 +188,13 @@ class CatalogService:
 
     def delete_category(self, category_id: UUID) -> None:
         category = self.get_category(category_id)
+
+        if self.repository.category_has_children(category.id):
+            raise _conflict("CATEGORY_HAS_CHILDREN", "Category with child categories cannot be deleted.")
+
+        if self.repository.category_has_products(category.id):
+            raise _conflict("CATEGORY_HAS_PRODUCTS", "Category assigned to products cannot be deleted.")
+
         self.repository.delete_category(category)
         self.session.commit()
 
@@ -228,7 +236,12 @@ class CatalogService:
             max_price=max_price,
             sort=sort,
         )
-        return PaginatedResult(rows=rows, total=total, page=page, page_size=page_size)
+        return PaginatedResult(
+            rows=[_public_product_list_item(product) for product in rows],
+            total=total,
+            page=page,
+            page_size=page_size,
+        )
 
     def get_public_product_detail(self, slug: str) -> PublicProductDetail:
         product = self.repository.get_public_product_detail_by_slug(slug)
@@ -280,6 +293,7 @@ class CatalogService:
         self._ensure_product_sku_available(request.sku)
         self._ensure_brand_exists(request.brand_id)
         self._ensure_categories_exist(request.category_ids)
+        self._ensure_media_exists(request.primary_image_media_id)
         product = self.repository.add_product(
             Product(
                 brand_id=request.brand_id,
@@ -298,6 +312,7 @@ class CatalogService:
             )
         )
         self.repository.set_product_categories(product, request.category_ids)
+        self.repository.set_product_primary_image(product, request.primary_image_media_id)
         self.audit.record(
             context=audit_context or AuditContext(actor=actor),
             action_code="product.create",
@@ -324,7 +339,9 @@ class CatalogService:
         product = self.get_product(product_id)
         old_data = _product_audit_data(product)
         update_data = request.model_dump(exclude_unset=True)
+        update_fields = set(update_data)
         category_ids = update_data.pop("category_ids", None)
+        primary_image_media_id = update_data.pop("primary_image_media_id", None) if "primary_image_media_id" in update_fields else None
 
         if "slug" in update_data and update_data["slug"] != product.slug:
             self._ensure_product_slug_available(update_data["slug"], exclude_id=product.id)
@@ -335,12 +352,18 @@ class CatalogService:
         if "brand_id" in update_data:
             self._ensure_brand_exists(update_data["brand_id"])
 
+        if "primary_image_media_id" in update_fields:
+            self._ensure_media_exists(primary_image_media_id)
+
         for field, value in update_data.items():
             setattr(product, field, value)
 
         if category_ids is not None:
             self._ensure_categories_exist(category_ids)
             self.repository.set_product_categories(product, category_ids)
+
+        if "primary_image_media_id" in update_fields:
+            self.repository.set_product_primary_image(product, primary_image_media_id)
 
         product.updated_by = actor.id
         self.audit.record(
@@ -386,6 +409,22 @@ class CatalogService:
         )
         self.session.commit()
         return product
+
+    def delete_product(self, product_id: UUID, actor: User, audit_context: AuditContext | None = None) -> None:
+        product = self.get_product(product_id)
+        old_data = _product_audit_data(product)
+        product.status = "archived"
+        product.updated_by = actor.id
+        product.deleted_at = datetime.now(UTC)
+        self.audit.record(
+            context=audit_context or AuditContext(actor=actor),
+            action_code="product.delete",
+            entity_type="product",
+            entity_id=product.id,
+            old_data=old_data,
+            new_data=_product_audit_data(product),
+        )
+        self.session.commit()
 
     def list_variants(self, *, page: int, page_size: int) -> PaginatedResult:
         rows, total = self.repository.list_variants(offset=_offset(page, page_size), limit=page_size)
@@ -493,6 +532,10 @@ class CatalogService:
             if self.repository.get_category(category_id) is None:
                 raise _not_found("CATEGORY_NOT_FOUND", "Category was not found.")
 
+    def _ensure_media_exists(self, media_id: UUID | None) -> None:
+        if media_id is not None and self.repository.get_media_file(media_id) is None:
+            raise _not_found("MEDIA_NOT_FOUND", "Media file was not found.")
+
 
 def _offset(page: int, page_size: int) -> int:
     return (page - 1) * page_size
@@ -559,11 +602,51 @@ def _public_images(product: Product, active_variant_ids: set[UUID]) -> list[Publ
             width=image.media.width,
             height=image.media.height,
             alt_text=image.media.alt_text,
+            storage_key=image.media.storage_key,
             sort_order=image.sort_order,
             is_primary=image.is_primary,
         )
         for image in sorted(images, key=lambda image: (not image.is_primary, image.sort_order))
     ]
+
+
+def _public_product_list_item(product: Product) -> dict:
+    primary_image = _public_primary_list_image(product)
+
+    return {
+        "id": product.id,
+        "brand_id": product.brand_id,
+        "name": product.name,
+        "slug": product.slug,
+        "short_description": product.short_description,
+        "is_featured": product.is_featured,
+        "currency_code": product.currency_code,
+        "min_price": product.min_price,
+        "max_price": product.max_price,
+        "published_at": product.published_at,
+        "primary_image": primary_image.model_dump(mode="json") if primary_image is not None else None,
+    }
+
+
+def _public_primary_list_image(product: Product) -> PublicProductListImage | None:
+    primary_image = next(
+        (image for image in product.images if image.is_primary and image.variant_id is None and image.media is not None),
+        None,
+    )
+    fallback_image = next((image for image in product.images if image.variant_id is None and image.media is not None), None)
+    selected_image = primary_image or fallback_image
+
+    if selected_image is None or selected_image.media is None:
+        return None
+
+    return PublicProductListImage(
+        id=selected_image.id,
+        filename=selected_image.media.filename,
+        width=selected_image.media.width,
+        height=selected_image.media.height,
+        alt_text=selected_image.media.alt_text,
+        storage_key=selected_image.media.storage_key,
+    )
 
 
 def _public_variant(variant: ProductVariant) -> PublicProductVariant:
@@ -666,6 +749,15 @@ def _conflict(code: str, message: str) -> CatalogServiceError:
 
 
 def _product_audit_data(product: Product) -> dict:
+    primary_image = next(
+        (
+            image
+            for image in product.images
+            if image.variant_id is None and image.is_primary
+        ),
+        None,
+    )
+
     return {
         "brand_id": product.brand_id,
         "name": product.name,
@@ -676,6 +768,8 @@ def _product_audit_data(product: Product) -> dict:
         "min_price": product.min_price,
         "max_price": product.max_price,
         "published_at": product.published_at,
+        "deleted_at": product.deleted_at,
+        "primary_image_media_id": primary_image.media_id if primary_image is not None else None,
     }
 
 

@@ -1,0 +1,11 @@
+<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="540" rx="36" fill="#F7FEE7"/>
+  <rect x="110" y="126" width="240" height="288" rx="36" fill="#D9F99D"/>
+  <rect x="158" y="178" width="144" height="188" rx="20" fill="#65A30D"/>
+  <rect x="396" y="144" width="388" height="34" rx="17" fill="#3F6212" fill-opacity="0.18"/>
+  <rect x="396" y="202" width="338" height="24" rx="12" fill="#3F6212" fill-opacity="0.12"/>
+  <rect x="396" y="248" width="292" height="24" rx="12" fill="#3F6212" fill-opacity="0.12"/>
+  <rect x="396" y="314" width="250" height="44" rx="22" fill="#4D7C0F"/>
+  <text x="443" y="343" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="700">IMMUNE</text>
+  <text x="126" y="472" fill="#365314" font-family="Arial, sans-serif" font-size="30" font-weight="700">Mycophenolate mofetil</text>
+</svg>

@@ -143,7 +143,7 @@ export function CartPage() {
             </div>
             <Link
               href="/checkout"
-              className="mt-6 inline-flex w-full justify-center rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800"
+              className="mt-6 inline-flex w-full justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-500"
             >
               {t("cart.checkout")}
             </Link>
@@ -248,7 +248,7 @@ function EmptyCart() {
       </p>
       <Link
         href="/products"
-        className="mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800"
+        className="mt-6 inline-flex rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-500"
       >
         {t("cart.browseProducts")}
       </Link>

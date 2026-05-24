@@ -42,6 +42,10 @@ services:
         condition: service_healthy
     environment:
       APP_PORT: ${BACKEND_PORT:-8000}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://duocmeta:123456@postgres:5432/duocmeta}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-["http://localhost:8080","http://127.0.0.1:8080"]}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-["localhost","127.0.0.1","testserver","backend"]}
     volumes:
       - ./backend:/app
     healthcheck:

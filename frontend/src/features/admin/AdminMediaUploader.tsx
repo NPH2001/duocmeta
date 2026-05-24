@@ -82,7 +82,7 @@ export function AdminMediaUploader({ label = "Upload media", onUploaded }: Admin
           value={altText}
         />
       </label>
-      <label className="mt-4 flex cursor-pointer justify-center rounded-full bg-emerald-950 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-white">
+      <label className="mt-4 flex cursor-pointer justify-center rounded-full bg-emerald-600 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-emerald-500">
         Choose File
         <input accept="image/*,application/pdf" className="sr-only" onChange={handleFileChange} type="file" />
       </label>
@@ -108,7 +108,13 @@ async function uploadToPresignedTarget(file: File, presign: AdminMediaPresign): 
   });
 
   if (!response.ok) {
-    throw new Error("Object storage upload failed.");
+    const detail = await response.text().catch(() => "");
+    const normalizedDetail = detail.trim().slice(0, 200);
+    throw new Error(
+      normalizedDetail
+        ? `Object storage upload failed (${response.status}): ${normalizedDetail}`
+        : `Object storage upload failed (${response.status}).`
+    );
   }
 }
 

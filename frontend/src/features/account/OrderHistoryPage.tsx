@@ -102,8 +102,8 @@ export function OrderHistoryPage() {
           <Link
             href="/login"
             className={[
-              "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3",
-              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
+              "mt-6 inline-flex rounded-full bg-emerald-600 px-6 py-3",
+              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-500",
             ].join(" ")}
           >
             Login
@@ -122,8 +122,8 @@ export function OrderHistoryPage() {
           <Link
             href="/products"
             className={[
-              "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3",
-              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
+              "mt-6 inline-flex rounded-full bg-emerald-600 px-6 py-3",
+              "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-500",
             ].join(" ")}
           >
             Browse Sản phẩm

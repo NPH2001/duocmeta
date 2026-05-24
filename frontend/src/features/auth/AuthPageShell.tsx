@@ -91,7 +91,7 @@ export function SubmitButton({ children }: SubmitButtonProps) {
   return (
     <button
       type="submit"
-      className="w-full rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-emerald-900"
+      className="w-full rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-emerald-500"
     >
       {children}
     </button>

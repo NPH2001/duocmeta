@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ProductsIndexPage } from "features/products/ProductsIndexPage";
+import { fetchPublicProducts } from "lib/catalog";
 import { buildPublicMetadata } from "lib/seo";
 
 export const revalidate = 3600;
@@ -13,6 +14,7 @@ export function generateMetadata(): Metadata {
   });
 }
 
-export default function ProductsIndexRoute() {
-  return <ProductsIndexPage />;
+export default async function ProductsIndexRoute() {
+  const products = await fetchPublicProducts({ page: 1, pageSize: 100, sort: "newest" }).catch(() => ({ data: [] }));
+  return <ProductsIndexPage products={products.data} />;
 }

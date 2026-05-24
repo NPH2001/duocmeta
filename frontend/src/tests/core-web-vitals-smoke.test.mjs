@@ -19,9 +19,12 @@ describe("Core Web Vitals guardrails", () => {
   it("keeps public route revalidation explicit by content type", () => {
     const cache = expectFile("src/lib/cache.ts");
     const cmsClient = expectFile("src/lib/cms.ts");
+    const catalogClient = expectFile("src/lib/catalog.ts");
 
     assert.match(cache, /publicCmsRevalidateSeconds\s*=\s*5 \* 60/, "CMS fetch cache should remain five minutes");
+    assert.match(cache, /publicCatalogCacheTag\s*=\s*"public-catalog"/, "catalog cache should use a shared revalidation tag");
     assert.match(cmsClient, /next:\s*\{ revalidate: publicCmsRevalidateSeconds \}/, "CMS fetches should use shared ISR revalidation");
+    assert.match(catalogClient, /tags:\s*\[publicCatalogCacheTag\]/, "catalog fetches should expose a shared tag for immediate admin invalidation");
 
     [
       "src/app/page.tsx",
@@ -49,6 +52,7 @@ describe("Core Web Vitals guardrails", () => {
     assert.match(nextConfig, /minimumCacheTTL:\s*60 \* 60 \* 24/, "optimized images should have a stable cache TTL");
     assert.match(nextConfig, /NEXT_PUBLIC_MEDIA_BASE_URL/, "remote media host should be configurable");
     assert.match(envExample, /NEXT_PUBLIC_MEDIA_BASE_URL=/, "media host should be documented for frontend deploys");
+    assert.match(envExample, /NEXT_PUBLIC_MEDIA_BASE_URL=\/media/, "frontend default media base should stay same-origin to avoid localhost-only image URLs");
     assert.match(contentBlocks, /import Image from "next\/image"/, "CMS image blocks should use next/image");
     assert.match(contentBlocks, /loading="lazy"/, "non-hero CMS images should lazy-load");
     assert.match(contentBlocks, /sizes="\(min-width: 1024px\) 896px, calc\(100vw - 48px\)"/, "CMS images should declare responsive sizes");

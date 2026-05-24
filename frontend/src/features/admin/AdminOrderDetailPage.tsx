@@ -178,7 +178,7 @@ function OrderItemRow({
 
 function StatusCard({ order }: { order: AdminOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-emerald-100 bg-emerald-950 p-5 text-emerald-50">
+    <section className="rounded-2xl border border-emerald-100 bg-emerald-700 p-5 text-emerald-50">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
         Trạng thái
       </p>

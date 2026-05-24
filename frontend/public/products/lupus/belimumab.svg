@@ -1,0 +1,11 @@
+<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="540" rx="36" fill="#F0FDFA"/>
+  <circle cx="216" cy="250" r="108" fill="#99F6E4"/>
+  <circle cx="216" cy="250" r="62" fill="#14B8A6"/>
+  <rect x="360" y="146" width="410" height="34" rx="17" fill="#0F766E" fill-opacity="0.18"/>
+  <rect x="360" y="206" width="300" height="24" rx="12" fill="#0F766E" fill-opacity="0.12"/>
+  <rect x="360" y="252" width="344" height="24" rx="12" fill="#0F766E" fill-opacity="0.12"/>
+  <rect x="360" y="318" width="212" height="44" rx="22" fill="#0D9488"/>
+  <text x="418" y="347" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="700">BIOLOGIC</text>
+  <text x="126" y="472" fill="#115E59" font-family="Arial, sans-serif" font-size="34" font-weight="700">Belimumab</text>
+</svg>

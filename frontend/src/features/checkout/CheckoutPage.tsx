@@ -367,8 +367,8 @@ export function CheckoutPage() {
               type="submit"
               disabled={isSubmitting}
               className={[
-                "w-full rounded-full bg-emerald-950 px-6 py-4 text-sm font-semibold uppercase",
-                "tracking-[0.16em] text-white hover:bg-emerald-800",
+                "w-full rounded-full bg-emerald-600 px-6 py-4 text-sm font-semibold uppercase",
+                "tracking-[0.16em] text-white hover:bg-emerald-500",
               ].join(" ")}
             >
               {isSubmitting ? t("checkout.processing") : t("checkout.placeOrder")}
@@ -393,8 +393,8 @@ export function CheckoutPage() {
           <Link
             href="/products"
             className={[
-              "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3 text-sm font-semibold uppercase",
-              "tracking-[0.16em] text-white hover:bg-emerald-800",
+              "mt-6 inline-flex rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold uppercase",
+              "tracking-[0.16em] text-white hover:bg-emerald-500",
             ].join(" ")}
           >
             {t("checkout.returnToProducts")}

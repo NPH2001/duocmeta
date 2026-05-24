@@ -41,7 +41,10 @@ load_env_file() {
         ;;
     esac
 
-    export "$key=$value"
+    eval "current_value=\${$key-}"
+    if [ -z "$current_value" ]; then
+      export "$key=$value"
+    fi
   done < "$env_file"
 }
 

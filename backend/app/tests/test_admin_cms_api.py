@@ -1,10 +1,11 @@
 from collections.abc import Generator
-from datetime import timedelta
-from uuid import uuid4
+from datetime import UTC, datetime, timedelta
+from typing import Any
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, event, select
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -25,8 +26,13 @@ def client_with_session() -> Generator[tuple[TestClient, sessionmaker[Session]],
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_now(dbapi_connection: Any, _connection_record: Any) -> None:
+        dbapi_connection.create_function("now", 0, lambda: datetime.now(UTC).isoformat())
+
     Base.metadata.create_all(engine)
-    session_factory = sessionmaker(bind=engine, class_=Session)
+    session_factory = sessionmaker(bind=engine, class_=Session, expire_on_commit=False)
 
     with session_factory() as seed_session:
         seed_roles_and_permissions(seed_session)
@@ -102,7 +108,7 @@ def test_content_editor_can_crud_pages_and_soft_delete(
     assert delete_response.status_code == 204
 
     with session_factory() as session:
-        page = session.get(Page, page_id)
+        page = session.get(Page, UUID(page_id))
 
     assert page is not None
     assert page.deleted_at is not None
@@ -134,7 +140,11 @@ def test_content_editor_can_crud_tags_and_posts(
     post_id = post_response.json()["data"]["id"]
     update_response = client.put(
         f"/api/v1/admin/posts/{post_id}",
-        json={"status": "published", "tag_ids": []},
+        json={"tag_ids": []},
+        headers=_auth_headers(token),
+    )
+    publish_response = client.post(
+        f"/api/v1/admin/posts/{post_id}/publish",
         headers=_auth_headers(token),
     )
     detail_response = client.get(f"/api/v1/admin/posts/{post_id}", headers=_auth_headers(token))
@@ -145,14 +155,16 @@ def test_content_editor_can_crud_tags_and_posts(
     assert post_response.status_code == 201
     assert post_response.json()["data"]["tag_ids"] == [tag_id]
     assert update_response.status_code == 200
-    assert update_response.json()["data"]["status"] == "published"
-    assert update_response.json()["data"]["published_at"] is not None
     assert update_response.json()["data"]["tag_ids"] == []
+    assert publish_response.status_code == 200
+    assert publish_response.json()["data"]["status"] == "published"
+    assert publish_response.json()["data"]["published_at"] is not None
     assert detail_response.status_code == 200
+    assert detail_response.json()["data"]["status"] == "published"
     assert delete_response.status_code == 204
 
     with session_factory() as session:
-        post = session.get(Post, post_id)
+        post = session.get(Post, UUID(post_id))
 
     assert post is not None
     assert post.deleted_at is not None

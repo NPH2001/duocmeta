@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { categories } from "features/categories/category-data";
-import { products } from "features/products/product-data";
+import { fetchPublicCategories, fetchPublicProducts } from "lib/catalog";
 import { fetchPublicPosts } from "lib/cms";
 import { isIndexableRobotsDirective, siteUrl } from "lib/seo";
 
@@ -17,24 +16,40 @@ const staticRoutes: Array<Pick<SitemapEntry, "changeFrequency" | "priority"> & {
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const entries: SitemapEntry[] = [
-    ...staticRoutes.map((route) => toEntry(route.path, route)),
-    ...products.map((product) =>
+  const [products, categories, posts] = await Promise.all([getProductEntries(), getCategoryEntries(), getPostEntries()]);
+
+  return dedupeEntries([...staticRoutes.map((route) => toEntry(route.path, route)), ...products, ...categories, ...posts]);
+}
+
+async function getProductEntries(): Promise<SitemapEntry[]> {
+  try {
+    const products = await fetchPublicProducts({ page: 1, pageSize: 100, sort: "newest" });
+
+    return products.data.map((product) =>
       toEntry(`/products/${product.slug}`, {
         changeFrequency: "weekly",
+        lastModified: product.published_at ?? undefined,
         priority: 0.7,
       })
-    ),
-    ...categories.map((category) =>
+    );
+  } catch {
+    return [];
+  }
+}
+
+async function getCategoryEntries(): Promise<SitemapEntry[]> {
+  try {
+    const categories = await fetchPublicCategories({ page: 1, pageSize: 100 });
+
+    return categories.data.map((category) =>
       toEntry(`/categories/${category.slug}`, {
         changeFrequency: "weekly",
         priority: 0.65,
       })
-    ),
-    ...(await getPostEntries()),
-  ];
-
-  return dedupeEntries(entries);
+    );
+  } catch {
+    return [];
+  }
 }
 
 async function getPostEntries(): Promise<SitemapEntry[]> {

@@ -184,8 +184,8 @@ function OrderDetail({
             {cancelError ? <p className="mt-3 text-sm text-red-700">{cancelError}</p> : null}
             <button
               className={[
-                "mt-5 w-full rounded-full bg-emerald-950 px-5 py-3 text-sm font-semibold",
-                "uppercase tracking-[0.16em] text-white hover:bg-emerald-800 disabled:bg-emerald-400",
+                "mt-5 w-full rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold",
+                "uppercase tracking-[0.16em] text-white hover:bg-emerald-500 disabled:bg-emerald-400",
               ].join(" ")}
               disabled={isCancelling}
               onClick={onCancel}
@@ -227,7 +227,7 @@ function OrderItemRow({
 
 function StatusCard({ order }: { order: CustomerOrderDetail }) {
   return (
-    <section className="rounded-2xl border border-emerald-100 bg-emerald-950 p-5 text-emerald-50">
+    <section className="rounded-2xl border border-emerald-100 bg-emerald-700 p-5 text-emerald-50">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
         Trạng thái
       </p>
@@ -288,8 +288,8 @@ function GuestPanel({ message }: { message: string }) {
       <Link
         href="/login"
         className={[
-          "mt-6 inline-flex rounded-full bg-emerald-950 px-6 py-3",
-          "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
+          "mt-6 inline-flex rounded-full bg-emerald-600 px-6 py-3",
+          "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-500",
         ].join(" ")}
       >
         Login

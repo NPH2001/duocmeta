@@ -1,3 +1,5 @@
+import { buildMediaUrlFromStorageKey } from "lib/media";
+
 export class AdminApiError extends Error {
   statusCode: number;
   code: string | null;
@@ -39,7 +41,43 @@ export type AdminCategory = {
   parent_id: string | null;
   name: string;
   slug: string;
+  description?: string | null;
+  sort_order?: number;
   is_active: boolean;
+  classification: AdminCategoryClassification;
+};
+
+export type AdminCategoryInput = {
+  parent_id: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type AdminCategoryClassification = {
+  group_code: string;
+  group_label: string;
+  allowed_product_types: string[];
+  medicine_suggestions: string[];
+  guidance: string;
+};
+
+export type AdminProductCategoryAssignment = {
+  category_id: string;
+  is_primary: boolean;
+  category: AdminCategory;
+};
+
+export type AdminProductImage = {
+  id: string;
+  product_id: string;
+  variant_id: string | null;
+  media_id: string;
+  sort_order: number;
+  is_primary: boolean;
+  media: AdminMedia;
 };
 
 export type AdminProduct = {
@@ -60,6 +98,8 @@ export type AdminProduct = {
   published_at: string | null;
   created_by: string | null;
   updated_by: string | null;
+  categories: AdminProductCategoryAssignment[];
+  images: AdminProductImage[];
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -68,6 +108,7 @@ export type AdminProduct = {
 export type AdminProductInput = {
   brand_id: string | null;
   category_ids?: string[];
+  primary_image_media_id?: string | null;
   name: string;
   slug: string;
   sku: string | null;
@@ -332,6 +373,11 @@ export type PaginatedAdminCoupons = {
   meta: AdminPaginationMeta;
 };
 
+export type PaginatedAdminCategories = {
+  data: AdminCategory[];
+  meta: AdminPaginationMeta;
+};
+
 export type PaginatedAdminPages = {
   data: AdminPage[];
   meta: AdminPaginationMeta;
@@ -394,6 +440,7 @@ export async function createAdminProduct(input: AdminProductInput): Promise<Admi
     throw new Error("Product could not be created.");
   }
 
+  await revalidatePublicCatalog();
   return response.data;
 }
 
@@ -410,15 +457,23 @@ export async function updateAdminProduct(productId: string, input: AdminProductI
     throw new Error("Product could not be updated.");
   }
 
+  await revalidatePublicCatalog();
   return response.data;
 }
 
 export async function publishAdminProduct(productId: string): Promise<AdminProduct> {
-  return adminProductMutation(`/admin/products/${encodeURIComponent(productId)}/publish`);
+  return adminProductMutation(`/admin/products/${encodeURIComponent(productId)}/publish`, true);
 }
 
 export async function archiveAdminProduct(productId: string): Promise<AdminProduct> {
-  return adminProductMutation(`/admin/products/${encodeURIComponent(productId)}/archive`);
+  return adminProductMutation(`/admin/products/${encodeURIComponent(productId)}/archive`, true);
+}
+
+export async function deleteAdminProduct(productId: string): Promise<void> {
+  await adminRequestWithStoredToken<null>(`/admin/products/${encodeURIComponent(productId)}`, {
+    method: "DELETE",
+  });
+  await revalidatePublicCatalog();
 }
 
 export async function fetchAdminBrands(): Promise<AdminBrand[]> {
@@ -433,6 +488,41 @@ export async function fetchAdminCategories(): Promise<AdminCategory[]> {
   );
 
   return response.data ?? [];
+}
+
+export async function fetchAdminCategoriesPage(input: {
+  page: number;
+  pageSize: number;
+}): Promise<PaginatedAdminCategories> {
+  const response = await adminRequestWithStoredToken<AdminCategory[]>(
+    `/admin/categories?page=${input.page}&page_size=${input.pageSize}`
+  );
+
+  return {
+    data: response.data ?? [],
+    meta: response.meta as AdminPaginationMeta,
+  };
+}
+
+export async function createAdminCategory(input: AdminCategoryInput): Promise<AdminCategory> {
+  const response = await adminRequestWithStoredToken<AdminCategory>("/admin/categories", {
+    body: JSON.stringify(input),
+    method: "POST",
+  });
+
+  if (response.data === null) {
+    throw new Error("Category could not be created.");
+  }
+
+  await revalidatePublicCatalog();
+  return response.data;
+}
+
+export async function deleteAdminCategory(categoryId: string): Promise<void> {
+  await adminRequestWithStoredToken<null>(`/admin/categories/${encodeURIComponent(categoryId)}`, {
+    method: "DELETE",
+  });
+  await revalidatePublicCatalog();
 }
 
 export async function fetchAdminVariants(input: {
@@ -681,6 +771,19 @@ export async function updateAdminPost(postId: string, input: AdminPostInput): Pr
   return response.data;
 }
 
+export async function publishAdminPost(postId: string): Promise<AdminPost> {
+  const response = await adminRequestWithStoredToken<AdminPost>(
+    `/admin/posts/${encodeURIComponent(postId)}/publish`,
+    { method: "POST" }
+  );
+
+  if (response.data === null) {
+    throw new Error("Post could not be published.");
+  }
+
+  return response.data;
+}
+
 export async function fetchAdminSeoMetadataList(input: {
   page: number;
   pageSize: number;
@@ -814,28 +917,66 @@ export async function completeAdminMediaUpload(input: AdminMediaCompleteInput): 
   return response.data;
 }
 
-async function adminProductMutation(path: string): Promise<AdminProduct> {
+export function buildAdminMediaUrl(storageKey: string): string {
+  return buildMediaUrlFromStorageKey(storageKey, process.env.NEXT_PUBLIC_MEDIA_BASE_URL);
+}
+
+async function adminProductMutation(path: string, revalidateCatalog = false): Promise<AdminProduct> {
   const response = await adminRequestWithStoredToken<AdminProduct>(path, { method: "POST" });
 
   if (response.data === null) {
     throw new Error("Product mutation failed.");
   }
 
+  if (revalidateCatalog) {
+    await revalidatePublicCatalog();
+  }
+
   return response.data;
+}
+
+async function revalidatePublicCatalog(): Promise<void> {
+  const { readStoredAccessToken } = await import("lib/auth");
+  const accessToken = readStoredAccessToken();
+
+  if (!accessToken) {
+    return;
+  }
+
+  await fetch("/api/internal/revalidate-catalog", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+  }).catch(() => undefined);
 }
 
 async function adminRequestWithStoredToken<T>(
   path: string,
   init: RequestInit = {}
 ): Promise<AdminEnvelope<T>> {
-  const { readStoredAccessToken } = await import("lib/auth");
+  const { clearAccessToken, readStoredAccessToken, refreshSession, storeAccessToken } = await import("lib/auth");
   const accessToken = readStoredAccessToken();
 
-  if (!accessToken) {
-    throw new AdminApiError("Login is required.", 401, "ACCESS_TOKEN_REQUIRED");
+  if (accessToken) {
+    try {
+      return await adminRequest<T>(path, accessToken, init);
+    } catch (caughtError) {
+      if (!isRecoverableAuthError(caughtError)) {
+        throw caughtError;
+      }
+    }
   }
 
-  return adminRequest<T>(path, accessToken, init);
+  try {
+    const refreshed = await refreshSession();
+    storeAccessToken(refreshed.access_token);
+    return await adminRequest<T>(path, refreshed.access_token, init);
+  } catch {
+    clearAccessToken();
+    throw new AdminApiError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", 401, "SESSION_EXPIRED");
+  }
 }
 
 async function adminRequest<T>(
@@ -852,6 +993,11 @@ async function adminRequest<T>(
       ...init.headers,
     },
   });
+
+  if (response.status === 204) {
+    return { data: null, meta: {}, error: null };
+  }
+
   const payload = (await response.json()) as AdminEnvelope<T>;
 
   if (!response.ok || payload.error) {
@@ -863,4 +1009,8 @@ async function adminRequest<T>(
   }
 
   return payload;
+}
+
+function isRecoverableAuthError(error: unknown): boolean {
+  return error instanceof AdminApiError && error.statusCode === 401;
 }

@@ -1,9 +1,10 @@
 from collections.abc import Generator
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -20,8 +21,13 @@ def client_with_session() -> Generator[tuple[TestClient, sessionmaker[Session]],
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_now(dbapi_connection: Any, _connection_record: Any) -> None:
+        dbapi_connection.create_function("now", 0, lambda: datetime.now(UTC).isoformat())
+
     Base.metadata.create_all(engine)
-    session_factory = sessionmaker(bind=engine, class_=Session)
+    session_factory = sessionmaker(bind=engine, class_=Session, expire_on_commit=False)
 
     def override_db_session() -> Generator[Session, None, None]:
         with session_factory() as session:
@@ -125,6 +131,7 @@ def test_public_post_detail_returns_published_post_and_hides_draft(
     with session_factory() as session:
         _seed_post(session, slug="public-post", title="Public post")
         _seed_post(session, slug="draft-post", title="Draft post", status="draft", published_at=None)
+        session.commit()
 
     public_response = client.get("/api/v1/posts/public-post")
     draft_response = client.get("/api/v1/posts/draft-post")

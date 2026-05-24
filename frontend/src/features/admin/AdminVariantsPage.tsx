@@ -89,8 +89,8 @@ export function AdminVariantsPage() {
         <Link
           href="/admin/variants/new"
           className={[
-            "inline-flex h-fit justify-center rounded-full bg-emerald-950 px-5 py-3",
-            "text-sm font-semibold uppercase tracking-[0.16em] text-white hover:bg-emerald-800",
+            "inline-flex h-fit justify-center rounded-full bg-emerald-600 px-5 py-3",
+            "text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-emerald-500",
           ].join(" ")}
         >
           Thêm phiên bản

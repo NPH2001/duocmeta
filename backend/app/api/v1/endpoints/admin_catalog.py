@@ -227,6 +227,25 @@ def archive_product(
     return _success_response(ProductResponse.model_validate(product).model_dump(mode="json"))
 
 
+@router.delete("/products/{product_id}", status_code=HTTPStatus.NO_CONTENT)
+def delete_product(
+    product_id: UUID,
+    http_request: Request,
+    current_user: User = Depends(require_permission("manage_products")),
+    session: Session = Depends(get_db_session),
+):
+    try:
+        CatalogService(session).delete_product(
+            product_id,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
+    except CatalogServiceError as exc:
+        return _error_response(exc)
+
+    return Response(status_code=HTTPStatus.NO_CONTENT)
+
+
 @router.get("/variants")
 def list_variants(page: int = 1, page_size: int = 20, session: Session = Depends(get_db_session)):
     result = CatalogService(session).list_variants(page=page, page_size=page_size)

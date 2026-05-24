@@ -158,6 +158,25 @@ def update_post(
     return _success_response(post_response(post).model_dump(mode="json"))
 
 
+@router.post("/posts/{post_id}/publish")
+def publish_post(
+    post_id: UUID,
+    http_request: Request,
+    current_user: User = Depends(require_permission("manage_posts")),
+    session: Session = Depends(get_db_session),
+):
+    try:
+        post = CmsService(session).publish_post(
+            post_id,
+            current_user,
+            _audit_context(http_request, current_user),
+        )
+    except CmsServiceError as exc:
+        return _error_response(exc)
+
+    return _success_response(post_response(post).model_dump(mode="json"))
+
+
 @router.delete("/posts/{post_id}", status_code=HTTPStatus.NO_CONTENT)
 def delete_post(
     post_id: UUID,

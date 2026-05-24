@@ -52,6 +52,14 @@ describe("Vietnamese-first storefront language", () => {
     }
   });
 
+  it("uses a Vietnamese-safe font stack without oversized tracking", () => {
+    const globals = expectFile("src/app/globals.css");
+
+    assert.match(globals, /font-family:[\s\S]*Arial,[\s\S]*"Segoe UI",[\s\S]*system-ui,[\s\S]*sans-serif;/, "global font stack should prefer fonts with reliable Vietnamese diacritic support");
+    assert.doesNotMatch(globals, /Georgia, \"Times New Roman\", serif/, "serif fallback should not render Vietnamese accents as detached glyphs");
+    assert.match(globals, /html\[lang=\"vi\"\] \.uppercase \{[\s\S]*letter-spacing: 0\.04em;/, "Vietnamese uppercase labels should not use oversized tracking around accents");
+  });
+
   it("routes core storefront and commerce UI through translation keys", () => {
     const home = expectFile("src/features/home/HomePage.tsx");
     const products = expectFile("src/features/products/ProductsIndexPage.tsx");

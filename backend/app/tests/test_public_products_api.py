@@ -11,7 +11,7 @@ from sqlalchemy.pool import StaticPool
 from app.core.db import get_db_session
 from app.main import app
 from app.models.base import Base
-from app.models.catalog import Brand, Category, Product, ProductCategory
+from app.models.catalog import Brand, Category, MediaFile, Product, ProductCategory, ProductImage
 
 
 @pytest.fixture()
@@ -51,6 +51,9 @@ def test_public_products_returns_only_active_published_products(
     assert payload["error"] is None
     assert payload["meta"]["total"] == 3
     assert [product["slug"] for product in payload["data"]] == ["omega", "vitamin-c", "protein"]
+    assert payload["data"][0]["primary_image"] is not None
+    assert payload["data"][0]["primary_image"]["storage_key"] == "products/omega.jpg"
+    assert payload["data"][2]["primary_image"] is None
 
 
 def test_public_products_supports_brand_category_search_price_and_sort_filters(
@@ -103,6 +106,18 @@ def _seed_public_listing_products(session: Session) -> None:
     session.flush()
 
     now = datetime.now(UTC)
+    vitamin_media = MediaFile(
+        storage_key="products/vitamin-c.jpg",
+        filename="vitamin-c.jpg",
+        mime_type="image/jpeg",
+        size_bytes=1024,
+    )
+    omega_media = MediaFile(
+        storage_key="products/omega.jpg",
+        filename="omega.jpg",
+        mime_type="image/jpeg",
+        size_bytes=1024,
+    )
     vitamin = Product(
         brand_id=acme.id,
         name="Vitamin C",
@@ -137,7 +152,7 @@ def _seed_public_listing_products(session: Session) -> None:
         status="draft",
         published_at=None,
     )
-    session.add_all([vitamin, omega, protein, draft])
+    session.add_all([vitamin_media, omega_media, vitamin, omega, protein, draft])
     session.flush()
 
     session.add_all(
@@ -146,6 +161,8 @@ def _seed_public_listing_products(session: Session) -> None:
             ProductCategory(product_id=omega.id, category_id=supplements.id),
             ProductCategory(product_id=protein.id, category_id=equipment.id),
             ProductCategory(product_id=draft.id, category_id=supplements.id),
+            ProductImage(product_id=vitamin.id, media_id=vitamin_media.id, sort_order=1, is_primary=True),
+            ProductImage(product_id=omega.id, media_id=omega_media.id, sort_order=1, is_primary=True),
         ]
     )
     session.commit()

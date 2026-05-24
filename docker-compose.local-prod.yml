@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-duocmeta}
+      POSTGRES_USER: ${POSTGRES_USER:-duocmeta}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.prod
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env.local-prod
+    environment:
+      APP_PORT: ${BACKEND_PORT:-8000}
+    volumes:
+      - backend_media_data:/app/storage/media
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:%s/api/v1/ready' % os.getenv('APP_PORT', '8000'), timeout=3).read()\"",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.prod
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    env_file:
+      - ./frontend/.env.local-prod
+    environment:
+      PORT: ${FRONTEND_PORT:-3000}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:' + (process.env.PORT || '3000') + '/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\"",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    environment:
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-duocmeta.online}
+    ports:
+      - "${APP_HTTP_PORT:-80}:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/site.conf.template:/etc/nginx/templates/default.conf.template:ro
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_media_data:

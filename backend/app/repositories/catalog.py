@@ -1,12 +1,13 @@
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.catalog import (
     Brand,
     Category,
+    MediaFile,
     Product,
     ProductAttributeValue,
     ProductCategory,
@@ -69,6 +70,9 @@ class CatalogRepository:
     def get_category_by_slug(self, slug: str) -> Category | None:
         return self.session.scalar(select(Category).where(Category.slug == slug))
 
+    def get_media_file(self, media_id: UUID) -> MediaFile | None:
+        return self.session.get(MediaFile, media_id)
+
     def get_public_category_by_slug(self, slug: str) -> Category | None:
         statement = (
             select(Category)
@@ -83,11 +87,33 @@ class CatalogRepository:
         return category
 
     def delete_category(self, category: Category) -> None:
+        self.session.execute(delete(ProductCategory).where(ProductCategory.category_id == category.id))
         self.session.delete(category)
+
+    def category_has_children(self, category_id: UUID) -> bool:
+        return self.session.scalar(select(func.count()).select_from(Category).where(Category.parent_id == category_id)) > 0
+
+    def category_has_products(self, category_id: UUID) -> bool:
+        statement = (
+            select(func.count())
+            .select_from(ProductCategory)
+            .join(Product, Product.id == ProductCategory.product_id)
+            .where(
+                ProductCategory.category_id == category_id,
+                Product.deleted_at.is_(None),
+            )
+        )
+        return self.session.scalar(statement) > 0
 
     def list_products(self, *, offset: int, limit: int) -> tuple[list[Product], int]:
         return self._list_with_total(
-            select(Product).where(Product.deleted_at.is_(None)).order_by(Product.created_at.desc()),
+            select(Product)
+            .where(Product.deleted_at.is_(None))
+            .options(
+                selectinload(Product.categories).selectinload(ProductCategory.category),
+                selectinload(Product.images).selectinload(ProductImage.media),
+            )
+            .order_by(Product.created_at.desc()),
             offset=offset,
             limit=limit,
         )
@@ -139,6 +165,7 @@ class CatalogRepository:
             statement = statement.where(Product.min_price <= max_price)
 
         statement = statement.distinct()
+        statement = statement.options(selectinload(Product.images).selectinload(ProductImage.media))
 
         match sort:
             case "price_asc":
@@ -176,9 +203,16 @@ class CatalogRepository:
         return self.session.scalar(statement)
 
     def get_product(self, product_id: UUID) -> Product | None:
-        product = self.session.get(Product, product_id)
+        product = self.session.scalar(
+            select(Product)
+            .where(Product.id == product_id, Product.deleted_at.is_(None))
+            .options(
+                selectinload(Product.categories).selectinload(ProductCategory.category),
+                selectinload(Product.images).selectinload(ProductImage.media),
+            )
+        )
 
-        if product is None or product.deleted_at is not None:
+        if product is None:
             return None
 
         return product
@@ -200,6 +234,38 @@ class CatalogRepository:
         for category_id in category_ids:
             self.session.add(ProductCategory(product_id=product.id, category_id=category_id))
 
+        self.session.flush()
+
+    def set_product_primary_image(self, product: Product, media_id: UUID | None) -> None:
+        existing_images = list(
+            self.session.scalars(
+                select(ProductImage).where(
+                    ProductImage.product_id == product.id,
+                    ProductImage.variant_id.is_(None),
+                )
+            ).all()
+        )
+
+        if media_id is None:
+            for image in existing_images:
+                self.session.delete(image)
+            self.session.flush()
+            return
+
+        primary_image: ProductImage | None = None
+        for image in existing_images:
+            if image.media_id == media_id:
+                primary_image = image
+                continue
+            self.session.delete(image)
+
+        if primary_image is None:
+            primary_image = ProductImage(product_id=product.id, media_id=media_id)
+            self.session.add(primary_image)
+
+        primary_image.variant_id = None
+        primary_image.sort_order = 1
+        primary_image.is_primary = True
         self.session.flush()
 
     def list_variants(self, *, offset: int, limit: int) -> tuple[list[ProductVariant], int]:

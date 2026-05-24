@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     media_upload_prefix: str = "uploads"
     media_upload_base_url: str = "http://localhost:8080/media-upload"
     media_public_base_url: str = "http://localhost:8080/media"
+    media_local_storage_path: Path = BACKEND_DIR / "storage" / "media"
     media_presign_ttl_seconds: int = 900
     media_max_upload_bytes: int = 10 * 1024 * 1024
     media_optimization_enabled: bool = True

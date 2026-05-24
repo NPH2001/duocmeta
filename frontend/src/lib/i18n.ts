@@ -36,12 +36,12 @@ const translations = {
     "footer.terms": "Terms",
     "footer.contact": "Contact",
 
-    "home.kicker": "Public Storefront MVP",
-    "home.title": "A faster ecommerce front door with backend-owned commerce rules.",
+    "home.kicker": "Trusted online pharmacy",
+    "home.title": "A trusted pharmacy landing page with clear guidance and backend-verified commerce.",
     "home.description":
-      "The homepage shell is live and ready for catalog-driven merchandising. Public pages stay optimized for search while pricing, stock, and checkout authority remain on the backend.",
-    "home.browseCatalog": "Browse Catalog",
-    "home.readGuidance": "Read Guidance",
+      "Help visitors understand what to buy, when to ask a pharmacist, and where to find reliable health information while pricing, stock, and checkout authority stay on the backend.",
+    "home.browseCatalog": "Browse pharmacy products",
+    "home.readGuidance": "Read health guidance",
     "home.signals": "Homepage Signals",
     "home.renderingModel": "Rendering model",
     "home.renderingValue": "SSR / ISR ready",
@@ -49,19 +49,19 @@ const translations = {
     "home.commerceValue": "Backend source of truth",
     "home.layoutRole": "Layout role",
     "home.layoutValue": "SEO-first public shell",
-    "home.categoryHighlights": "Category Highlights",
-    "home.categoryTitle": "A homepage that can flex with catalog growth.",
+    "home.categoryHighlights": "Therapy categories",
+    "home.categoryTitle": "Focused treatment categories for Lupus and oncology care.",
     "home.categoryDescription":
-      "These cards are static placeholders for now and are intentionally free of frontend-owned pricing or inventory rules.",
+      "The storefront now centers on two specialized therapy groups so users can quickly reach the right prescription-reference products and consultation cues.",
     "home.categoryLabel": "Category",
-    "home.dailyTitle": "Daily Essentials",
-    "home.dailyDescription": "Core products positioned for repeat purchase and fast decision-making.",
-    "home.clinicalTitle": "Clinical Picks",
+    "home.dailyTitle": "Daily family care",
+    "home.dailyDescription": "Everyday products for home use, arranged to make repeat buying and quick comparison easier.",
+    "home.clinicalTitle": "Pharmacist-guided picks",
     "home.clinicalDescription":
-      "Editorially highlighted catalog areas ready to become API-driven collections later.",
-    "home.seasonalTitle": "Seasonal Care",
+      "Higher-attention products and topics presented with clearer safety context and stronger consultation cues.",
+    "home.seasonalTitle": "Seasonal protection",
     "home.seasonalDescription":
-      "Flexible campaign surface for rotating hero categories and landing experiences.",
+      "Rotating care needs by season so families can prepare sooner and find the right products faster.",
     "home.featuredEyebrow": "Featured Product Line",
     "home.featuredTitle": "Calm routines built for high-intent shoppers",
     "home.featuredDescription":
@@ -78,7 +78,7 @@ const translations = {
     "home.productListTitle": "Featured health products ready to browse from the homepage.",
     "home.productListDescription":
       "Show trusted pharmacy products early in the journey while keeping price, inventory, and checkout validation controlled by backend services.",
-    "home.viewAllProducts": "View all products",
+    "home.viewAllProducts": "View all pharmacy products",
 
     "products.kicker": "Products",
     "products.title": "Browse product detail pages.",
@@ -279,12 +279,12 @@ const translations = {
     "footer.terms": "Điều khoản",
     "footer.contact": "Liên hệ",
 
-    "home.kicker": "Nhà thuốc trực tuyến",
-    "home.title": "Cửa ngõ ecommerce nhanh hơn với quy tắc thương mại do backend kiểm soát.",
+    "home.kicker": "Nhà thuốc trực tuyến đáng tin cậy",
+    "home.title": "Landing nhà thuốc rõ thông tin, dễ dùng và giữ quyết định thương mại ở backend.",
     "home.description":
-      "Khung trang chủ đã sẵn sàng cho merchandising theo catalog. Các trang public tối ưu cho tìm kiếm, còn giá, tồn kho và checkout vẫn do backend quyết định.",
-    "home.browseCatalog": "Xem danh mục sản phẩm",
-    "home.readGuidance": "Đọc hướng dẫn",
+      "Giúp người dùng hiểu nên chọn gì, khi nào cần hỏi dược sĩ và tìm thông tin sức khỏe ở đâu.",
+    "home.browseCatalog": "Xem sản phẩm",
+    "home.readGuidance": "Đọc cẩm nang sức khỏe",
     "home.signals": "Tín hiệu trang chủ",
     "home.renderingModel": "Tốc độ hiển thị",
     "home.renderingValue": "Tải nhanh, dễ tìm kiếm",
@@ -292,19 +292,19 @@ const translations = {
     "home.commerceValue": "Dữ liệu được xác thực tập trung",
     "home.layoutRole": "Vai trò layout",
     "home.layoutValue": "Trang bán hàng thân thiện tìm kiếm",
-    "home.categoryHighlights": "Danh mục nổi bật",
-    "home.categoryTitle": "Danh mục dược phẩm rõ ràng, dễ lựa chọn.",
+    "home.categoryHighlights": "Danh mục điều trị",
+    "home.categoryTitle": "Tập trung vào 2 nhóm điều trị: Lupus và ung thư.",
     "home.categoryDescription":
-      "Khách hàng có thể bắt đầu từ nhu cầu sức khỏe, sau đó xem thông tin sản phẩm minh bạch trước khi đặt hàng.",
+      "Storefront hiện chỉ giữ 2 danh mục chuyên biệt để người dùng đi nhanh vào đúng nhóm thuốc kê đơn/tham khảo và nhận cảnh báo tư vấn phù hợp.",
     "home.categoryLabel": "Danh mục",
-    "home.dailyTitle": "Nhu yếu phẩm hằng ngày",
-    "home.dailyDescription": "Nhóm sản phẩm lõi cho mua lặp lại và quyết định nhanh.",
-    "home.clinicalTitle": "Gợi ý chuyên môn",
+    "home.dailyTitle": "Chăm sóc gia đình hằng ngày",
+    "home.dailyDescription": "Nhóm sản phẩm thiết yếu giúp gia đình mua lại nhanh hơn và dễ so sánh hơn.",
+    "home.clinicalTitle": "Gợi ý có định hướng dược sĩ",
     "home.clinicalDescription":
-      "Nhóm sản phẩm được trình bày với thông tin rõ ràng, ưu tiên tư vấn an toàn và minh bạch.",
-    "home.seasonalTitle": "Chăm sóc theo mùa",
+      "Nhóm sản phẩm cần chú ý hơn được trình bày với ngữ cảnh an toàn rõ ràng và gợi ý tư vấn mạnh hơn.",
+    "home.seasonalTitle": "Bảo vệ sức khỏe theo mùa",
     "home.seasonalDescription":
-      "Gợi ý theo thời điểm trong năm để khách hàng dễ chuẩn bị sản phẩm chăm sóc sức khỏe phù hợp.",
+      "Gợi ý theo thời điểm trong năm để gia đình chuẩn bị sớm và tìm đúng nhóm sản phẩm cần thiết hơn.",
     "home.featuredEyebrow": "Dòng sản phẩm nổi bật",
     "home.featuredTitle": "Routine nhẹ nhàng cho khách mua có nhu cầu rõ ràng",
     "home.featuredDescription":
@@ -321,10 +321,10 @@ const translations = {
     "home.productListTitle": "Sản phẩm chăm sóc sức khỏe nổi bật ngay trên trang chủ.",
     "home.productListDescription":
       "Đưa các sản phẩm dược đáng tin cậy lên sớm trong hành trình mua sắm, đồng thời giá, tồn kho và xác thực checkout vẫn do backend kiểm soát.",
-    "home.viewAllProducts": "Xem tất cả sản phẩm",
+    "home.viewAllProducts": "Xem tất cả sản phẩm nhà thuốc",
 
     "products.kicker": "Sản phẩm",
-    "products.title": "Duyệt thông tin sản phẩm dược.",
+    "products.title": "Tất Cả Sản Phẩm",
     "products.description":
       "Thông tin sản phẩm được trình bày rõ ràng để khách hàng tham khảo, tìm kiếm và chuẩn bị trước khi đặt hàng.",
     "products.viewProduct": "Xem sản phẩm",
